@@ -1,4 +1,6 @@
 node_modules/
 .env
 css/bundle.css
-css/bundle.min.css
+css/bundle.min.cssgit remote add origin https://github.com/YOUR_USERNAME/ceylonswift.git
+git branch -M main
+git push -u origin main
