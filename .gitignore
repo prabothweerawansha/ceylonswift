@@ -1,0 +1,4 @@
+node_modules/
+.env
+css/bundle.css
+css/bundle.min.css

@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon"
+    href="C:\Users\prabo\Dev\Labs\Web_Prototypes\Fast-Deliveries-Across-Sri-Lanka\falcon-logo-template-free-vector.png" />
+  <title>CeylonSwift | Sri Lanka's Smartest & Fastest Delivery Service</title>
+  <meta name="description"
+    content="CeylonSwift powers ultra-fast, reliable parcel deliveries across Sri Lanka. Track shipments in real time, manage dispatch operations, analyze hub performance, and experience nationwide courier services built for speed and precision.">
+  <meta name="keywords"
+    content="delivery service Sri Lanka, courier Sri Lanka, parcel delivery Colombo, send package Sri Lanka, track my parcel, fast delivery Sri Lanka, same day delivery Sri Lanka, online order delivery, courier Kandy Galle, CeylonSwift">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#16213e" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d1422" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CeylonSwift">
+  <meta property="og:title" content="CeylonSwift | Smart Deliveries Across Sri Lanka">
+  <meta property="og:description"
+    content="Track parcels, compare delivery services, calculate rates, and connect with CeylonSwift across Sri Lanka.">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "CeylonSwift",
+  "url": "https://ceylonswift.com",
+  "logo": "https://ceylonswift.com/logo.png",
+  "description": "Smart parcel tracking and delivery services across Sri Lanka.",
+  "areaServed": {
+    "@type": "Country",
+    "name": "Sri Lanka"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+947XXXXXXXX",
+    "contactType": "customer service"
+  }
+}
+</script>
+  <!-- Production CSS bundle: 19 files → 1 request, minified -->
+  <link rel="stylesheet" href="css/bundle.min.css">
+</head>
+
+<body>
+
+  <!-- Top Sliding Security OTP Banner -->
+  <div class="security-otp-banner" id="security-otp-banner">
+    <div class="security-otp-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+    </div>
+    <div class="security-otp-content">
+      <strong>2-Step Verification Code Sent</strong>
+      <span>Simulated OTP Code Dispatched</span>
+    </div>
+    <div class="security-otp-code" id="security-otp-code">------</div>
+  </div>
+
+  <!-- Premium Glassmorphic Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <!-- SVG Lightning Bolt Icon -->
+        <svg viewBox="0 0 24 24">
+          <path d="M13 10V3L4 14H11V21L20 10H13Z" stroke="#000" stroke-width="2" stroke-linejoin="round"
+            stroke-linecap="round" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>CeylonSwift</h1>
+        <span>Smart Deliveries</span>
+      </div>
+    </div>
+
+    <!-- Sri Lankan Live Clock & Greeting Widget -->
+    <div class="lk-clock">
+      <div class="lk-greeting" id="lk-greeting">Ayubowan!</div>
+      <div class="lk-clock-time" id="lk-clock-time">12:00:00 PM</div>
+      <div class="lk-clock-date" id="lk-clock-date">Friday, May 22, 2026</div>
+    </div>
+
+    <!-- Theme Switcher Box -->
+    <div class="theme-switcher-box" onclick="toggleTheme()"
+      style="display: flex; align-items: center; justify-content: space-between; margin: 12px 0 16px 0; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); cursor: pointer; transition: var(--transition);">
+      <span style="font-size: 12px; font-weight: 600; font-family: var(--font-title);">Color Theme</span>
+      <div class="theme-toggle-btn" style="display: flex; align-items: center; gap: 6px;">
+        <span id="theme-icon-light" style="display: none; font-size: 14px;">☀️ Light</span>
+        <span id="theme-icon-dark" style="display: block; font-size: 14px;">🌙 Dark</span>
+      </div>
+    </div>
+
+    <!-- Dynamic Nav Items (Handled by app.js based on role permissions) -->
+    <nav class="nav-menu" id="sidebar-nav-menu">
+      <!-- Generated dynamically based on User Role -->
+    </nav>
+
+    <!-- Secure Log Out Nav Item -->
+    <div class="nav-item nav-item-logout" onclick="handleLogout()"
+      style="margin-top: auto; margin-bottom: 12px; cursor: pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
+      <span class="nav-text">Secure Log Out</span>
+    </div>
+
+    <div class="sidebar-footer">
+      <p>System Powered by</p>
+      <strong>CeylonSwift Premium v1.0</strong>
+    </div>
+  </aside>
+
+  <!-- Main Content Body -->
+  <main class="main-content">
+
+    <!-- Role Session Controller Panel (Static Secure Top Widget) -->
+    <div class="session-control-bar" id="session-control-bar" style="display: none;">
+      <div class="session-indicator">
+        <span>Active Session:</span>
+        <div id="session-active-badge" class="role-tag owner">Owner 👑</div>
+      </div>
+      <div id="session-user-info" style="font-size: 13px; font-weight: 500; color: var(--text-muted);">
+        prabothweerawansha@gmail.com
+      </div>
+      <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 11px;" onclick="handleLogout()">
+        Log Out Session
+      </button>
+    </div>
+
+    <!-- 🌐 NEW PUBLIC WELCOME LANDING HOMEPAGE -->
+    <section id="public-home" class="tab-section active">
+      <!-- Public Sticky Top Navbar -->
+      <nav class="public-navbar">
+        <button class="logo logo-home" type="button" onclick="scrollToSection('home-hero')"
+          aria-label="CeylonSwift home">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M13 10V3L4 14H11V21L20 10H13Z" stroke="#000" stroke-width="2" stroke-linejoin="round"
+                stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="logo-text">
+            <h2>CeylonSwift</h2>
+            <span>Smart Deliveries</span>
+          </div>
+        </button>
+        <ul class="nav-links">
+          <li><a onclick="scrollToSection('home-tracking')" data-i18n="navTrack">Track</a></li>
+          <li><a onclick="scrollToSection('home-services')" data-i18n="navServices">Services</a></li>
+          <li><a onclick="scrollToSection('home-hubs')" data-i18n="navHubs">Hubs</a></li>
+          <li><a onclick="scrollToSection('home-help')" data-i18n="navHelp">Help</a></li>
+          <li><a onclick="scrollToSection('home-about')" data-i18n="navAbout">About</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="settings-trigger" id="settings-trigger" type="button" onclick="toggleSettingsMenu()"
+            aria-label="Open website settings" aria-expanded="false" aria-controls="settings-menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+              <path
+                d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.09A1.7 1.7 0 0 0 8.97 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3v-4h.09A1.7 1.7 0 0 0 4.6 8.94a1.7 1.7 0 0 0-.34-1.88L4.2 7l2.83-2.83.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 10 3.01V3h4v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06L19.8 7l-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.56 1.03H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z" />
+            </svg>
+          </button>
+          <div class="settings-menu" id="settings-menu" hidden>
+            <div class="settings-header">
+              <div><span data-i18n="settingsTitle">Website settings</span><small
+                  data-i18n="settingsSubtitle">Personalize your experience</small></div>
+              <button type="button" onclick="toggleSettingsMenu(false)" aria-label="Close settings">×</button>
+            </div>
+            <div class="settings-row settings-theme-row">
+              <div><strong data-i18n="themeSetting">Appearance</strong><small id="settings-theme-label">Dark
+                  theme</small></div>
+              <button class="professional-theme-toggle" id="professional-theme-toggle" type="button"
+                onclick="toggleTheme(event)" aria-label="Switch color theme" role="switch" aria-checked="false">
+                <span class="theme-toggle-icon theme-toggle-sun" aria-hidden="true">☀</span>
+                <span class="theme-toggle-icon theme-toggle-moon" aria-hidden="true">☾</span>
+                <span class="professional-toggle-knob" aria-hidden="true"></span>
+              </button>
+            </div>
+            <label class="settings-row settings-select-row">
+              <div><strong data-i18n="languageSetting">Language</strong><small data-i18n="languageHint">Choose your
+                  preferred language</small></div>
+              <select id="language-selector" onchange="changeLanguage(this.value)" aria-label="Select language">
+                <option value="en">English</option>
+                <option value="si">සිංහල</option>
+                <option value="ta">தமிழ்</option>
+              </select>
+            </label>
+            <label class="settings-row settings-select-row">
+              <div><strong data-i18n="performanceSetting">Performance</strong><small id="performance-status">Auto
+                  optimized</small></div>
+              <select id="performance-selector" onchange="changePerformanceMode(this.value)"
+                aria-label="Select performance mode">
+                <option value="auto" data-i18n="performanceAuto">Auto</option>
+                <option value="full" data-i18n="performanceFull">Full quality</option>
+                <option value="lite" data-i18n="performanceLite">Optimized</option>
+              </select>
+            </label>
+          </div>
+          <button class="btn btn-primary" onclick="openAuthModal()"
+            style="box-shadow: 0 0 15px rgba(0, 242, 254, 0.45); font-weight: 700;">
+            <span data-i18n="getStarted">Get Started</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Hero Section -->
+      <div class="hero-section" id="home-hero">
+        <div class="hero-badge">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"
+            style="vertical-align: middle; margin-right: 4px;">
+            <path d="M13 10V3L4 14H11V21L20 10H13Z" />
+          </svg>
+          <span data-i18n="heroBadge">Sri Lanka's Premium Speed Courier</span>
+        </div>
+        <h1 class="hero-title" data-i18n="heroTitle">Lightning Fast Deliveries Across Sri Lanka</h1>
+        <p class="hero-subtitle" data-i18n="heroSubtitle">
+          CeylonSwift is Sri Lanka's smartest, fastest, and most reliable logistics ecosystem. With 6 ultra-capacity
+          sorting centers and live GPS tracked courier dispatches, we deliver your promises on time, every time.
+        </p>
+        <div class="hero-buttons">
+          <button class="btn btn-primary" onclick="openAuthModal()" data-i18n="getStartedNow">Get Started Now</button>
+          <button class="btn btn-secondary" onclick="scrollToSection('home-tracking')" data-i18n="trackShipment">Track
+            Shipment</button>
+        </div>
+      </div>
+
+      <!-- Quick Tracker Station -->
+      <div class="public-section" id="home-tracking">
+        <h3 class="public-section-title" data-i18n="trackerTitle">Global Quick Shipment Tracker</h3>
+        <p class="public-section-subtitle" data-i18n="trackerSubtitle">Enter your unique CeylonSwift reference code
+          below to see your package's real-time journey.</p>
+
+        <div class="glass-panel" style="max-width: 780px; margin: 0 auto;">
+          <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <input type="text" id="home-track-input" class="input-style" style="padding-left: 16px; font-size: 15px;"
+              placeholder="Enter Tracking ID (e.g., CS-4821)..." data-i18n-placeholder="trackingPlaceholder">
+            <button class="btn btn-primary" onclick="queryHomeTracking()" data-i18n="trackShipment">Track
+              Shipment</button>
+          </div>
+
+          <!-- Tracking Timeline Result Wrapper -->
+          <div id="home-track-result" style="display: none;">
+            <div
+              style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: var(--border-radius-md); border: 1px solid var(--border-color); margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
+              <div><span style="color:var(--text-muted);">Tracking ID:</span> <strong id="home-pkg-id"
+                  style="color:var(--primary);">-</strong></div>
+              <div><span style="color:var(--text-muted);">Delivery Status:</span> <span id="home-pkg-status"
+                  class="badge badge-pending">Pending</span></div>
+              <div><span style="color:var(--text-muted);">Destination Hub:</span> <strong id="home-pkg-dest">-</strong>
+              </div>
+              <div><span style="color:var(--text-muted);">Delivery Courier:</span> <strong
+                  id="home-pkg-rider">-</strong></div>
+            </div>
+
+            <h4>Transit Log Timeline</h4>
+            <div class="timeline-wrapper" id="home-track-timeline">
+              <!-- Timeline elements dynamically injected here -->
+            </div>
+          </div>
+
+          <div id="home-track-error" class="security-alert"
+            style="display: none; border-color: rgba(239, 68, 68, 0.2); margin-top: 20px;">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>Error: Tracking ID not found in CeylonSwift database. Please check and try again.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services and Interactive Postage Rates Calculator -->
+      <div class="public-section" id="home-services">
+        <h3 class="public-section-title" data-i18n="servicesTitle">Delivery Services Built Around Your Schedule</h3>
+        <p class="public-section-subtitle" data-i18n="servicesSubtitle">Choose the right delivery speed, then calculate
+          the live fee using the connected CeylonSwift rate engine.</p>
+
+        <div class="service-grid">
+          <article class="service-card">
+            <span class="service-number">01</span>
+            <h4>Standard Delivery</h4>
+            <p>Reliable islandwide delivery for everyday parcels within two to three business days.</p>
+          </article>
+          <article class="service-card featured">
+            <span class="service-number">02</span>
+            <h4>Next-Day Express</h4>
+            <p>Priority hub processing and next-day delivery for time-sensitive shipments.</p>
+          </article>
+          <article class="service-card">
+            <span class="service-number">03</span>
+            <h4>Same-Day Lightning</h4>
+            <p>Rapid same-day dispatch across supported routes with live courier tracking.</p>
+          </article>
+        </div>
+
+        <h3 class="public-section-title service-calculator-title">Calculate Your Delivery</h3>
+        <p class="public-section-subtitle">Pricing updates instantly from parcel weight, destination hubs, and service
+          speed.</p>
+
+        <div class="calc-wrapper" style="max-width: 1000px; margin: 0 auto;">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <h4>Specify Parcel Parameters</h4>
+            </div>
+            <div class="form-grid" style="display: flex; flex-direction: column; gap: 16px;">
+              <div class="form-group">
+                <label>Weight (kg)</label>
+                <input type="number" id="home-calc-weight" value="1.0" min="0.1" step="0.1"
+                  oninput="calculateHomeRate()">
+              </div>
+              <div class="form-group">
+                <label>Origin Hub Sorting Center</label>
+                <select id="home-calc-origin" class="select-style" style="padding:12px;" onchange="calculateHomeRate()">
+                  <option value="Colombo">Colombo Main Hub</option>
+                  <option value="Kandy">Kandy Central Hub</option>
+                  <option value="Galle">Galle Coast Hub</option>
+                  <option value="Jaffna">Jaffna Northern Hub</option>
+                  <option value="Gampaha">Gampaha Hub</option>
+                  <option value="Kurunegala">Kurunegala Hub</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Destination Hub Sorting Center</label>
+                <select id="home-calc-dest" class="select-style" style="padding:12px;" onchange="calculateHomeRate()">
+                  <option value="Colombo">Colombo Main Hub</option>
+                  <option value="Kandy" selected>Kandy Central Hub</option>
+                  <option value="Galle">Galle Coast Hub</option>
+                  <option value="Jaffna">Jaffna Northern Hub</option>
+                  <option value="Gampaha">Gampaha Hub</option>
+                  <option value="Kurunegala">Kurunegala Hub</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Logistics Urgency Tier</label>
+                <select id="home-calc-speed" class="select-style" style="padding:12px;" onchange="calculateHomeRate()">
+                  <option value="standard">Standard Courier (2-3 Days)</option>
+                  <option value="express" selected>CeylonSwift Express (Next-Day)</option>
+                  <option value="instant">Lightning Instant (Same-Day Delivery)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-result-panel">
+            <div class="calc-result-title">Estimated CeylonSwift Fee</div>
+            <div class="calc-result-price" id="home-calc-result-total">LKR 450.00</div>
+
+            <div class="calc-result-breakdown">
+              <div class="breakdown-row">
+                <div class="breakdown-label">Base Rate</div>
+                <div class="breakdown-val" id="home-calc-base">LKR 300.00</div>
+              </div>
+              <div class="breakdown-row">
+                <div class="breakdown-label">Weight Fee</div>
+                <div class="breakdown-val" id="home-calc-weight-fee">LKR 50.00</div>
+              </div>
+              <div class="breakdown-row">
+                <div class="breakdown-label">Urgency Markup</div>
+                <div class="breakdown-val" id="home-calc-markup">LKR 100.00</div>
+              </div>
+              <div class="breakdown-row"
+                style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; margin-top: 4px;">
+                <div class="breakdown-label" style="color: var(--primary);">Est. Transit Time</div>
+                <div class="breakdown-val" id="home-calc-time" style="color: var(--primary);">Next-Day (By 12:00 PM)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CeylonSwift Regional Active Hubs Grid -->
+      <div class="public-section" id="home-hubs">
+        <h3 class="public-section-title" data-i18n="hubsTitle">Our Active Sorting Hubs Network</h3>
+        <p class="public-section-subtitle" data-i18n="hubsSubtitle">Real-time status, processing speed, and rider
+          density of our Sri Lankan regional centers.</p>
+
+        <div class="hubs-grid" id="home-hubs-container">
+          <!-- Filled dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- Help Center -->
+      <div class="public-section" id="home-help">
+        <div class="support-layout">
+          <div>
+            <span class="section-kicker" data-i18n="supportKicker">Support center</span>
+            <h3 class="support-title" data-i18n="supportTitle">Need help with a delivery?</h3>
+            <p class="support-copy" data-i18n="supportCopy">Track an active parcel first, or open your account workspace
+              for shipment, rider, billing, and delivery support.</p>
+            <div class="support-actions">
+              <button class="btn btn-primary" onclick="scrollToSection('home-tracking')" data-i18n="trackParcel">Track a
+                Parcel</button>
+              <button class="btn btn-secondary" onclick="openAuthModal()" data-i18n="supportPortal">Open Support
+                Portal</button>
+            </div>
+          </div>
+          <div class="help-list">
+            <div class="help-item"><strong>Tracking assistance</strong><span>Check current status and the latest transit
+                event.</span></div>
+            <div class="help-item"><strong>Delivery changes</strong><span>Sign in to manage an eligible shipment
+                request.</span></div>
+            <div class="help-item"><strong>Business support</strong><span>Access staff and customer tools through Get
+                Started.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About CeylonSwift -->
+      <div class="public-section" id="home-about">
+        <div class="about-panel">
+          <div>
+            <span class="section-kicker" data-i18n="aboutKicker">About CeylonSwift</span>
+            <h3 data-i18n="aboutTitle">One connected delivery network, built for Sri Lanka.</h3>
+          </div>
+          <p data-i18n="aboutCopy">CeylonSwift connects customer requests, office operations, sorting hubs, riders,
+            tracking, and delivery pricing in one logistics workspace. Every public tool on this page uses the same
+            application data and operational workflows available inside the portal.</p>
+        </div>
+      </div>
+
+      <!-- Footer section -->
+      <footer
+        style="background: rgba(4,6,12,0.85); border-top:1px solid var(--border-color); padding: 40px 20px; text-align:center; color: var(--text-muted); font-size:13px;">
+        <p>© 2026 CeylonSwift Delivery Services Private Ltd. All Rights Reserved.</p>
+        <p style="margin-top:8px; font-size:11px;">Powered by Enterprise Glassmorphism Core Routing Engine.</p>
+      </footer>
+    </section>
+
+    <!-- 📊 PORTAL TAB 1: OWNER / OFFICE OPERATIONAL DASHBOARD -->
+    <section id="dashboard" class="tab-section active">
+      <div class="top-header">
+        <div>
+          <h2>Operational Dashboard</h2>
+          <p>Real-time delivery statistics and performance analysis across Ceylon.</p>
+        </div>
+        <div class="header-actions" id="dashboard-header-actions">
+          <button class="btn btn-danger" id="owner-reset-db-btn" onclick="resetSystemDatabase()"
+            style="display: none; padding: 10px 16px; font-size: 13px; font-weight: 700; align-items: center; gap: 6px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);">
+            ⚠️ Reset System Data
+          </button>
+          <button class="btn btn-primary" onclick="openModal('pkgModal')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            New Package
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-info">
+            <p>Total Shipments</p>
+            <h3 id="stat-total-pkgs">0</h3>
+            <span class="stat-trend up">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
+              +12.4% this week
+            </span>
+          </div>
+          <div class="stat-icon-wrapper blue">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <p>Active Riders</p>
+            <h3 id="stat-active-riders">0</h3>
+            <span class="stat-trend up">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
+              94% utilization
+            </span>
+          </div>
+          <div class="stat-icon-wrapper green">
+            <svg viewBox="0 0 24 24">
+              <rect x="1" y="3" width="15" height="13" />
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+              <circle cx="5.5" cy="18.5" r="2.5" />
+              <circle cx="18.5" cy="18.5" r="2.5" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <p>Cash Collected (COD)</p>
+            <h3 id="stat-revenue">LKR 0.00</h3>
+            <span class="stat-trend up">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
+              Fastest payout
+            </span>
+          </div>
+          <div class="stat-icon-wrapper yellow">
+            <svg viewBox="0 0 24 24">
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <p>Success Rate</p>
+            <h3 id="stat-success-rate">98.5%</h3>
+            <span class="stat-trend up">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
+              Top-tier speed
+            </span>
+          </div>
+          <div class="stat-icon-wrapper purple">
+            <svg viewBox="0 0 24 24">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Columns (Chart & Live Feed) -->
+      <div class="dashboard-columns">
+        <div class="glass-panel">
+          <div class="panel-header">
+            <h4>Sri Lankan Regional Transit Volume</h4>
+            <span class="badge badge-glow-green" style="letter-spacing: 0.5px;">Live Graph</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="regionalChart" style="width: 100%; height: 100%;"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <h4>Live Activity Feed</h4>
+            <span class="activity-dot success" style="width: 8px; height: 8px;"></span>
+          </div>
+          <div class="activity-feed" id="live-activity-feed">
+            <!-- JavaScript pre-populates items -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📦 PORTAL TAB 2: OWNER / OFFICE PACKAGE MANAGER -->
+    <section id="packages" class="tab-section">
+      <div class="top-header">
+        <div>
+          <h2>Package Manager</h2>
+          <p>Browse, track, edit, and dispatch registered packages in Sri Lanka.</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModal('pkgModal')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add Shipment
+          </button>
+        </div>
+      </div>
+
+      <!-- Customer Pending Requests Panel (Only for Office/Owner to Approve) -->
+      <div class="glass-panel" id="customer-requests-panel"
+        style="display: none; border-color: rgba(0, 242, 254, 0.2);">
+        <div class="panel-header">
+          <h4 style="color: var(--primary);">Incoming Customer Shipping Requests</h4>
+          <span class="badge badge-pending" id="customer-requests-count">0 Pending Approval</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Recipient & Phone</th>
+                <th>Destination Address</th>
+                <th>Weight</th>
+                <th>Est. Shipping Fee</th>
+                <th>Payment</th>
+                <th>Operations Action</th>
+              </tr>
+            </thead>
+            <tbody id="customer-requests-list">
+              <!-- Loaded dynamically in app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="table-filters">
+        <div class="search-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" id="searchPkg" class="input-style"
+            placeholder="Search by Tracking ID, Recipient or Location..." oninput="filterPackages()">
+        </div>
+
+        <select id="filterStatus" class="select-style" onchange="filterPackages()">
+          <option value="ALL">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Dispatched">Dispatched</option>
+          <option value="Transit">In Transit</option>
+          <option value="Delivered">Delivered</option>
+        </select>
+
+        <select id="filterHub" class="select-style" onchange="filterPackages()">
+          <option value="ALL">All Hub Districts</option>
+          <option value="Colombo">Colombo</option>
+          <option value="Kandy">Kandy</option>
+          <option value="Galle">Galle</option>
+          <option value="Jaffna">Jaffna</option>
+          <option value="Gampaha">Gampaha</option>
+          <option value="Kurunegala">Kurunegala</option>
+        </select>
+      </div>
+
+      <!-- Packages Table -->
+      <div class="table-wrapper">
+        <table class="data-table" id="packages-table">
+          <thead>
+            <tr>
+              <th>Tracking ID</th>
+              <th>Recipient & Details</th>
+              <th>Destination Hub</th>
+              <th>COD / Fee</th>
+              <th>Current Status</th>
+              <th>Assigned Rider</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="packages-list">
+            <!-- Script loads rows dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 📍 PORTAL TAB 3: OWNER / OFFICE HUBS & SHIPPING RATES -->
+    <section id="hubs" class="tab-section">
+      <div class="top-header">
+        <div>
+          <h2>Districts, Hubs & Dynamic Shipping Rates</h2>
+          <p>Calculate logistics fees and monitor hub capacities across Ceylon.</p>
+        </div>
+      </div>
+
+      <div class="calc-wrapper">
+        <!-- Interactive Rate Calculator -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <h4>Dynamic Rate Calculator</h4>
+          </div>
+          <div class="form-grid" style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="form-group">
+              <label>Weight (kg)</label>
+              <input type="number" id="calc-weight" value="1.0" min="0.1" step="0.1" oninput="calculateDynamicRate()">
+            </div>
+            <div class="form-group">
+              <label>Origin Hub</label>
+              <select id="calc-origin" class="select-style" style="padding:12px;" onchange="calculateDynamicRate()">
+                <option value="Colombo">Colombo Main Hub</option>
+                <option value="Kandy">Kandy Central Hub</option>
+                <option value="Galle">Galle Coast Hub</option>
+                <option value="Jaffna">Jaffna Northern Hub</option>
+                <option value="Gampaha">Gampaha Hub</option>
+                <option value="Kurunegala">Kurunegala Hub</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Destination Hub</label>
+              <select id="calc-dest" class="select-style" style="padding:12px;" onchange="calculateDynamicRate()">
+                <option value="Colombo">Colombo Main Hub</option>
+                <option value="Kandy" selected>Kandy Central Hub</option>
+                <option value="Galle">Galle Coast Hub</option>
+                <option value="Jaffna">Jaffna Northern Hub</option>
+                <option value="Gampaha">Gampaha Hub</option>
+                <option value="Kurunegala">Kurunegala Hub</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Delivery Urgency</label>
+              <select id="calc-speed" class="select-style" style="padding:12px;" onchange="calculateDynamicRate()">
+                <option value="standard">Standard Courier (2-3 Days)</option>
+                <option value="express" selected>CeylonSwift Express (Next-Day)</option>
+                <option value="instant">Lightning Instant (Same-Day Delivery)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculated breakdown display -->
+        <div class="calc-result-panel">
+          <div class="calc-result-title">Estimated CeylonSwift Fee</div>
+          <div class="calc-result-price" id="calc-result-total">LKR 450.00</div>
+
+          <div class="calc-result-breakdown">
+            <div class="breakdown-row">
+              <div class="breakdown-label">Base Rate</div>
+              <div class="breakdown-val" id="calc-base">LKR 300.00</div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-label">Weight Fee</div>
+              <div class="breakdown-val" id="calc-weight-fee">LKR 50.00</div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-label">Urgency Markup</div>
+              <div class="breakdown-val" id="calc-markup">LKR 100.00</div>
+            </div>
+            <div class="breakdown-row"
+              style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; margin-top: 4px;">
+              <div class="breakdown-label" style="color: var(--primary);">Est. Transit Time</div>
+              <div class="breakdown-val" id="calc-time" style="color: var(--primary);">Next-Day (By 12:00 PM)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active CeylonSwift Hubs Grid -->
+      <div class="top-header" style="margin-top: 40px; margin-bottom: 20px;">
+        <div>
+          <h4>Current Operational Hubs</h4>
+        </div>
+      </div>
+
+      <div class="hubs-grid" id="hubs-container">
+        <!-- Loaded dynamically from app.js -->
+      </div>
+    </section>
+
+    <!-- 👥 PORTAL TAB 4: OWNER EMPLOYEE DIRECTORY -->
+    <section id="employees" class="tab-section">
+      <div class="top-header">
+        <div>
+          <h2>Employee Directory & Management</h2>
+          <p>Register office coordinators, operational managers, and field delivery riders.</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModal('empModal')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add Team Member
+          </button>
+        </div>
+      </div>
+
+      <!-- Employee toggles -->
+      <div class="employee-categories">
+        <button class="btn btn-secondary active" id="emp-btn-all" onclick="filterEmployees('ALL')">All
+          Employees</button>
+        <button class="btn btn-secondary" id="emp-btn-office" onclick="filterEmployees('Office')">Office Side
+          Staff</button>
+        <button class="btn btn-secondary" id="emp-btn-field" onclick="filterEmployees('Field')">Field Riders</button>
+      </div>
+
+      <!-- Employees Grid -->
+      <div class="employees-grid" id="employees-container">
+        <!-- JavaScript loads these -->
+      </div>
+    </section>
+
+    <!-- 👥 PORTAL TAB 8: ACCESS CONTROL & VERIFICATION BOARD (Owner & Staff) -->
+    <section id="accesscontrol" class="tab-section">
+      <div class="top-header">
+        <div>
+          <h2>Access Control & Teammate Verification</h2>
+          <p>Authorize pending delivery rider applications and office employee registrations.</p>
+        </div>
+      </div>
+
+      <div class="verification-board">
+        <!-- 🏍️ Riders Verification Queue -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <h4>Pending Rider Signups</h4>
+            <span class="badge badge-pending" id="pending-riders-count">0 Awaiting Approval</span>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Rider Name</th>
+                  <th>Contact Info</th>
+                  <th>Vehicle & Hub</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="pending-riders-list">
+                <!-- Injected dynamically in app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 🏢 Office Staff Verification Queue (Owner ONLY) -->
+        <div class="glass-panel" id="pending-staff-panel">
+          <div class="panel-header">
+            <h4>Pending Office Coordinator Signups</h4>
+            <span class="badge badge-owner" id="pending-staff-count"
+              style="border-color: rgba(244, 63, 94, 0.3); font-weight: bold; color: var(--role-owner);">Owner Only
+              Verification</span>
+          </div>
+          <div id="staff-restricted-view"
+            style="display: none; padding: 20px; text-align: center; color: var(--role-owner);">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"
+              style="margin-bottom: 10px; stroke: var(--role-owner);">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <p>Access Restricted: Pending staff verifications require Owner Clearance.</p>
+          </div>
+          <div class="table-wrapper" id="pending-staff-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Employee Name</th>
+                  <th>Contact Info</th>
+                  <th>Role & Hub</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="pending-staff-list">
+                <!-- Injected dynamically in app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Direct Employee Insertion Form (Visible ONLY to Owner) -->
+      <div class="glass-panel" id="direct-employee-hire-panel"
+        style="max-width: 680px; margin: 24px auto 0 auto; border-color: rgba(244, 63, 94, 0.25);">
+        <div class="panel-header">
+          <h4 style="color: var(--role-owner);">👑 Direct Office Staff Hiring Portal</h4>
+          <span class="badge badge-owner">Owner Authority Required</span>
+        </div>
+        <form id="ownerDirectHireForm" onsubmit="handleDirectHireOffice(event)">
+          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="hire-name" required placeholder="e.g., Dilruk Perera">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" id="hire-phone" required placeholder="e.g., 077 765 4321">
+            </div>
+            <div class="form-group">
+              <label>Operational Role</label>
+              <select id="hire-role" class="select-style" style="padding:12px; width: 100%;">
+                <option value="Hub Coordinator">Hub Coordinator</option>
+                <option value="Operations Director">Operations Director</option>
+                <option value="Customer Support Lead">Customer Support Lead</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Staff Base Hub</label>
+              <select id="hire-hub" class="select-style" style="padding:12px; width: 100%;">
+                <option value="Colombo">Colombo Hub</option>
+                <option value="Kandy">Kandy Hub</option>
+                <option value="Galle">Galle Hub</option>
+                <option value="Jaffna">Jaffna Hub</option>
+                <option value="Gampaha">Gampaha Hub</option>
+                <option value="Kurunegala">Kurunegala Hub</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-danger"
+            style="margin-top: 18px; width: 100%; padding: 12px; font-weight: 700; box-shadow: 0 0 15px rgba(244, 63, 94, 0.2);">
+            Directly Add Verified Employee
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ⚡ TAB 5: DYNAMIC SPEED SIMULATOR (Accessible to Owners, Office, and Riders) -->
+    <section id="simulator" class="tab-section">
+      <div class="top-header">
+        <div>
+          <h2>CeylonSwift Live Delivery Simulator ⚡</h2>
+          <p>Observe high-speed logistics in action. Run routes, trigger dispatches, and listen to synthesized alerts.
+          </p>
+        </div>
+      </div>
+
+      <div class="simulator-layout">
+        <!-- Simulator Controls and Map Visualizer -->
+        <div class="glass-panel sim-active-card">
+          <div class="panel-header">
+            <h4>Live Active Dispatch</h4>
+            <span id="sim-status-badge" class="badge badge-pending">Ready</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="form-group">
+              <label>Select Package to Simulate</label>
+              <select id="sim-pkg-select" class="select-style" style="padding: 12px; width: 100%;"
+                onchange="loadSimPackage()">
+                <!-- Populated dynamically with packages -->
+              </select>
+            </div>
+
+            <!-- Details of Selected Package -->
+            <div
+              style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: var(--border-radius-md); border: 1px solid var(--border-color); font-size: 13px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div><span style="color: var(--text-muted);">Tracking:</span> <strong id="sim-pkg-id">-</strong></div>
+                <div><span style="color: var(--text-muted);">Recipient:</span> <strong id="sim-pkg-name">-</strong>
+                </div>
+                <div><span style="color: var(--text-muted);">Destination:</span> <strong id="sim-pkg-dest">-</strong>
+                </div>
+                <div><span style="color: var(--text-muted);">COD Amount:</span> <strong id="sim-pkg-cod">-</strong>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="sim-start-btn" onclick="startDeliverySimulation()"
+              style="width: 100%; padding: 14px;">
+              ⚡ Launch Hyper-Speed Dispatch
+            </button>
+          </div>
+
+          <!-- Dynamic Node Visualizer -->
+          <div class="sim-visualizer">
+            <div class="sim-nodes">
+              <div class="sim-node" id="node-0">
+                <span class="sim-node-label">Colombo Hub</span>
+              </div>
+              <div class="sim-node" id="node-1">
+                <span class="sim-node-label">Transit</span>
+              </div>
+              <div class="sim-node" id="node-2">
+                <span class="sim-node-label">Sorting Facility</span>
+              </div>
+              <div class="sim-node" id="node-3">
+                <span class="sim-node-label">Delivered!</span>
+              </div>
+            </div>
+
+            <div class="sim-progress-bar">
+              <div class="sim-progress-fill" id="sim-progress-fill"></div>
+            </div>
+
+            <div class="sim-vehicle-icon" id="sim-vehicle">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19 7h-2.5l-2-2H9v2h4l1.5 1.5H10c-1.1 0-2 .9-2 2v3H3v2h2.05c.24 1.13 1.24 2 2.45 2 1.21 0 2.21-.87 2.45-2h4.1c.24 1.13 1.24 2 2.45 2 1.21 0 2.21-.87 2.45-2H21v-5c0-1.66-1.34-3-3-3zm-11.5 9c-.83 0-1.5-.67-1.5-1.5S6.67 13 7.5 13s1.5.67 1.5 1.5S8.33 16 7.5 16zm9-1.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terminal Output Logger -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <h4>Live Console Output Log</h4>
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px;"
+              onclick="clearSimConsole()">Clear Console</button>
+          </div>
+          <div class="console-log" id="sim-console">
+            <div class="console-line">[SYSTEM] CeylonSwift Speed Engine ready. Select a shipment to begin tracking
+              simulation...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🔍 NEW TAB 6: CUSTOMER PUBLIC PACKAGE TRACKER -->
+    <section id="customertrack" class="tab-section">
+      <div class="top-header">
+        <div>
+          <h2>Public Package Tracking Station</h2>
+          <p>Instantly query the status, current location, and transit timeline of your package.</p>
+        </div>
+      </div>
+
+      <div class="glass-panel" style="max-width: 780px; margin: 0 auto;">
+        <div style="display: flex; gap: 12px; margin-bottom: 30px;">
+          <input type="text" id="public-track-input" class="input-style" style="padding-left: 16px; font-size: 15px;"
+            placeholder="Enter Tracking ID (e.g., CS-4821)...">
+          <button class="btn btn-primary" onclick="queryPublicTracking()">Track Package</button>
+        </div>
+
+        <!-- Tracking Timeline Result Wrapper -->
+        <div id="public-track-result" style="display: none;">
+          <div
+            style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: var(--border-radius-md); border: 1px solid var(--border-color); margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
+            <div><span style="color:var(--text-muted);">Tracking ID:</span> <strong id="pub-pkg-id"
+                style="color:var(--primary);">-</strong></div>
+            <div><span style="color:var(--text-muted);">Delivery Status:</span> <span id="pub-pkg-status"
+                class="badge badge-pending">Pending</span></div>
+            <div><span style="color:var(--text-muted);">Destination Hub:</span> <strong id="pub-pkg-dest">-</strong>
+            </div>
+            <div><span style="color:var(--text-muted);">Delivery Courier:</span> <strong id="pub-pkg-rider">-</strong>
+            </div>
+          </div>
+
+          <h4>Transit Log Timeline</h4>
+          <div class="timeline-wrapper" id="public-track-timeline">
+            <!-- Timeline elements dynamically injected here -->
+          </div>
+        </div>
+
+        <div id="public-track-error" class="security-alert"
+          style="display: none; border-color: rgba(239, 68, 68, 0.2); margin-top: 20px;">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>Error: Tracking ID not found in CeylonSwift database. Please check and try again.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📦 NEW TAB 7: CUSTOMER SHIPMENT REQUEST FORM -->
+    <section id="customerrequest" class="tab-section">
+      <div class="top-header">
+        <div>
+          <h2>Book a Shipment Request</h2>
+          <p>Submit shipping parameters. Once our hub confirms details, couriers will collect your parcel.</p>
+        </div>
+      </div>
+
+      <div class="calc-wrapper" style="max-width: 1000px; margin: 0 auto;">
+        <!-- Input Form -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <h4>Shipping Details</h4>
+          </div>
+          <form id="customerRequestForm" onsubmit="handleCustomerRequest(event)">
+            <div class="form-grid" style="display: flex; flex-direction: column; gap: 12px;">
+              <div class="form-group">
+                <label>Recipient Name</label>
+                <input type="text" id="cust-recipient" required placeholder="e.g., Nimmi Perera">
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="cust-phone" required placeholder="e.g., 077 456 7890">
+              </div>
+              <div class="form-group">
+                <label>Full Delivery Address</label>
+                <textarea id="cust-address" required placeholder="e.g., 12, Galle Road, Colombo 03"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Weight (kg)</label>
+                <input type="number" id="cust-weight" required value="1.0" min="0.1" step="0.1"
+                  oninput="calculateCustomerRequestFee()">
+              </div>
+              <div class="form-group">
+                <label>Destination Hub District</label>
+                <select id="cust-hub" class="select-style" style="padding: 12px;"
+                  onchange="calculateCustomerRequestFee()">
+                  <option value="Colombo">Colombo</option>
+                  <option value="Kandy">Kandy</option>
+                  <option value="Galle">Galle</option>
+                  <option value="Jaffna">Jaffna</option>
+                  <option value="Gampaha">Gampaha</option>
+                  <option value="Kurunegala">Kurunegala</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Payment Mode</label>
+                <select id="cust-payment" class="select-style" style="padding: 12px;" onchange="toggleCustCODField()">
+                  <option value="Prepaid">Prepaid (Sender pays now)</option>
+                  <option value="COD">Cash On Delivery (COD)</option>
+                </select>
+              </div>
+              <div class="form-group" id="cust-cod-group" style="display: none;">
+                <label>COD Amount (LKR)</label>
+                <input type="number" id="cust-cod-val" value="0" min="0">
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="margin-top: 10px; padding: 14px;">
+                🚀 Submit Booking Request
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Real-time Cost Estimation Preview -->
+        <div class="calc-result-panel">
+          <div class="calc-result-title">Estimated Shipping Charge</div>
+          <div class="calc-result-price" id="cust-result-price">LKR 400.00</div>
+
+          <div class="calc-result-breakdown">
+            <div class="breakdown-row">
+              <div class="breakdown-label">Base Delivery Charge</div>
+              <div class="breakdown-val" id="cust-base-val">LKR 400.00</div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-label">Excess Weight Markup</div>
+              <div class="breakdown-val" id="cust-weight-val">LKR 0.00</div>
+            </div>
+            <div class="breakdown-row"
+              style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; margin-top: 6px;">
+              <div class="breakdown-label" style="color: var(--primary);">Est. Delivery Window</div>
+              <div class="breakdown-val" style="color: var(--primary);">Next-Day (By 12:00 PM)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Add Package Modal -->
+  <div class="modal-overlay" id="pkgModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Register New Shipment</h3>
+        <button class="close-modal" onclick="closeModal('pkgModal')">
+          <svg viewBox="0 0 24 24" fill="none">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <form id="pkgForm" onsubmit="handleNewPackage(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Recipient Name</label>
+            <input type="text" id="pkg-recipient" required placeholder="e.g., Kaveesha Fernando">
+          </div>
+          <div class="form-group">
+            <label>Recipient Phone</label>
+            <input type="text" id="pkg-phone" required placeholder="e.g., 077 123 4567">
+          </div>
+          <div class="form-group full-width">
+            <label>Delivery Address</label>
+            <textarea id="pkg-address" required placeholder="e.g., 45, Peradeniya Road, Kandy"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Weight (kg)</label>
+            <input type="number" id="pkg-weight" required value="1.0" min="0.1" step="0.1">
+          </div>
+          <div class="form-group">
+            <label>Destination Hub District</label>
+            <select id="pkg-hub" class="select-style" style="padding:12px;">
+              <option value="Colombo">Colombo</option>
+              <option value="Kandy">Kandy</option>
+              <option value="Galle">Galle</option>
+              <option value="Jaffna">Jaffna</option>
+              <option value="Gampaha">Gampaha</option>
+              <option value="Kurunegala">Kurunegala</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select id="pkg-payment" class="select-style" style="padding:12px;" onchange="toggleCODField()">
+              <option value="Prepaid">Prepaid (No COD)</option>
+              <option value="COD">Cash On Delivery (COD)</option>
+            </select>
+          </div>
+          <div class="form-group" id="cod-amount-group" style="display:none;">
+            <label>COD Amount (LKR)</label>
+            <input type="number" id="pkg-cod-val" value="0" min="0">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('pkgModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Generate & Print Dispatch Label</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Employee Modal -->
+  <div class="modal-overlay" id="empModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Register Team Member</h3>
+        <button class="close-modal" onclick="closeModal('empModal')">
+          <svg viewBox="0 0 24 24" fill="none">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <form id="empForm" onsubmit="handleNewEmployee(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="emp-name" required placeholder="e.g., Amal Perera">
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" id="emp-phone" required placeholder="e.g., 071 987 6543">
+          </div>
+          <div class="form-group">
+            <label>Operational Role</label>
+            <select id="emp-role" class="select-style" style="padding:12px;">
+              <option value="Operations Director">Operations Director</option>
+              <option value="Hub Coordinator">Hub Coordinator</option>
+              <option value="Customer Support Lead">Customer Support Lead</option>
+              <option value="Delivery Rider (Bike)">Delivery Rider (Bike)</option>
+              <option value="Heavy Courier Driver">Heavy Courier Driver</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Staff Base Hub</label>
+            <select id="emp-hub" class="select-style" style="padding:12px;">
+              <option value="Colombo">Colombo Hub</option>
+              <option value="Kandy">Kandy Hub</option>
+              <option value="Galle">Galle Hub</option>
+              <option value="Jaffna">Jaffna Hub</option>
+              <option value="Gampaha">Gampaha Hub</option>
+              <option value="Kurunegala">Kurunegala Hub</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('empModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Hire Team Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Barcode Label Modal -->
+  <div class="modal-overlay" id="labelModal">
+    <div class="modal-box"
+      style="max-width: 440px; background: #ffffff; color: #000; padding: 24px; border-radius: 8px;">
+      <div class="modal-header" style="border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="color:#000; font-family:var(--font-title); font-weight:800;">CEYLONSWIFT DISPATCH LABEL</h3>
+        <button class="close-modal" onclick="closeModal('labelModal')" style="color:#000;">
+          <svg viewBox="0 0 24 24" fill="none">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <div id="barcode-modal-content" style="font-family: monospace; font-size: 13px;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <div style="margin-top: 24px; border-top: 1px dashed #000; padding-top: 16px; text-align: center;">
+        <button class="btn btn-primary" onclick="closeModal('labelModal')" style="width: 100%;">Close Label
+          Window</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Universal Sign-in Modal Portal -->
+  <div class="modal-overlay" id="authPortalModal">
+    <div class="modal-box" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>CeylonSwift Client Portal</h3>
+        <button class="close-modal" onclick="closeModal('authPortalModal')">
+          <svg viewBox="0 0 24 24" fill="none">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Auth Role Tabs -->
+      <div class="auth-tabs" id="auth-portal-tabs">
+        <button class="auth-tab-btn active" id="tab-btn-customer" onclick="switchAuthTab('customer')">👤
+          Customer</button>
+        <button class="auth-tab-btn" id="tab-btn-rider" onclick="switchAuthTab('rider')">🏍️ Rider</button>
+        <button class="auth-tab-btn" id="tab-btn-office" onclick="switchAuthTab('office')">🏢 Office Staff</button>
+        <button class="auth-tab-btn" id="tab-btn-owner" onclick="switchAuthTab('owner')">👑 Owner</button>
+      </div>
+
+      <!-- 👤 CUSTOMER AUTH VIEW -->
+      <div class="auth-form-view active" id="auth-view-customer">
+        <p class="auth-desc">Enter your email address or mobile number. New customer profiles are automatically
+          generated and activated instantly.</p>
+        <form onsubmit="handleCustAuth(event)">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>Email Address or Mobile Number</label>
+            <input type="text" id="cust-auth-input" name="email" autocomplete="email" required
+              placeholder="e.g., nilan@gmail.com or 0771234567">
+          </div>
+          <button type="submit" class="btn btn-primary auth-submit-btn">Access Customer Portal 🚀</button>
+        </form>
+        <div class="google-auth-divider">or</div>
+        <button type="button" class="google-auth-btn" onclick="openGoogleSelector()">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4" />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853" />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              fill="#FBBC05" />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              fill="#EA4335" />
+          </svg>
+          Continue with Google
+        </button>
+      </div>
+
+      <!-- 🏍️ RIDER AUTH VIEW -->
+      <div class="auth-form-view" id="auth-view-rider">
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 16px;">
+          <button type="button" class="btn btn-secondary active" id="rider-toggle-login"
+            style="flex:1; font-size:12px; padding:6px;" onclick="toggleRiderSubView('login')">Rider Log In</button>
+          <button type="button" class="btn btn-secondary" id="rider-toggle-signup"
+            style="flex:1; font-size:12px; padding:6px;" onclick="toggleRiderSubView('signup')">Join Us</button>
+        </div>
+
+        <!-- Rider Login Sub-form -->
+        <div id="rider-login-subview">
+          <p class="auth-desc">Enter your verified Rider ID (e.g. EMP-102) or phone number to access your delivery
+            dashboard.</p>
+          <form onsubmit="handleRiderLogin(event)">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label>Rider ID or Phone Number</label>
+              <input type="text" id="rider-login-input" name="username" autocomplete="username" required
+                placeholder="e.g., EMP-102 or 0751122334">
+            </div>
+            <button type="submit" class="btn btn-primary auth-submit-btn">Rider Secure Sign In 🏍️</button>
+          </form>
+          <div class="google-auth-divider">or</div>
+          <button type="button" class="google-auth-btn" onclick="openGoogleSelector()">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4" />
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853" />
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                fill="#FBBC05" />
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                fill="#EA4335" />
+            </svg>
+            Continue with Google
+          </button>
+        </div>
+
+        <!-- Rider Signup Sub-form -->
+        <div id="rider-signup-subview" style="display: none;">
+          <p class="auth-desc">Join our high-speed courier fleet. Submit your application below for coordinator
+            approval.</p>
+          <form onsubmit="handleRiderRegister(event)">
+            <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px;">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="rider-signup-name" name="name" autocomplete="name" required
+                  placeholder="e.g., Dilan Silva">
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="rider-signup-phone" name="tel" autocomplete="tel" required
+                  placeholder="e.g., 0751122334">
+              </div>
+              <div class="form-group">
+                <label>Vehicle Type</label>
+                <select id="rider-signup-vehicle" class="select-style" style="padding:10px;">
+                  <option value="Delivery Rider (Bike)">Motorcycle / Bike</option>
+                  <option value="Heavy Courier Driver">Three-Wheeler / Van</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Preferred Base Hub</label>
+                <select id="rider-signup-hub" class="select-style" style="padding:10px;">
+                  <option value="Colombo">Colombo Main Hub</option>
+                  <option value="Kandy">Kandy Central Hub</option>
+                  <option value="Galle">Galle Coast Hub</option>
+                  <option value="Jaffna">Jaffna Northern Hub</option>
+                  <option value="Gampaha">Gampaha Hub</option>
+                  <option value="Kurunegala">Kurunegala Hub</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success auth-submit-btn"
+              style="box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">Submit Rider Application 📝</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 🏢 OFFICE STAFF AUTH VIEW -->
+      <div class="auth-form-view" id="auth-view-office">
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 16px;">
+          <button type="button" class="btn btn-secondary active" id="office-toggle-login"
+            style="flex:1; font-size:12px; padding:6px;" onclick="toggleOfficeSubView('login')">Staff Log In</button>
+          <button type="button" class="btn btn-secondary" id="office-toggle-signup"
+            style="flex:1; font-size:12px; padding:6px;" onclick="toggleOfficeSubView('signup')">Sign Up
+            Request</button>
+        </div>
+
+        <!-- Office Login Sub-form -->
+        <div id="office-login-subview">
+          <p class="auth-desc">Enter your verified Staff ID (e.g. EMP-104) or phone number to access the operations
+            dashboard.</p>
+          <form onsubmit="handleOfficeLogin(event)">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label>Staff ID or Phone Number</label>
+              <input type="text" id="office-login-input" name="username" autocomplete="username" required
+                placeholder="e.g., EMP-104 or 0719876543">
+            </div>
+            <button type="submit" class="btn btn-primary auth-submit-btn">Staff Secure Sign In 🏢</button>
+          </form>
+          <div class="google-auth-divider">or</div>
+          <button type="button" class="google-auth-btn" onclick="openGoogleSelector()">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4" />
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853" />
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                fill="#FBBC05" />
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                fill="#EA4335" />
+            </svg>
+            Continue with Google
+          </button>
+        </div>
+
+        <!-- Office Signup Sub-form -->
+        <div id="office-signup-subview" style="display: none;">
+          <p class="auth-desc">Register as a new coordinator. Requires Owner verification to activate dashboard
+            privileges.</p>
+          <form onsubmit="handleOfficeRegister(event)">
+            <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px;">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="office-signup-name" name="name" autocomplete="name" required
+                  placeholder="e.g., Kaveesha Fernando">
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="office-signup-phone" name="tel" autocomplete="tel" required
+                  placeholder="e.g., 0719876543">
+              </div>
+              <div class="form-group">
+                <label>Requested Role</label>
+                <select id="office-signup-role" class="select-style" style="padding:10px;">
+                  <option value="Hub Coordinator">Hub Coordinator</option>
+                  <option value="Customer Support Lead">Customer Support Lead</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Base Hub Center</label>
+                <select id="office-signup-hub" class="select-style" style="padding:10px;">
+                  <option value="Colombo">Colombo Main Hub</option>
+                  <option value="Kandy">Kandy Central Hub</option>
+                  <option value="Galle">Galle Coast Hub</option>
+                  <option value="Jaffna">Jaffna Northern Hub</option>
+                  <option value="Gampaha">Gampaha Hub</option>
+                  <option value="Kurunegala">Kurunegala Hub</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success auth-submit-btn"
+              style="box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">Submit Staff Application 📝</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 👑 OWNER AUTH VIEW -->
+      <div class="auth-form-view" id="auth-view-owner">
+        <!-- Step 1: Owner Credentials -->
+        <div id="owner-step1-view">
+          <p class="auth-desc" style="color: var(--role-owner); font-weight: 600;">Dedicated Owner Security Protocol.
+            Requires Gmail validation & secondary 2-Step verification.</p>
+          <form onsubmit="handleOwnerAuthStep1(event)">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label>Owner Gmail</label>
+              <input type="email" id="owner-email-input" name="email" autocomplete="email" required
+                placeholder="e.g., prabothweerawansha@gmail.com">
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label>Master Password</label>
+              <input type="password" id="owner-password-input" name="current-password" autocomplete="current-password"
+                required placeholder="Enter master password...">
+            </div>
+            <button type="submit" class="btn btn-danger auth-submit-btn"
+              style="box-shadow: 0 0 15px rgba(244, 63, 94, 0.3);">Proceed to 2-Step Verify 👑</button>
+          </form>
+          <div class="google-auth-divider">or</div>
+          <button type="button" class="google-auth-btn" onclick="openGoogleSelector()">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4" />
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853" />
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                fill="#FBBC05" />
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                fill="#EA4335" />
+            </svg>
+            Continue with Google
+          </button>
+        </div>
+
+        <!-- Step 2: 2-Step OTP Validation (Keep for Owner manual credential logs) -->
+        <div id="owner-step2-view" style="display: none;">
+          <p class="auth-desc" style="color: var(--primary);">2-Step Verification required. A secure OTP code has been
+            generated and sent to the secure system channel. Please enter it below.</p>
+          <form onsubmit="handleOwnerAuthStep2(event)">
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label>Enter 6-Digit OTP Security Code</label>
+              <input type="text" id="owner-otp-input" name="one-time-code" autocomplete="one-time-code" required
+                placeholder="e.g., 582901"
+                style="text-align: center; font-size: 20px; letter-spacing: 4px; font-family: monospace;" maxlength="6">
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button type="button" class="btn btn-secondary" style="flex: 1;"
+                onclick="resetOwnerAuthFlow()">Back</button>
+              <button type="submit" class="btn btn-primary" style="flex: 2;" id="owner-otp-submit-btn">Verify & Grant
+                Clearance 🔐</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 🔑 UNIVERSAL OTP GATEWAY VIEW (For Standard Users and Google One-Click Logins) -->
+      <div class="auth-form-view" id="auth-view-universal-otp" style="display: none;">
+        <p class="auth-desc" style="color: var(--primary); font-weight: 600;">2-Step Verification required. An OTP code
+          has been sent to your simulated device/inbox.</p>
+        <form onsubmit="handleUniversalOTPVerify(event)">
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label>Enter 6-Digit OTP Security Code</label>
+            <input type="text" id="universal-otp-input" name="one-time-code" autocomplete="one-time-code" required
+              placeholder="e.g., 123456"
+              style="text-align: center; font-size: 20px; letter-spacing: 4px; font-family: monospace;" maxlength="6">
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn btn-secondary" style="flex: 1;"
+              onclick="resetUniversalOTPFlow()">Back</button>
+            <button type="submit" class="btn btn-primary" style="flex: 2;">Verify OTP Code 🔐</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== WIDGETS & SIMULATOR FLOATING WRAPPERS ==================== -->
+
+  <!-- Simulated Smartphone Device Widget -->
+  <div class="device-simulator-widget" id="device-simulator-widget">
+    <div class="device-phone-notch"></div>
+    <div class="device-phone-header">
+      <span id="device-time">12:00</span>
+      <span>📶 🔋 100%</span>
+    </div>
+    <div class="device-phone-screen">
+      <div class="device-app-title">
+        <span></span> Notification Center
+      </div>
+      <div class="device-message-bubble">
+        <strong id="device-sender">CeylonSwift Security</strong>
+        <span id="device-body">CeylonSwift: Your verification code is ------</span>
+        <span class="device-otp-code-highlight" id="device-otp-display">------</span>
+      </div>
+      <button class="device-close-btn" onclick="closeDeviceSimulator()">Dismiss Notification</button>
+    </div>
+  </div>
+
+  <!-- Google Account Selector Modal -->
+  <div class="modal-overlay" id="googleAuthModal">
+    <div class="modal-box" style="max-width: 400px; padding: 24px;">
+      <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; gap: 8px;">
+          <!-- Google Logo -->
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4" />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853" />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              fill="#FBBC05" />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              fill="#EA4335" />
+          </svg>
+          <h3 style="font-family: var(--font-title); font-weight: 600; font-size: 18px; margin-top: 4px;">Sign in with
+            Google</h3>
+          <span style="font-size: 12px; color: var(--text-muted);">to continue to CeylonSwift</span>
+        </div>
+        <button class="close-modal" onclick="closeModal('googleAuthModal')"
+          style="position: absolute; top: 16px; right: 16px;">
+          <svg viewBox="0 0 24 24" fill="none">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Default Account Chooser View -->
+      <div id="google-accounts-chooser">
+        <div class="google-account-list">
+          <div class="google-account-card"
+            onclick="selectGoogleAccount('prabothweerawansha@gmail.com', 'Praboth Weerasinghe')">
+            <div class="google-avatar">P</div>
+            <div class="google-account-info">
+              <span class="google-account-name">Praboth Weerasinghe 👑</span>
+              <span class="google-account-email">prabothweerawansha@gmail.com</span>
+            </div>
+          </div>
+          <div class="google-account-card" onclick="selectGoogleAccount('nilan@gmail.com', 'Nilan Perera')">
+            <div class="google-avatar" style="background: var(--role-customer);">N</div>
+            <div class="google-account-info">
+              <span class="google-account-name">Nilan Perera</span>
+              <span class="google-account-email">nilan@gmail.com</span>
+            </div>
+          </div>
+          <div class="google-account-card" onclick="triggerGoogleCustomAccount()">
+            <div class="google-avatar" style="background: #64748b; color: #fff;">+</div>
+            <div class="google-account-info">
+              <span class="google-account-name" style="font-weight:500;">Use another account</span>
+              <span class="google-account-email">Sign in with a different Google account</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Account Input View (Hidden by default) -->
+      <div id="google-custom-account-view" style="display: none; margin-top: 20px;">
+        <form onsubmit="handleGoogleCustomLogin(event)">
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label>Google Email address</label>
+            <input type="email" id="google-custom-email" required placeholder="e.g., customuser@gmail.com" name="email"
+              autocomplete="email">
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn btn-secondary" style="flex: 1;"
+              onclick="backToGoogleChooser()">Back</button>
+            <button type="submit" class="btn btn-primary" style="flex: 2;">Continue</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Spinner Loading View (Hidden by default) -->
+      <div id="google-spinner-view" style="display: none;">
+        <div class="google-spinner-view">
+          <div class="google-loading-ring">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <div class="google-loading-text" id="google-loading-text">Signing you in...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

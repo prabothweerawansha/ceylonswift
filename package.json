@@ -1,0 +1,16 @@
+{
+  "name": "ceylonswift",
+  "version": "1.0.0",
+  "description": "CeylonSwift – Smart Deliveries Across Sri Lanka",
+  "scripts": {
+    "build:css": "node build-css.js && postcss css/bundle.css -o css/bundle.min.css --no-map",
+    "watch:css": "node build-css.js && chokidar \"css/**/*.css\" --ignore \"css/bundle*\" -c \"node build-css.js && postcss css/bundle.css -o css/bundle.min.css --no-map\"",
+    "build": "npm run build:css"
+  },
+  "devDependencies": {
+    "chokidar-cli": "^3.0.0",
+    "cssnano": "^7.0.0",
+    "postcss": "^8.0.0",
+    "postcss-cli": "^11.0.0"
+  }
+}

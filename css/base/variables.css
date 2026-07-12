@@ -1,0 +1,64 @@
+/*
+ * CeylonSwift - Premium Delivery Management System
+ * Design System & Stylesheet (Upgraded with Multi-Role Portals)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Colors */
+  --bg-main: #060913;
+  --bg-card: rgba(15, 22, 42, 0.65);
+  --bg-card-hover: rgba(23, 33, 61, 0.85);
+  --bg-sidebar: rgba(10, 15, 30, 0.85);
+  
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(0, 242, 254, 0.15);
+  
+  /* Primary Neon Colors */
+  --primary: #00f2fe;
+  --primary-glow: rgba(0, 242, 254, 0.4);
+  --secondary: #4facfe;
+  --secondary-glow: rgba(79, 172, 254, 0.3);
+  
+  /* Role Identification Colors */
+  --role-owner: #f43f5e;
+  --role-owner-glow: rgba(244, 63, 94, 0.3);
+  --role-office: #06b6d4;
+  --role-office-glow: rgba(6, 182, 212, 0.3);
+  --role-rider: #a855f7;
+  --role-rider-glow: rgba(168, 85, 247, 0.3);
+  --role-customer: #10b981;
+  --role-customer-glow: rgba(16, 185, 129, 0.3);
+  
+  /* Status Colors */
+  --color-pending: #ffb800;
+  --color-pending-bg: rgba(255, 184, 0, 0.1);
+  --color-dispatched: #00f2fe;
+  --color-dispatched-bg: rgba(0, 242, 254, 0.1);
+  --color-transit: #a855f7;
+  --color-transit-bg: rgba(168, 85, 247, 0.1);
+  --color-delivered: #00ff87;
+  --color-delivered-bg: rgba(0, 255, 135, 0.1);
+  
+  /* System Text Colors */
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dark: #0f172a;
+  
+  /* Fonts & Shadows */
+  --font-title: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --shadow-neon: 0 0 15px var(--primary-glow);
+  --shadow-neon-green: 0 0 15px rgba(0, 255, 135, 0.25);
+  
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --border-radius-sm: 8px;
+  --border-radius-md: 16px;
+  --border-radius-lg: 24px;
+}
+

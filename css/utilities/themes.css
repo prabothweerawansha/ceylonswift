@@ -1,0 +1,311 @@
+/* ==================== ☀️ FROSTY LIGHT THEME SYSTEM ==================== */
+
+body.light-theme {
+  --bg-main: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.7);
+  --bg-card-hover: rgba(255, 255, 255, 0.85);
+  --bg-sidebar: rgba(248, 250, 252, 0.85);
+  
+  --border-color: rgba(15, 23, 42, 0.08);
+  --border-glow: rgba(2, 132, 199, 0.15);
+  
+  --primary: #0284c7;
+  --primary-glow: rgba(2, 132, 199, 0.35);
+  --secondary: #0369a1;
+  --secondary-glow: rgba(3, 105, 161, 0.2);
+  
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dark: #f8fafc;
+  
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(3, 105, 161, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(168, 85, 247, 0.01) 0px, transparent 50%);
+}
+
+body.light-theme aside.sidebar {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+body.light-theme .brand-icon svg,
+body.light-theme .logo-icon svg {
+  fill: #fff !important;
+}
+
+body.light-theme .btn-primary {
+  color: #fff;
+}
+
+body.light-theme .public-navbar {
+  background: rgba(248, 250, 252, 0.8);
+}
+
+body.light-theme .public-navbar .logo-text h2 {
+  background: linear-gradient(to right, #0f172a, #334155);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.light-theme .hero-title {
+  background: linear-gradient(135deg, #0f172a 40%, #1e3a8a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.light-theme .hero-title span {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ==================== PREMIUM COLOR AND MOTION SYSTEM ==================== */
+body:not(.light-theme) {
+  --primary: #61dafb;
+  --secondary: #8b7cff;
+  --primary-glow: rgba(64, 200, 255, .32);
+  --bg-main: #070a12;
+  --bg-card: rgba(17, 25, 43, .74);
+  --bg-card-hover: rgba(23, 34, 58, .9);
+  --text-main: #f8fbff;
+  --text-muted: #a9b7cd;
+  --border-color: rgba(158, 190, 225, .16);
+  background-color: #070a12;
+  background-image:
+    radial-gradient(ellipse at 8% 0%, rgba(25, 132, 175, .2), transparent 34%),
+    radial-gradient(ellipse at 96% 8%, rgba(91, 66, 190, .17), transparent 36%),
+    radial-gradient(ellipse at 50% 100%, rgba(31, 80, 145, .1), transparent 42%),
+    linear-gradient(152deg, #0d1422 0%, #070a12 58%, #0e0c1d 100%);
+}
+
+body.light-theme {
+  --bg-main: #f4f6fa;
+  --bg-card: rgba(255, 255, 255, .82);
+  --bg-card-hover: rgba(255, 255, 255, .96);
+  --primary: #006bb6;
+  --secondary: #5548b8;
+  --primary-glow: rgba(0, 107, 182, .2);
+  --text-main: #101828;
+  --text-muted: #56657a;
+  --border-color: rgba(35, 57, 86, .12);
+  background-color: #f4f6fa;
+  background-image:
+    radial-gradient(ellipse at 6% 0%, rgba(94, 191, 221, .16), transparent 34%),
+    radial-gradient(ellipse at 96% 5%, rgba(139, 120, 205, .13), transparent 36%),
+    linear-gradient(145deg, #fbfcfe 0%, #f2f5f9 54%, #f7f5fb 100%);
+}
+
+.public-navbar {
+  --scroll-progress: 0;
+  --scroll-velocity: 0;
+  width: min(1180px, calc(100% - 32px));
+  max-width: calc(100vw - 32px);
+  margin: 0 auto;
+  min-height: calc(92px - (22px * var(--scroll-progress)));
+  padding: calc(18px - (6px * var(--scroll-progress))) calc(26px - (6px * var(--scroll-progress)));
+  top: calc(20px - (8px * var(--scroll-progress)));
+  border-radius: calc(28px - (7px * var(--scroll-progress)));
+  background:
+    linear-gradient(112deg, rgba(17, 54, 76, .96), rgba(20, 31, 57, .97) 48%, rgba(42, 28, 72, .96));
+  border-color: rgba(137, 199, 230, .22);
+  box-shadow:
+    0 calc(22px - (8px * var(--scroll-progress))) calc(70px - (24px * var(--scroll-progress))) rgba(3, 7, 24, .48),
+    0 0 calc(24px * var(--scroll-velocity)) rgba(83, 217, 255, .22),
+    inset 0 1px 0 rgba(255,255,255,.2), inset 0 -1px 0 rgba(255,255,255,.04);
+  transform: translate3d(0, calc(-1.5px * var(--scroll-velocity)), 0);
+  transition: background .28s ease, border-color .28s ease, box-shadow .18s linear;
+  overflow: visible;
+  isolation: isolate;
+  will-change: min-height, padding, transform;
+}
+
+.public-navbar.is-scrolled {
+  background: linear-gradient(112deg, rgba(12, 42, 61, .985), rgba(14, 24, 46, .99) 48%, rgba(34, 23, 62, .985));
+  border-color: rgba(137, 208, 240, .28);
+  box-shadow: 0 16px 48px rgba(0, 4, 16, .58), inset 0 1px 0 rgba(255,255,255,.16);
+  backdrop-filter: blur(34px) saturate(165%);
+  -webkit-backdrop-filter: blur(34px) saturate(165%);
+}
+
+.public-navbar .logo,
+.public-navbar .nav-actions {
+  flex: 0 0 auto;
+}
+
+.public-navbar .nav-links {
+  min-width: 0;
+  justify-content: center;
+}
+
+.public-navbar::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(100deg, transparent 5%, rgba(97, 218, 251, .86), rgba(139, 124, 255, .74), transparent 95%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: clamp(0, calc(var(--scroll-velocity) * 1.8), .82);
+  transition: opacity .16s linear;
+}
+
+.public-navbar .nav-links a { position: relative; padding: 10px 2px; }
+.public-navbar .nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 50%; right: 50%; bottom: 2px;
+  height: 2px;
+  border-radius: 9px;
+  background: linear-gradient(90deg, var(--primary), #a88cff);
+  box-shadow: 0 0 10px var(--primary-glow);
+  transition: left .3s ease, right .3s ease;
+}
+.public-navbar .nav-links a:hover::after,
+.public-navbar .nav-links a.active::after { left: 0; right: 0; }
+.public-navbar .nav-links a.active { color: #fff; }
+
+.public-navbar .logo-icon,
+.btn-primary {
+  background: linear-gradient(135deg, #59e7ff 0%, #25bfee 45%, #8a78ff 120%);
+}
+
+.glass-panel, .calc-result-panel, .hub-card, .stat-card, .modal-box, .session-control-bar {
+  border-radius: 24px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--bg-card) 94%, white 6%), var(--bg-card));
+  border-color: var(--border-color);
+  transition: transform .35s cubic-bezier(.2,.8,.2,1), background .35s ease, border-color .35s ease, box-shadow .35s ease;
+}
+.glass-panel:hover, .hub-card:hover, .stat-card:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--primary) 38%, transparent);
+  box-shadow: 0 24px 70px rgba(4, 10, 31, .25), inset 0 1px 0 rgba(255,255,255,.13);
+}
+
+body.light-theme .public-navbar {
+  background: linear-gradient(112deg, rgba(241, 250, 253, .96), rgba(248, 249, 253, .95) 52%, rgba(245, 241, 252, .95));
+  border-color: rgba(255,255,255,.98);
+  box-shadow: 0 18px 55px rgba(37, 58, 88, .14), inset 0 1px 0 #fff;
+}
+
+body.light-theme .public-navbar.is-scrolled {
+  background: linear-gradient(112deg, rgba(239, 249, 253, .99), rgba(247, 248, 252, .995) 52%, rgba(244, 239, 251, .99));
+  border-color: rgba(255,255,255,1);
+  box-shadow: 0 16px 45px rgba(34, 54, 82, .18), inset 0 1px 0 #fff;
+}
+body.light-theme .public-navbar .nav-links a.active { color: #13264a; }
+body.light-theme .glass-panel,
+body.light-theme .calc-result-panel,
+body.light-theme .hub-card,
+body.light-theme .stat-card,
+body.light-theme .modal-box,
+body.light-theme .session-control-bar {
+  background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(244,247,251,.76));
+  border-color: rgba(255,255,255,.98);
+  box-shadow: 0 18px 55px rgba(35, 57, 88, .1), inset 0 1px 0 #fff;
+}
+
+body:not(.light-theme) #public-home footer { background: rgba(7, 10, 24, .72) !important; }
+body.light-theme #public-home footer { background: rgba(236, 244, 255, .72) !important; }
+
+input, select, textarea, .input-style, .select-style {
+  transition: background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+input:focus, select:focus, textarea:focus, .input-style:focus, .select-style:focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent), 0 10px 28px rgba(3, 8, 24, .12);
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  .public-navbar { transform: none; }
+}
+
+body.light-theme .input-style,
+body.light-theme .select-style,
+body.light-theme textarea {
+  background: rgba(255, 255, 255, 0.8);
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+body.light-theme .input-style:focus,
+body.light-theme .select-style:focus {
+  border-color: var(--primary);
+  background: #fff;
+}
+
+body.light-theme .glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
+
+body.light-theme .data-table th {
+  background: rgba(15, 23, 42, 0.03);
+  color: #475569;
+  border-bottom: 2px solid rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .data-table td {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.04);
+}
+
+body.light-theme .modal-box {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  color: #0f172a;
+}
+
+body.light-theme .modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .modal-header h3 {
+  color: #0f172a;
+}
+
+body.light-theme .auth-tabs {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .auth-tab-btn:hover {
+  color: var(--primary);
+}
+
+body.light-theme .action-dropdown-content {
+  background-color: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .action-dropdown-content button:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--primary);
+}
+
+body.light-theme .sim-active-card {
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .console-log {
+  background: #0f172a;
+}
+
+body.light-theme .lk-clock {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme .lk-greeting {
+  color: #334155;
+}
+
+body.light-theme .session-control-bar {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme #security-otp-code {
+  background: rgba(0,0,0,0.8);
+}
