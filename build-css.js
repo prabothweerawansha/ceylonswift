@@ -3,38 +3,16 @@
 const fs = require('fs');
 const path = require('path');
 
-const files = [
-  // 1. Base — සියල්ලටම foundation
-  'css/base/variables.css',
-  'css/base/reset.css',
-  'css/base/typography.css',
-
-  // 2. Layout — page structure
-  'css/layout/header.css',
-  'css/layout/navigation.css',
-  'css/layout/layout.css',
-
-  // 3. Components — reusable UI
-  'css/components/buttons.css',
-  'css/components/forms.css',
-  'css/components/modals.css',
-  'css/components/components.css',
-  'css/components/components-late.css',
-  'css/components/device-simulator.css',
-  'css/components/google-auth.css',
-
-  // 4. Pages — page-specific styles
-  'css/pages/dashboard.css',
-  'css/pages/tracking.css',
-  'css/pages/home.css',
-  'css/pages/login.css',
-
-  // 5. Utilities — overrides last (highest priority)
-  'css/utilities/themes.css',
-  'css/utilities/utilities.css',
-];
-
 const root = __dirname;
+const manifestPath = path.join(root, 'css/main.css');
+const manifest = fs.readFileSync(manifestPath, 'utf8');
+const files = [...manifest.matchAll(/@import\s+url\(["'](.+?)["']\)\s*;/g)]
+  .map(([, importPath]) => path.posix.join('css', importPath.replace(/^\.\//, '')));
+
+if (files.length === 0) {
+  throw new Error('No CSS imports found in css/main.css');
+}
+
 let combined = `/* CeylonSwift — Bundled CSS | Built: ${new Date().toISOString()} */\n\n`;
 let totalBytes = 0;
 

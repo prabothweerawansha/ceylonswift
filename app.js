@@ -18,7 +18,91 @@ let state = {
   pendingLoginSession: null, // Holds session during OTP verification
   simulationInterval: null,
   isSimulating: false,
-  loggedInRider: null // Simulated logged-in rider in Rider mode
+  loggedInRider: null, // Simulated logged-in rider in Rider mode
+  authStatus: 'initializing',
+  workspaceSelectionPending: false,
+  activeWorkspace: null,
+  capabilities: null,
+  capabilityStatus: 'idle',
+  allowedNavigationSections: []
+};
+
+const isApiAuthMode = () => (window.CEYLONSWIFT_RUNTIME_CONFIG?.authMode || 'api') === 'api';
+window.applyBackendAuthCompatibility = function(snapshot) {
+  if (snapshot.mode !== 'api' && snapshot.status !== 'authenticated') return;
+  state.authStatus = snapshot.status;
+  state.workspaceSelectionPending = snapshot.workspaceSelectionPending === true;
+  state.activeWorkspace = snapshot.workspace || null;
+  state.capabilities = snapshot.capabilities || null;
+  state.capabilityStatus = snapshot.capabilityStatus || 'idle';
+  state.activeRole = snapshot.status === 'authenticated' ? snapshot.role : null;
+  state.currentUser = snapshot.status === 'authenticated' && snapshot.user ? {
+    id: snapshot.user.id,
+    name: snapshot.user.profile?.displayName || snapshot.user.normalizedEmail || 'CeylonSwift User',
+    email: snapshot.user.normalizedEmail || '',
+    phone: snapshot.user.normalizedPhone || '',
+    role: snapshot.role || 'Restricted',
+    type: snapshot.role === 'Rider' ? 'Field' : snapshot.role === 'Customer' ? 'Customer' : 'Office'
+  } : null;
+  state.loggedInRider = snapshot.role === 'Rider' ? state.currentUser?.name || null : null;
+  applyRoleRouting();
+};
+
+// API-mode compatibility is memory-only. It keeps the remaining Phase 7 operational
+// prototype able to display rider names without treating legacy localStorage as truth.
+window.applyBackendWorkforceCompatibility = function({ employees = [], riders = [] } = {}) {
+  if (!isApiAuthMode()) return;
+  const byUser = new Map(riders.map(rider => [rider.user?.id, rider]));
+  state.employees = employees.map(employee => {
+    const rider = byUser.get(employee.user?.id);
+    return {
+      id: employee.employeeNumber || employee.id,
+      backendId: employee.id,
+      backendUserId: employee.user?.id,
+      backendRiderId: rider?.id || employee.user?.riderProfile?.id || null,
+      name: employee.user?.profile?.displayName || 'CeylonSwift teammate',
+      role: employee.jobTitle || employee.user?.roles?.[0]?.name || 'Team member',
+      type: rider ? 'Field' : 'Office',
+      hub: employee.primaryBranch?.name || 'Unassigned',
+      phone: employee.user?.normalizedPhone || '',
+      rating: 5,
+      ...(rider ? { status: rider.riderStatus === 'AVAILABLE' ? 'Available' : rider.riderStatus === 'ASSIGNED' ? 'Out for Delivery' : 'Off Duty' } : {})
+    };
+  });
+  state.pendingSignups = [];
+};
+window.getAvailableBackendRider = function() { return state.employees.find(item => item.backendRiderId && item.status === 'Available') || null; };
+
+// Phase 7 API-mode operational records are adapted in memory only. The legacy
+// localStorage keys remain untouched for explicit legacy-demo mode.
+window.applyBackendOperationsCompatibility = function({ packages = [], customerRequests = [], hubs = [], activities = [] } = {}) {
+  if (!isApiAuthMode()) return;
+  state.packages = packages;
+  state.customerRequests = customerRequests;
+  state.hubs = hubs;
+  state.activities = activities;
+  renderPackagesTable();
+  renderCustomerRequestsList();
+  renderHubs();
+  renderHomeHubs();
+  renderDashboard();
+};
+
+window.showBackendOtpChallenge = function(challenge) {
+  state.pendingLoginSession = { backend: true, challengeId: challenge.challengeId };
+};
+window.getBackendOtpChallengeId = () => state.pendingLoginSession?.backend ? state.pendingLoginSession.challengeId : null;
+window.showBackendWorkspaceSelector = function(workspaces, selectWorkspace) {
+  const modal = document.getElementById('workspaceSelectorModal');
+  const list = document.getElementById('workspace-selector-list');
+  if (!modal || !list) return;
+  list.replaceChildren(...workspaces.map(workspace => {
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'btn btn-secondary';
+    button.textContent = `${workspace.displayName} · ${workspace.type === 'PERSONAL' ? 'Personal' : 'Organization'}`;
+    button.addEventListener('click', async () => { button.disabled = true; try { await selectWorkspace(workspace.id); closeModal('workspaceSelectorModal'); } finally { button.disabled = false; } });
+    return button;
+  }));
+  openModal('workspaceSelectorModal');
 };
 
 // Initial Mock Datasets representing real Sri Lankan hubs & logistics data
@@ -57,6 +141,50 @@ const SUPPORTED_LANGUAGES = ['en', 'si', 'ta'];
 const LANGUAGE_STORAGE_KEY = 'ceylonswift_language';
 const PERFORMANCE_STORAGE_KEY = 'ceylonswift_performance';
 const PERFORMANCE_MODES = ['auto', 'full', 'lite'];
+const NAVIGATION_STORAGE_KEY = 'ceylonswift_active_section';
+const PUBLIC_NAVIGATION_SECTION = 'public-home';
+const ROLE_NAVIGATION_SECTIONS = Object.freeze({
+  Owner: Object.freeze(['dashboard', 'packages', 'hubs', 'employees', 'accesscontrol', 'simulator']),
+  Office: Object.freeze(['dashboard', 'packages', 'hubs', 'accesscontrol', 'simulator']),
+  Rider: Object.freeze(['packages', 'simulator']),
+  Customer: Object.freeze(['customertrack', 'customerrequest', 'hubs'])
+});
+const ROLE_DEFAULT_SECTIONS = Object.freeze({ Owner: 'dashboard', Office: 'dashboard', Rider: 'packages', Customer: 'customertrack' });
+
+function readSavedNavigationSection() {
+  try {
+    return localStorage.getItem(NAVIGATION_STORAGE_KEY);
+  } catch (_) {
+    return null;
+  }
+}
+
+function resolveNavigationSection(role, savedSection = readSavedNavigationSection(), capabilitySections = null) {
+  const allowedSections = Array.isArray(capabilitySections) ? capabilitySections : (ROLE_NAVIGATION_SECTIONS[role] || []);
+  return allowedSections.includes(savedSection) ? savedSection : (allowedSections[0] || ROLE_DEFAULT_SECTIONS[role] || PUBLIC_NAVIGATION_SECTION);
+}
+
+function persistNavigationSection(sectionId) {
+  if (sectionId === 'access-unavailable') return false;
+  const allowedSections = isApiAuthMode() && state.authStatus === 'authenticated' ? state.allowedNavigationSections : (state.activeRole ? (ROLE_NAVIGATION_SECTIONS[state.activeRole] || []) : [PUBLIC_NAVIGATION_SECTION]);
+  if (!allowedSections.includes(sectionId)) return false;
+  try {
+    localStorage.setItem(NAVIGATION_STORAGE_KEY, sectionId);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function resetSavedNavigationSection() {
+  try {
+    localStorage.setItem(NAVIGATION_STORAGE_KEY, PUBLIC_NAVIGATION_SECTION);
+  } catch (_) {}
+}
+
+function shouldResetSavedNavigationSection(role = state.activeRole, authStatus = state.authStatus, workspaceSelectionPending = state.workspaceSelectionPending) {
+  return role === null && authStatus !== 'initializing' && !workspaceSelectionPending;
+}
 
 const TRANSLATIONS = {
   en: {
@@ -124,10 +252,6 @@ window.addEventListener('DOMContentLoaded', () => {
   
   // Set default view on load
   applyRoleRouting();
-  calculateHomeRate();
-  renderHomeHubs();
-  calculateDynamicRate();
-  calculateCustomerRequestFee();
   initFloatingNavbar();
 });
 
@@ -136,47 +260,82 @@ function initFloatingNavbar() {
   if (!navbar) return;
 
   const sectionLinks = [...navbar.querySelectorAll('.nav-links a')];
-  let lastY = window.scrollY;
-  let lastTime = performance.now();
   let frameId = 0;
-  let settleTimer = 0;
-  let velocity = 0;
+  let isScrolled = null;
+  let scrollEndTimer = 0;
+  let scrollActive = false;
+  let lastScrollY = Math.max(0, window.scrollY);
+  let targetProgress = Math.min(1, lastScrollY / 160);
+  let currentProgress = targetProgress;
+  let springVelocity = 0;
+  let directionalVelocity = 0;
+  let lastFrameTime = performance.now();
 
-  const updateNavbar = (now = performance.now()) => {
-    const y = Math.max(0, window.scrollY);
-    const liteMode = document.body.classList.contains('performance-lite');
+  const renderNavbar = () => {
+    const directionalLift = directionalVelocity * -0.65;
+    const scale = 1 - (currentProgress * 0.035);
+    const shift = (-6 * currentProgress) + directionalLift;
+    navbar.style.transform = `translate3d(0, ${shift.toFixed(2)}px, 0) scale3d(${scale.toFixed(4)}, ${scale.toFixed(4)}, 1)`;
+  };
 
-    if (liteMode) {
-      velocity = 0;
-      navbar.style.setProperty('--scroll-progress', '0');
-      navbar.style.setProperty('--scroll-velocity', '0');
-      navbar.classList.toggle('is-scrolled', y > 12);
-      lastY = y;
-      lastTime = now;
+  const animateNavbar = now => {
+    const deltaFrames = Math.min(2, Math.max(0.5, (now - lastFrameTime) / 16.667));
+    lastFrameTime = now;
+
+    const springForce = (targetProgress - currentProgress) * 0.18 * deltaFrames;
+    springVelocity = (springVelocity + springForce) * Math.pow(0.68, deltaFrames);
+    currentProgress += springVelocity * deltaFrames;
+    directionalVelocity *= Math.pow(0.82, deltaFrames);
+    renderNavbar();
+
+    const progressSettled = Math.abs(targetProgress - currentProgress) < 0.0005;
+    const velocitySettled = Math.abs(springVelocity) < 0.0005 && Math.abs(directionalVelocity) < 0.004;
+    if (progressSettled && velocitySettled) {
+      currentProgress = targetProgress;
+      springVelocity = 0;
+      directionalVelocity = 0;
+      renderNavbar();
       frameId = 0;
       return;
     }
 
-    const elapsed = Math.max(16, now - lastTime);
-    const instantVelocity = Math.min(2.4, Math.abs(y - lastY) / elapsed);
-    velocity += (instantVelocity - velocity) * 0.28;
+    frameId = window.requestAnimationFrame(animateNavbar);
+  };
 
-    const progress = Math.min(1, y / 230);
-    navbar.style.setProperty('--scroll-progress', progress.toFixed(3));
-    navbar.style.setProperty('--scroll-velocity', velocity.toFixed(3));
-    navbar.classList.toggle('is-scrolled', y > 12);
-    lastY = y;
-    lastTime = now;
-    frameId = 0;
+  const syncScrollTarget = (addImpulse = true) => {
+    const y = Math.max(0, window.scrollY);
+    const nextScrolled = y > 12;
+    targetProgress = Math.min(1, y / 160);
+
+    if (addImpulse) {
+      const scrollDelta = y - lastScrollY;
+      const impulse = Math.max(-1, Math.min(1, scrollDelta / 36));
+      directionalVelocity += (impulse - directionalVelocity) * 0.28;
+    }
+    lastScrollY = y;
+
+    if (nextScrolled !== isScrolled) {
+      navbar.classList.toggle('is-scrolled', nextScrolled);
+      isScrolled = nextScrolled;
+    }
+
+    if (!frameId) {
+      lastFrameTime = performance.now();
+      frameId = window.requestAnimationFrame(animateNavbar);
+    }
   };
 
   window.addEventListener('scroll', () => {
-    if (!frameId) frameId = window.requestAnimationFrame(updateNavbar);
-    window.clearTimeout(settleTimer);
-    settleTimer = window.setTimeout(() => {
-      velocity = 0;
-      navbar.style.setProperty('--scroll-velocity', '0');
-    }, 72);
+    if (!scrollActive) {
+      document.body.classList.add('is-scrolling');
+      scrollActive = true;
+    }
+    syncScrollTarget(true);
+    window.clearTimeout(scrollEndTimer);
+    scrollEndTimer = window.setTimeout(() => {
+      document.body.classList.remove('is-scrolling');
+      scrollActive = false;
+    }, 120);
   }, { passive: true });
 
   const observedSections = ['home-hero', 'home-tracking', 'home-services', 'home-hubs', 'home-help', 'home-about']
@@ -195,11 +354,16 @@ function initFloatingNavbar() {
   }, { rootMargin: '-32% 0px -55%', threshold: [0, 0.15, 0.45] });
 
   observedSections.forEach(section => sectionObserver.observe(section));
-  updateNavbar();
+  renderNavbar();
+  syncScrollTarget(false);
 }
 
 function initLocalStorage() {
   Object.entries(STORAGE_FIELDS).forEach(([stateKey, config]) => {
+    if (isApiAuthMode() && ['employees', 'pendingSignups', 'packages', 'customerRequests', 'hubs', 'activities'].includes(stateKey)) {
+      state[stateKey] = [];
+      return;
+    }
     const storedValue = localStorage.getItem(config.storageKey);
     if (storedValue === null) {
       state[stateKey] = structuredClone(config.initialValue);
@@ -221,6 +385,7 @@ function initLocalStorage() {
 
 function saveState(key) {
   const stateKey = STATE_KEY_ALIASES[key] || key;
+  if (isApiAuthMode() && ['employees', 'pendingSignups', 'packages', 'customerRequests', 'hubs', 'activities'].includes(stateKey)) return;
   const config = STORAGE_FIELDS[stateKey];
   if (!config) return;
   localStorage.setItem(config.storageKey, JSON.stringify(state[stateKey]));
@@ -401,8 +566,9 @@ function applyRoleRouting() {
     body.classList.add('public-view');
     if (sessionBar) sessionBar.style.display = 'none';
     
-    state.activeTab = 'public-home';
-    displayTabSection('public-home');
+    state.activeTab = PUBLIC_NAVIGATION_SECTION;
+    if (shouldResetSavedNavigationSection()) resetSavedNavigationSection();
+    displayTabSection(PUBLIC_NAVIGATION_SECTION, { persist: false });
     return;
   }
   
@@ -430,6 +596,16 @@ function applyRoleRouting() {
   }
 
   // Navigation Menu Maps depending on Roles
+  if (isApiAuthMode() && window.ceylonSwiftNavigation?.render) {
+    const navigation = window.ceylonSwiftNavigation.render(menuContainer, { capabilities: state.capabilities, capabilityStatus: state.capabilityStatus }, section => displayTabSection(section));
+    state.allowedNavigationSections = navigation.allowedSections.length ? navigation.allowedSections : ['access-unavailable'];
+    state.activeTab = resolveNavigationSection(state.activeRole, readSavedNavigationSection(), state.allowedNavigationSections);
+    window.ceylonSwiftNavigation.activate(menuContainer, state.activeTab);
+    displayTabSection(state.activeTab, { persist: state.activeTab !== 'access-unavailable' });
+    applyCapabilityVisibility();
+    return;
+  }
+
   let navItemsHtml = '';
   
   if (state.activeRole === 'Owner') {
@@ -459,7 +635,6 @@ function applyRoleRouting() {
         <span class="nav-text">Speed Sim ⚡</span>
       </div>
     `;
-    state.activeTab = 'dashboard';
   } 
   else if (state.activeRole === 'Office') {
     navItemsHtml = `
@@ -484,7 +659,6 @@ function applyRoleRouting() {
         <span class="nav-text">Speed Sim ⚡</span>
       </div>
     `;
-    state.activeTab = 'dashboard';
   } 
   else if (state.activeRole === 'Rider') {
     navItemsHtml = `
@@ -497,7 +671,6 @@ function applyRoleRouting() {
         <span class="nav-text">Speed Sim ⚡</span>
       </div>
     `;
-    state.activeTab = 'packages'; // Start Rider portal in My Deliveries directly!
   } 
   else if (state.activeRole === 'Customer') {
     navItemsHtml = `
@@ -514,14 +687,17 @@ function applyRoleRouting() {
         <span class="nav-text">Hubs & Rates</span>
       </div>
     `;
-    state.activeTab = 'customertrack'; // Start customer portal in Tracking Station!
   }
 
   menuContainer.innerHTML = navItemsHtml;
 
+  // Restore navigation only after the backend-derived role/workspace routing is complete.
+  state.activeTab = resolveNavigationSection(state.activeRole);
+
   // Add click events to newly generated items
   const navItems = menuContainer.querySelectorAll('.nav-item');
   navItems.forEach(item => {
+    item.classList.toggle('active', item.getAttribute('data-tab') === state.activeTab);
     item.addEventListener('click', () => {
       navItems.forEach(n => n.classList.remove('active'));
       item.classList.add('active');
@@ -566,8 +742,19 @@ function applyRoleRouting() {
   }
 }
 
-function displayTabSection(tabId) {
+function applyCapabilityVisibility() {
+  const permissions = new Set(state.capabilities?.permissions || []);
+  const requestPanel = document.getElementById('customer-requests-panel');
+  if (requestPanel) { requestPanel.style.display = permissions.has('package.update') ? 'block' : 'none'; if (permissions.has('package.update')) renderCustomerRequestsList(); }
+  const dashboardActions = document.getElementById('dashboard-header-actions');
+  if (dashboardActions) dashboardActions.style.display = permissions.has('package.create') ? 'block' : 'none';
+  const resetButton = document.getElementById('owner-reset-db-btn');
+  if (resetButton) resetButton.style.display = permissions.has('system.reset') ? 'inline-flex' : 'none';
+}
+
+function displayTabSection(tabId, { persist = true } = {}) {
   state.activeTab = tabId;
+  if (persist) persistNavigationSection(tabId);
   
   document.querySelectorAll('.tab-section').forEach(section => {
     section.classList.remove('active');
@@ -822,6 +1009,7 @@ function filterPackages() {
 }
 
 function dispatchPackageQuick(id) {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { void window.ceylonSwiftOperations.dispatchPackage(id); return; }
   const pkg = state.packages.find(p => p.id === id);
   if (!pkg) return;
 
@@ -855,6 +1043,7 @@ function dispatchPackageQuick(id) {
 }
 
 function markDeliveredQuick(id) {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { const pkg = state.packages.find(item => item.id === id); if (pkg) void window.ceylonSwiftOperations.transitionPackage(pkg.backendId, 'DELIVERED', pkg.version); return; }
   const pkg = state.packages.find(p => p.id === id);
   if (!pkg) return;
 
@@ -880,6 +1069,7 @@ function markDeliveredQuick(id) {
 }
 
 function deletePackage(id) {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { const pkg = state.packages.find(item => item.id === id); if (pkg && confirm(`Cancel shipment ${id}?`)) void window.ceylonSwiftOperations.transitionPackage(pkg.backendId, 'CANCELLED', pkg.version); return; }
   if (state.activeRole === 'Office') {
     alert('Security Gate: Office employees do not have authority to delete records!');
     return;
@@ -899,6 +1089,7 @@ function deletePackage(id) {
 
 /* Owner / Office Registration form submit */
 function handleNewPackage(event) {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { void window.ceylonSwiftOperations.createPackage(event); return; }
   event.preventDefault();
 
   const recipient = document.getElementById('pkg-recipient').value;
@@ -1024,18 +1215,19 @@ function renderCustomerRequestsList() {
   if (!container) return;
   
   container.innerHTML = '';
+  const visibleRequests = isApiAuthMode() ? state.customerRequests.filter(request => request.status === 'PENDING') : state.customerRequests;
   
   const countBadge = document.getElementById('customer-requests-count');
   if (countBadge) {
-    countBadge.textContent = `${state.customerRequests.length} Pending Approval`;
+    countBadge.textContent = `${visibleRequests.length} Pending Approval`;
   }
 
-  if (state.customerRequests.length === 0) {
+  if (visibleRequests.length === 0) {
     container.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 18px;">No incoming customer requests at this time.</td></tr>`;
     return;
   }
 
-  state.customerRequests.forEach(req => {
+  visibleRequests.forEach(req => {
     container.innerHTML += `
       <tr>
         <td>
@@ -1062,6 +1254,7 @@ function renderCustomerRequestsList() {
 }
 
 function approveCustomerRequest(reqId) {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { const request = state.customerRequests.find(item => item.id === reqId); if (request) void window.ceylonSwiftOperations.convertRequest(request.backendId); return; }
   const req = state.customerRequests.find(r => r.id === reqId);
   if (!req) return;
 
@@ -1101,6 +1294,7 @@ function approveCustomerRequest(reqId) {
 }
 
 function rejectCustomerRequest(reqId) {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { const request = state.customerRequests.find(item => item.id === reqId); if (request && confirm('Cancel this customer delivery request?')) void window.ceylonSwiftOperations.cancelRequest(request.backendId); return; }
   if (!confirm('Reject and cancel this customer shipping booking?')) return;
 
   state.customerRequests = state.customerRequests.filter(r => r.id !== reqId);
@@ -1117,6 +1311,7 @@ function rejectCustomerRequest(reqId) {
 
 // Dynamic fee preview inside customer submit panel
 function calculateCustomerRequestFee() {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { void window.ceylonSwiftOperations.calculate('cust'); return; }
   const weight = parseFloat(document.getElementById('cust-weight').value) || 1.0;
   const dest = document.getElementById('cust-hub').value;
   const payment = document.getElementById('cust-payment').value;
@@ -1144,6 +1339,7 @@ function toggleCustCODField() {
 
 // Submission of public booking request
 function handleCustomerRequest(event) {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { void window.ceylonSwiftOperations.submitCustomerRequest(event); return; }
   event.preventDefault();
 
   const recipient = document.getElementById('cust-recipient').value;
@@ -1197,6 +1393,7 @@ function handleCustomerRequest(event) {
 
 // Public tracking query function
 function queryPublicTracking() {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { void window.ceylonSwiftOperations.track(); return; }
   const input = document.getElementById('public-track-input').value.trim();
   const resultBox = document.getElementById('public-track-result');
   const errorBox = document.getElementById('public-track-error');
@@ -1316,7 +1513,7 @@ function renderHubs() {
 
   state.hubs.forEach(hub => {
     const dynamicCount = state.packages.filter(p => p.hub === hub.id && p.status !== 'Delivered').length;
-    hub.activePkgs = dynamicCount;
+    if (!isApiAuthMode()) hub.activePkgs = dynamicCount;
 
     const fillPercent = Math.min(((hub.activePkgs / hub.capacity) * 100).toFixed(0), 100);
     let fillBarColor = 'var(--primary)';
@@ -1375,6 +1572,7 @@ function calculateFeeLogic(weight, origin, dest, urgency) {
 }
 
 function calculateDynamicRate() {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { void window.ceylonSwiftOperations.calculate('portal'); return; }
   const weight = parseFloat(document.getElementById('calc-weight').value) || 1.0;
   const origin = document.getElementById('calc-origin').value;
   const dest = document.getElementById('calc-dest').value;
@@ -1406,6 +1604,10 @@ function calculateDynamicRate() {
 /* ==================== 👥 EMPLOYEE REGISTRIES ==================== */
 
 function renderEmployeesGrid(typeFilter = 'ALL') {
+  if (isApiAuthMode() && window.ceylonSwiftWorkforce) {
+    window.ceylonSwiftWorkforce.renderTeam(typeFilter);
+    return;
+  }
   const container = document.getElementById('employees-container');
   if (!container) return;
   container.innerHTML = '';
@@ -1464,6 +1666,10 @@ function filterEmployees(type) {
 }
 
 function toggleRiderStatus(id) {
+  if (isApiAuthMode() && window.ceylonSwiftWorkforce) {
+    void window.ceylonSwiftWorkforce.toggleRider(id);
+    return;
+  }
   const emp = state.employees.find(e => e.id === id);
   if (!emp || emp.type !== 'Field') return;
 
@@ -1488,6 +1694,11 @@ function toggleRiderStatus(id) {
 
 function handleNewEmployee(event) {
   event.preventDefault();
+
+  if (isApiAuthMode()) {
+    window.ceylonSwiftWorkforce?.openInvite();
+    return;
+  }
 
   const name = document.getElementById('emp-name').value;
   const phone = document.getElementById('emp-phone').value;
@@ -1829,12 +2040,20 @@ function updateLiveClock() {
 /* ==================== 🔑 MODAL & HELPER INTERFACES ==================== */
 
 function openAuthModal() {
+  if (window.ceylonSwiftAuthView) { window.ceylonSwiftAuthView.open('customer'); return; }
   resetOwnerAuthFlow();
   const inputs = document.querySelectorAll('#authPortalModal input');
   inputs.forEach(i => i.value = '');
   switchAuthTab('customer');
   openModal('authPortalModal');
 }
+
+window.openAppSection = function(sectionId) {
+  if (!state.allowedNavigationSections.includes(sectionId)) return false;
+  window.ceylonSwiftNavigation?.activate(document.getElementById('sidebar-nav-menu'), sectionId);
+  displayTabSection(sectionId);
+  return true;
+};
 
 function switchAuthTab(role) {
   const tabBtns = document.querySelectorAll('.auth-tab-btn');
@@ -1911,6 +2130,7 @@ function scrollToSection(id) {
 /* ==================== 🌐 GUEST HOMEPAGE OPERATIONS ==================== */
 
 function calculateHomeRate() {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { void window.ceylonSwiftOperations.calculate('home'); return; }
   const weightInput = document.getElementById('home-calc-weight');
   const originSelect = document.getElementById('home-calc-origin');
   const destSelect = document.getElementById('home-calc-dest');
@@ -1947,6 +2167,7 @@ function calculateHomeRate() {
 }
 
 function queryHomeTracking() {
+  if (isApiAuthMode() && window.ceylonSwiftOperations) { const code = document.getElementById('home-track-input')?.value; void window.ceylonSwiftOperations.track(code, 'home'); return; }
   const inputEl = document.getElementById('home-track-input');
   if (!inputEl) return;
   const input = inputEl.value.trim();
@@ -2106,7 +2327,15 @@ function renderHomeHubs() {
 
 /* ==================== 🔑 SECURITY & MULTI-ROLE GATEWAY ==================== */
 
-function triggerOTPVerification(emailOrPhone, role, userObj) {
+async function triggerOTPVerification(emailOrPhone, role, userObj) {
+  if (isApiAuthMode()) {
+    try {
+      const challenge = await window.ceylonSwiftAuth.requestOtp({ identifier: emailOrPhone });
+      state.pendingLoginSession = { backend: true, challengeId: challenge.challengeId };
+      showUniversalOtpView();
+    } catch (_) {}
+    return;
+  }
   const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
   state.tempOTP = generatedOTP;
   state.pendingLoginSession = { emailOrPhone, role, userObj, otp: generatedOTP };
@@ -2138,6 +2367,10 @@ function triggerOTPVerification(emailOrPhone, role, userObj) {
   const widget = document.getElementById('device-simulator-widget');
   if (widget) widget.classList.add('active');
 
+  showUniversalOtpView();
+}
+
+function showUniversalOtpView() {
   // Hide modal standard tabs & open universal OTP validation tab
   const tabs = document.getElementById('auth-portal-tabs');
   if (tabs) tabs.style.display = 'none';
@@ -2160,13 +2393,22 @@ function triggerOTPVerification(emailOrPhone, role, userObj) {
   }
 }
 
-function handleUniversalOTPVerify(event) {
+async function handleUniversalOTPVerify(event) {
   event.preventDefault();
   const inputEl = document.getElementById('universal-otp-input');
   if (!inputEl || !state.pendingLoginSession) return;
 
   const enteredCode = inputEl.value.trim();
   const session = state.pendingLoginSession;
+
+  if (isApiAuthMode()) {
+    try {
+      await window.ceylonSwiftAuth.verifyOtp(enteredCode);
+      inputEl.value = '';
+      resetUniversalOTPFlow();
+    } catch (_) {}
+    return;
+  }
 
   if (enteredCode === session.otp) {
     // Verified: log in
@@ -2230,16 +2472,32 @@ function resetUniversalOTPFlow() {
   state.tempOTP = null;
 }
 
+function requestBackendOtpForRole(role) {
+  if (!isApiAuthMode()) {
+    alert('Verification-code testing is available through the development demo login flow.');
+    return;
+  }
+  const fields = { customer: 'cust-auth-input', rider: 'rider-login-input', office: 'office-login-input', owner: 'owner-email-input' };
+  const identifier = document.getElementById(fields[role])?.value.trim();
+  if (!identifier) { alert('Enter your email, phone number, or approved identifier first.'); return; }
+  void triggerOTPVerification(identifier, null, null);
+}
+
 function closeDeviceSimulator() {
   const widget = document.getElementById('device-simulator-widget');
   if (widget) widget.classList.remove('active');
 }
 
-function handleCustAuth(event) {
+async function handleCustAuth(event) {
   event.preventDefault();
   const inputEl = document.getElementById('cust-auth-input');
   if (!inputEl) return;
   const inputVal = inputEl.value.trim();
+  if (isApiAuthMode()) {
+    const password = document.getElementById('cust-password-input')?.value || '';
+    try { await window.ceylonSwiftAuth.login({ identifier: inputVal, password, selectedUiRole: 'Customer' }); } catch (_) {}
+    return;
+  }
   
   if (!inputVal) {
     alert('Please enter an email or phone number!');
@@ -2263,11 +2521,16 @@ function handleCustAuth(event) {
   triggerOTPVerification(inputVal, 'Customer', cust);
 }
 
-function handleRiderLogin(event) {
+async function handleRiderLogin(event) {
   event.preventDefault();
   const inputEl = document.getElementById('rider-login-input');
   if (!inputEl) return;
   const val = inputEl.value.trim();
+  if (isApiAuthMode()) {
+    const password = document.getElementById('rider-password-input')?.value || '';
+    try { await window.ceylonSwiftAuth.login({ identifier: val, password, selectedUiRole: 'Rider' }); } catch (_) {}
+    return;
+  }
   
   if (!val) {
     alert('Please enter your credentials!');
@@ -2332,11 +2595,16 @@ function handleRiderRegister(event) {
   playSound('beep');
 }
 
-function handleOfficeLogin(event) {
+async function handleOfficeLogin(event) {
   event.preventDefault();
   const inputEl = document.getElementById('office-login-input');
   if (!inputEl) return;
   const val = inputEl.value.trim();
+  if (isApiAuthMode()) {
+    const password = document.getElementById('office-password-input')?.value || '';
+    try { await window.ceylonSwiftAuth.login({ identifier: val, password, selectedUiRole: 'Office' }); } catch (_) {}
+    return;
+  }
   
   if (!val) {
     alert('Please enter your staff ID or phone!');
@@ -2400,7 +2668,7 @@ function handleOfficeRegister(event) {
   playSound('beep');
 }
 
-function handleOwnerAuthStep1(event) {
+async function handleOwnerAuthStep1(event) {
   event.preventDefault();
   const emailEl = document.getElementById('owner-email-input');
   const passEl = document.getElementById('owner-password-input');
@@ -2410,25 +2678,11 @@ function handleOwnerAuthStep1(event) {
   const email = emailEl.value.trim();
   const password = passEl.value;
   
-  if (email === 'prabothweerawansha@gmail.com' && password === 'admin123') {
-    const ownerObj = state.employees.find(emp => emp.role === 'System Owner') || {
-      id: 'EMP-001',
-      name: 'Praboth Weerasinghe',
-      role: 'System Owner',
-      type: 'Office',
-      hub: 'Colombo',
-      phone: '0770000001',
-      email: 'prabothweerawansha@gmail.com',
-      rating: 5.0
-    };
-    
-    triggerOTPVerification(email, 'Owner', ownerObj);
+  try {
+    await window.ceylonSwiftAuth.login({ identifier: email, password, selectedUiRole: 'Owner' });
     emailEl.value = '';
     passEl.value = '';
-  } else {
-    alert('Security Violation: Invalid Master Owner credentials. The attempt has been logged.');
-    addActivityLog('pending', `Security Alert: Failed owner clearance access attempt from guest portal.`);
-  }
+  } catch (_) {}
 }
 
 function handleOwnerAuthStep2(event) {
@@ -2520,6 +2774,7 @@ function initTheme() {
 /* ==================== 🌐 SIMULATED GOOGLE AUTH ENGINE ==================== */
 
 function openGoogleSelector() {
+  if (isApiAuthMode()) { void window.ceylonSwiftAuth.startGoogleLogin(); return; }
   closeModal('authPortalModal');
   openModal('googleAuthModal');
   
@@ -2533,6 +2788,7 @@ function openGoogleSelector() {
 }
 
 function selectGoogleAccount(email, name) {
+  if (isApiAuthMode()) { void window.ceylonSwiftAuth.startGoogleLogin(); return; }
   const chooser = document.getElementById('google-accounts-chooser');
   const custom = document.getElementById('google-custom-account-view');
   const spinner = document.getElementById('google-spinner-view');
@@ -2614,12 +2870,14 @@ function handleGoogleCustomLogin(event) {
   const email = emailInput.value.trim();
   const name = email.split('@')[0].split('.').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
 
+  if (isApiAuthMode()) { void window.ceylonSwiftAuth.startGoogleLogin(); return; }
   selectGoogleAccount(email, name);
 }
 
 /* ==================== 🛠️ OWNER SYSTEM DATABASE RESET ==================== */
 
 function resetSystemDatabase() {
+  if (isApiAuthMode()) { alert('API mode data is backend-managed and cannot be erased from browser storage.'); return; }
   if (confirm("⚠️ WARNING: Are you sure you want to completely erase all CeylonSwift databases and reset all data to clean defaults? This action cannot be undone!")) {
     localStorage.removeItem('ceylonswift_packages');
     localStorage.removeItem('ceylonswift_employees');
@@ -2637,6 +2895,10 @@ function resetSystemDatabase() {
 /* ==================== 🔐 SECURE VERIFICATION OPERATIONS ==================== */
 
 function renderVerificationBoard() {
+  if (isApiAuthMode() && window.ceylonSwiftWorkforce) {
+    window.ceylonSwiftWorkforce.renderApprovals();
+    return;
+  }
   const ridersList = document.getElementById('pending-riders-list');
   const staffList = document.getElementById('pending-staff-list');
   const ridersCount = document.getElementById('pending-riders-count');
@@ -2720,6 +2982,10 @@ function renderVerificationBoard() {
 }
 
 function approveSignup(id) {
+  if (isApiAuthMode() && window.ceylonSwiftWorkforce) {
+    void window.ceylonSwiftWorkforce.decideApproval(id, true);
+    return;
+  }
   const index = state.pendingSignups.findIndex(p => p.id === id);
   if (index === -1) return;
   const signup = state.pendingSignups[index];
@@ -2758,6 +3024,10 @@ function approveSignup(id) {
 }
 
 function rejectSignup(id) {
+  if (isApiAuthMode() && window.ceylonSwiftWorkforce) {
+    void window.ceylonSwiftWorkforce.decideApproval(id, false);
+    return;
+  }
   const index = state.pendingSignups.findIndex(p => p.id === id);
   if (index === -1) return;
   const signup = state.pendingSignups[index];
@@ -2780,6 +3050,10 @@ function rejectSignup(id) {
 
 function handleDirectHireOffice(event) {
   event.preventDefault();
+  if (isApiAuthMode()) {
+    window.ceylonSwiftWorkforce?.openInvite();
+    return;
+  }
   if (state.activeRole !== 'Owner') {
     alert('Security Access Blocked: Only the Owner can perform direct employee hiring!');
     return;
@@ -2825,7 +3099,9 @@ function handleDirectHireOffice(event) {
 
 /* ==================== 🚪 SESSION TERMINATION ENGINE ==================== */
 
-function handleLogout() {
+async function handleLogout() {
+  resetSavedNavigationSection();
+  if (isApiAuthMode()) await window.ceylonSwiftAuth.logout();
   if (state.isSimulating) {
     clearInterval(state.simulationInterval);
     state.isSimulating = false;

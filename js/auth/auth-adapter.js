@@ -1,0 +1,3 @@
+export class AuthAdapter {
+  identify() { throw new Error('Not implemented'); } login() { throw new Error('Not implemented'); } requestOtp() { throw new Error('Not implemented'); } verifyOtp() { throw new Error('Not implemented'); } restoreSession() { throw new Error('Not implemented'); } getCurrentUser() { throw new Error('Not implemented'); } getWorkspaces() { throw new Error('Not implemented'); } getCapabilities() { throw new Error('Not implemented'); } selectWorkspace() { throw new Error('Not implemented'); } refreshSession() { throw new Error('Not implemented'); } logout() { throw new Error('Not implemented'); } logoutAll() { throw new Error('Not implemented'); } startGoogleLogin() { throw new Error('Not implemented'); }
+}

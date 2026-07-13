@@ -1,0 +1,1080 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DISABLED
+  TERMINATED
+}
+
+enum MembershipStatus {
+  INVITED
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+enum DeviceType {
+  WEB
+  ANDROID
+  IOS
+  DESKTOP
+  OTHER
+}
+
+enum SessionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+  COMPROMISED
+}
+
+enum MfaType {
+  TOTP
+  SMS
+  EMAIL
+  PASSKEY
+}
+
+enum OAuthProvider {
+  GOOGLE
+}
+
+enum EmployeeStatus {
+  PENDING
+  ACTIVE
+  ON_LEAVE
+  SUSPENDED
+  TERMINATED
+}
+
+enum OrganizationType {
+  DELIVERY_COMPANY
+  PARTNER
+  TUITION_PARTNER
+  PLATFORM
+  OTHER
+}
+
+enum OrganizationStatus {
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}
+
+enum BranchStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum RoleScope {
+  SYSTEM
+  ORGANIZATION
+  BRANCH
+}
+
+enum PartnerStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+enum RiderStatus {
+  PENDING
+  AVAILABLE
+  ASSIGNED
+  OFF_DUTY
+  SUSPENDED
+  TERMINATED
+}
+
+enum PackageStatus {
+  DRAFT
+  PENDING_CONFIRMATION
+  CONFIRMED
+  AWAITING_PICKUP
+  PICKED_UP
+  RECEIVED_AT_ORIGIN_HUB
+  IN_TRANSIT
+  RECEIVED_AT_DESTINATION_HUB
+  OUT_FOR_DELIVERY
+  DELIVERY_ATTEMPTED
+  DELIVERED
+  DELIVERY_FAILED
+  RETURN_REQUESTED
+  RETURN_IN_TRANSIT
+  RETURNED
+  CANCELLED
+}
+
+enum PackageAssignmentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum TrackingEventType {
+  CREATED
+  CONFIRMED
+  PICKUP_SCHEDULED
+  PICKED_UP
+  HUB_RECEIVED
+  HUB_DEPARTED
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERY_ATTEMPTED
+  DELIVERED
+  DELIVERY_FAILED
+  RETURN_REQUESTED
+  RETURNED
+  CANCELLED
+  NOTE
+}
+
+enum TrackingVisibility {
+  PUBLIC
+  CUSTOMER
+  WORKFORCE
+  INTERNAL
+}
+
+enum CustomerRequestStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+enum HubStatus {
+  ACTIVE
+  DEGRADED
+  SUSPENDED
+  CLOSED
+}
+
+enum PricingRuleStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum PaymentMode {
+  PREPAID
+  COD
+  INVOICE
+}
+
+enum AddressType {
+  HOME
+  WORK
+  PICKUP
+  DELIVERY
+  BILLING
+  OTHER
+}
+
+enum IdempotencyState {
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+enum BackgroundJobStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+  DEAD_LETTERED
+  SKIPPED
+}
+
+model User {
+  id                       String                   @id @default(uuid()) @db.Uuid
+  normalizedEmail          String?                  @unique @db.VarChar(320)
+  normalizedPhone          String?                  @unique @db.VarChar(32)
+  passwordHash             String?                  @db.Text
+  accountStatus            AccountStatus            @default(PENDING)
+  emailVerifiedAt          DateTime?                @db.Timestamptz(3)
+  phoneVerifiedAt          DateTime?                @db.Timestamptz(3)
+  lastLoginAt              DateTime?                @db.Timestamptz(3)
+  createdAt                DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt                DateTime                 @updatedAt @db.Timestamptz(3)
+  deletedAt                DateTime?                @db.Timestamptz(3)
+  profile                  UserProfile?
+  customerProfile          CustomerProfile?
+  employeeProfile          EmployeeProfile?
+  riderProfile             RiderProfile?
+  partnerProfile           PartnerProfile?
+  memberships              OrganizationMembership[]
+  roles                    UserRole[]               @relation("UserRoleAssignee")
+  rolesGranted             UserRole[]               @relation("UserRoleGrantor")
+  sessions                 Session[]
+  devices                  UserDevice[]
+  loginAttempts            LoginAttempt[]
+  otpChallenges            OtpChallenge[]
+  oauthChallenges          OAuthChallenge[]
+  webauthnChallenges       WebAuthnChallenge[]
+  oauthAccounts            OAuthAccount[]
+  passkeys                 PasskeyCredential[]
+  mfaMethods               MfaMethod[]
+  recoveryCodes            RecoveryCode[]
+  invitationsSent          Invitation[]             @relation("InvitationSender")
+  invitationsAccepted      Invitation[]             @relation("InvitationAcceptor")
+  customerPackages         Package[]                @relation("PackageCustomer")
+  customerRequests         CustomerRequest[]
+  customerRequestsReviewed CustomerRequest[]        @relation("CustomerRequestReviewer")
+  addresses                Address[]
+  activities               Activity[]               @relation("ActivityActor")
+  auditLogs                AuditLog[]               @relation("AuditActor")
+  approvalsRequested       ApprovalRequest[]        @relation("ApprovalRequester")
+  approvalsReviewed        ApprovalRequest[]        @relation("ApprovalReviewer")
+  trackingEvents           TrackingEvent[]          @relation("TrackingActor")
+  assignmentsMade          PackageAssignment[]      @relation("AssignmentCreator")
+
+  @@index([accountStatus])
+  @@index([lastLoginAt])
+  @@index([deletedAt])
+}
+
+model UserProfile {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @unique @db.Uuid
+  displayName       String   @db.VarChar(160)
+  preferredLanguage String   @default("en") @db.VarChar(16)
+  timezone          String   @default("Asia/Colombo") @db.VarChar(64)
+  avatarUrl         String?  @db.Text
+  preferences       Json?
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+}
+
+model CustomerProfile {
+  id                    String        @id @default(uuid()) @db.Uuid
+  userId                String        @unique @db.Uuid
+  customerNumber        String        @unique @db.VarChar(64)
+  serviceTier           String        @default("STANDARD") @db.VarChar(32)
+  defaultOrganizationId String?       @db.Uuid
+  billingPreferences    Json?
+  createdAt             DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime      @updatedAt @db.Timestamptz(3)
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  defaultOrganization   Organization? @relation("CustomerDefaultOrganization", fields: [defaultOrganizationId], references: [id], onDelete: SetNull)
+}
+
+model EmployeeProfile {
+  id              String         @id @default(uuid()) @db.Uuid
+  userId          String         @unique @db.Uuid
+  employeeNumber  String         @unique @db.VarChar(64)
+  jobTitle        String         @db.VarChar(160)
+  employeeStatus  EmployeeStatus @default(PENDING)
+  primaryBranchId String?        @db.Uuid
+  hiredAt         DateTime?      @db.Timestamptz(3)
+  terminatedAt    DateTime?      @db.Timestamptz(3)
+  createdAt       DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime       @updatedAt @db.Timestamptz(3)
+  user            User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  primaryBranch   Branch?        @relation(fields: [primaryBranchId], references: [id], onDelete: SetNull)
+
+  @@index([primaryBranchId, employeeStatus])
+}
+
+model RiderProfile {
+  id                String              @id @default(uuid()) @db.Uuid
+  userId            String              @unique @db.Uuid
+  riderStatus       RiderStatus         @default(PENDING)
+  vehicleType       String?             @db.VarChar(64)
+  vehicleIdentifier String?             @db.VarChar(64)
+  licenseReference  String?             @db.VarChar(128)
+  capacityKg        Decimal?            @db.Decimal(10, 2)
+  createdAt         DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime            @updatedAt @db.Timestamptz(3)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  assignments       PackageAssignment[]
+
+  @@index([riderStatus])
+}
+
+model PartnerProfile {
+  id                    String        @id @default(uuid()) @db.Uuid
+  userId                String        @unique @db.Uuid
+  partnerOrganizationId String        @db.Uuid
+  partnerReference      String?       @db.VarChar(128)
+  externalReference     String?       @db.VarChar(128)
+  status                PartnerStatus @default(PENDING)
+  createdAt             DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime      @updatedAt @db.Timestamptz(3)
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  partnerOrganization   Organization  @relation(fields: [partnerOrganizationId], references: [id], onDelete: Restrict)
+
+  @@index([partnerOrganizationId, status])
+}
+
+model Organization {
+  id                  String                   @id @default(uuid()) @db.Uuid
+  name                String                   @db.VarChar(200)
+  slug                String                   @unique @db.VarChar(120)
+  type                OrganizationType
+  status              OrganizationStatus       @default(ACTIVE)
+  countryCode         String                   @default("LK") @db.Char(2)
+  timezone            String                   @default("Asia/Colombo") @db.VarChar(64)
+  metadata            Json?
+  createdAt           DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime                 @updatedAt @db.Timestamptz(3)
+  deletedAt           DateTime?                @db.Timestamptz(3)
+  branches            Branch[]
+  memberships         OrganizationMembership[]
+  roles               Role[]
+  userRoles           UserRole[]
+  partnerProfiles     PartnerProfile[]
+  defaultForCustomers CustomerProfile[]        @relation("CustomerDefaultOrganization")
+  sessions            Session[]
+  invitations         Invitation[]
+  packages            Package[]
+  customerRequests    CustomerRequest[]
+  hubs                Hub[]
+  pricingRules        PricingRule[]
+  addresses           Address[]
+  activities          Activity[]
+  auditLogs           AuditLog[]
+  approvals           ApprovalRequest[]
+
+  @@index([type, status])
+  @@index([deletedAt])
+}
+
+model Branch {
+  id                  String                   @id @default(uuid()) @db.Uuid
+  organizationId      String                   @db.Uuid
+  parentBranchId      String?                  @db.Uuid
+  code                String                   @db.VarChar(64)
+  name                String                   @db.VarChar(200)
+  status              BranchStatus             @default(ACTIVE)
+  timezone            String                   @default("Asia/Colombo") @db.VarChar(64)
+  addressData         Json?
+  createdAt           DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime                 @updatedAt @db.Timestamptz(3)
+  deletedAt           DateTime?                @db.Timestamptz(3)
+  organization        Organization             @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  parentBranch        Branch?                  @relation("BranchHierarchy", fields: [parentBranchId], references: [id], onDelete: SetNull)
+  childBranches       Branch[]                 @relation("BranchHierarchy")
+  memberships         OrganizationMembership[]
+  userRoles           UserRole[]
+  employees           EmployeeProfile[]
+  sessions            Session[]
+  invitations         Invitation[]
+  originPackages      Package[]                @relation("PackageOriginBranch")
+  destinationPackages Package[]                @relation("PackageDestinationBranch")
+  assignments         PackageAssignment[]
+  customerRequests    CustomerRequest[]
+  hubs                Hub[]
+  pricingRules        PricingRule[]
+  activities          Activity[]
+  auditLogs           AuditLog[]
+  approvals           ApprovalRequest[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId, status])
+  @@index([parentBranchId])
+}
+
+model OrganizationMembership {
+  id               String           @id @default(uuid()) @db.Uuid
+  userId           String           @db.Uuid
+  organizationId   String           @db.Uuid
+  defaultBranchId  String?          @db.Uuid
+  status           MembershipStatus @default(PENDING)
+  startsAt         DateTime?        @db.Timestamptz(3)
+  endsAt           DateTime?        @db.Timestamptz(3)
+  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @db.Timestamptz(3)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  defaultBranch    Branch?          @relation(fields: [defaultBranchId], references: [id], onDelete: SetNull)
+  selectedSessions Session[]        @relation("SessionSelectedMembership")
+
+  @@unique([userId, organizationId])
+  @@index([organizationId, status])
+  @@index([userId, status])
+  @@index([defaultBranchId])
+}
+
+model Role {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String?          @db.Uuid
+  key            String           @db.VarChar(100)
+  name           String           @db.VarChar(160)
+  description    String?          @db.Text
+  scope          RoleScope
+  systemManaged  Boolean          @default(false)
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime         @updatedAt @db.Timestamptz(3)
+  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  permissions    RolePermission[]
+  assignments    UserRole[]
+
+  @@unique([organizationId, key])
+  @@index([key, scope])
+}
+
+model Permission {
+  id             String           @id @default(uuid()) @db.Uuid
+  key            String           @unique @db.VarChar(160)
+  description    String           @db.Text
+  riskLevel      Int              @default(0)
+  requiresStepUp Boolean          @default(false)
+  createdAt      DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime         @updatedAt @db.Timestamptz(3)
+  roles          RolePermission[]
+
+  @@index([riskLevel])
+}
+
+model UserRole {
+  id             String        @id @default(uuid()) @db.Uuid
+  userId         String        @db.Uuid
+  roleId         String        @db.Uuid
+  organizationId String?       @db.Uuid
+  branchId       String?       @db.Uuid
+  grantedById    String?       @db.Uuid
+  validFrom      DateTime      @default(now()) @db.Timestamptz(3)
+  validUntil     DateTime?     @db.Timestamptz(3)
+  revokedAt      DateTime?     @db.Timestamptz(3)
+  reason         String?       @db.Text
+  createdAt      DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime      @updatedAt @db.Timestamptz(3)
+  user           User          @relation("UserRoleAssignee", fields: [userId], references: [id], onDelete: Restrict)
+  role           Role          @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  branch         Branch?       @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  grantedBy      User?         @relation("UserRoleGrantor", fields: [grantedById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, roleId, organizationId, branchId])
+  @@index([userId, organizationId, branchId, revokedAt])
+  @@index([roleId, organizationId])
+  @@index([validUntil])
+}
+
+model RolePermission {
+  roleId       String     @db.Uuid
+  permissionId String     @db.Uuid
+  constraints  Json?
+  createdAt    DateTime   @default(now()) @db.Timestamptz(3)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Restrict)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+}
+
+model Session {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  userId                 String                  @db.Uuid
+  deviceId               String?                 @db.Uuid
+  selectedOrganizationId String?                 @db.Uuid
+  selectedBranchId       String?                 @db.Uuid
+  selectedMembershipId   String?                 @db.Uuid
+  status                 SessionStatus           @default(ACTIVE)
+  authenticationStrength Int                     @default(1)
+  recentAuthenticationAt DateTime                @default(now()) @db.Timestamptz(3)
+  mfaCompletedAt         DateTime?               @db.Timestamptz(3)
+  ipAddressHash          String?                 @db.VarChar(128)
+  userAgentSummary       String?                 @db.VarChar(512)
+  issuedAt               DateTime                @default(now()) @db.Timestamptz(3)
+  lastSeenAt             DateTime                @default(now()) @db.Timestamptz(3)
+  expiresAt              DateTime                @db.Timestamptz(3)
+  revokedAt              DateTime?               @db.Timestamptz(3)
+  revocationReason       String?                 @db.VarChar(255)
+  createdAt              DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime                @updatedAt @db.Timestamptz(3)
+  user                   User                    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  device                 UserDevice?             @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  selectedOrganization   Organization?           @relation(fields: [selectedOrganizationId], references: [id], onDelete: SetNull)
+  selectedBranch         Branch?                 @relation(fields: [selectedBranchId], references: [id], onDelete: SetNull)
+  selectedMembership     OrganizationMembership? @relation("SessionSelectedMembership", fields: [selectedMembershipId], references: [id], onDelete: SetNull)
+  refreshTokens          RefreshToken[]
+  auditLogs              AuditLog[]
+
+  @@index([userId, status, expiresAt])
+  @@index([deviceId])
+  @@index([selectedOrganizationId, selectedBranchId])
+  @@index([selectedMembershipId])
+}
+
+model RefreshToken {
+  id           String        @id @default(uuid()) @db.Uuid
+  sessionId    String        @db.Uuid
+  tokenHash    String        @unique @db.VarChar(255)
+  familyId     String        @db.Uuid
+  sequence     Int
+  issuedAt     DateTime      @default(now()) @db.Timestamptz(3)
+  expiresAt    DateTime      @db.Timestamptz(3)
+  consumedAt   DateTime?     @db.Timestamptz(3)
+  revokedAt    DateTime?     @db.Timestamptz(3)
+  replacedById String?       @unique @db.Uuid
+  createdAt    DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @db.Timestamptz(3)
+  session      Session       @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  replacedBy   RefreshToken? @relation("TokenRotation", fields: [replacedById], references: [id], onDelete: SetNull)
+  replaces     RefreshToken? @relation("TokenRotation")
+
+  @@unique([familyId, sequence])
+  @@index([sessionId, expiresAt, revokedAt])
+  @@index([familyId, consumedAt])
+}
+
+model UserDevice {
+  id              String     @id @default(uuid()) @db.Uuid
+  userId          String     @db.Uuid
+  deviceType      DeviceType
+  fingerprintHash String?    @db.VarChar(255)
+  displayName     String?    @db.VarChar(160)
+  platform        String?    @db.VarChar(80)
+  trustedAt       DateTime?  @db.Timestamptz(3)
+  firstSeenAt     DateTime   @default(now()) @db.Timestamptz(3)
+  lastSeenAt      DateTime   @default(now()) @db.Timestamptz(3)
+  revokedAt       DateTime?  @db.Timestamptz(3)
+  createdAt       DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime   @updatedAt @db.Timestamptz(3)
+  user            User       @relation(fields: [userId], references: [id], onDelete: Restrict)
+  sessions        Session[]
+
+  @@index([userId, revokedAt])
+  @@index([fingerprintHash])
+}
+
+model LoginAttempt {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String?  @db.Uuid
+  identityHash  String   @db.VarChar(255)
+  successful    Boolean
+  failureCode   String?  @db.VarChar(100)
+  ipAddressHash String?  @db.VarChar(128)
+  deviceContext Json?
+  requestId     String   @db.VarChar(128)
+  attemptedAt   DateTime @default(now()) @db.Timestamptz(3)
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([identityHash, attemptedAt])
+  @@index([userId, attemptedAt])
+  @@index([ipAddressHash, attemptedAt])
+}
+
+model OtpChallenge {
+  id                String    @id @default(uuid()) @db.Uuid
+  userId            String?   @db.Uuid
+  purpose           String    @db.VarChar(64)
+  channel           String    @db.VarChar(32)
+  destinationHash   String    @db.VarChar(255)
+  codeHash          String    @db.VarChar(255)
+  attempts          Int       @default(0)
+  maxAttempts       Int       @default(5)
+  sendCount         Int       @default(1)
+  resendAvailableAt DateTime  @default(now()) @db.Timestamptz(3)
+  requestIpHash     String?   @db.VarChar(128)
+  expiresAt         DateTime  @db.Timestamptz(3)
+  consumedAt        DateTime? @db.Timestamptz(3)
+  revokedAt         DateTime? @db.Timestamptz(3)
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt @db.Timestamptz(3)
+  user              User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([destinationHash, purpose, expiresAt])
+  @@index([userId, expiresAt])
+}
+
+model OAuthChallenge {
+  id               String        @id @default(uuid()) @db.Uuid
+  userId           String?       @db.Uuid
+  provider         OAuthProvider
+  stateHash        String        @unique @db.VarChar(255)
+  nonceHash        String        @db.VarChar(255)
+  pkceVerifierHash String?       @db.VarChar(255)
+  redirectOrigin   String?       @db.VarChar(500)
+  expiresAt        DateTime      @db.Timestamptz(3)
+  consumedAt       DateTime?     @db.Timestamptz(3)
+  createdAt        DateTime      @default(now()) @db.Timestamptz(3)
+  user             User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([provider, expiresAt, consumedAt])
+  @@index([userId, createdAt])
+}
+
+model WebAuthnChallenge {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String?   @db.Uuid
+  challengeHash  String    @unique @db.VarChar(255)
+  purpose        String    @db.VarChar(64)
+  relyingPartyId String    @db.VarChar(255)
+  origin         String    @db.VarChar(500)
+  expiresAt      DateTime  @db.Timestamptz(3)
+  consumedAt     DateTime? @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  user           User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, purpose, expiresAt])
+}
+
+model OAuthAccount {
+  id              String        @id @default(uuid()) @db.Uuid
+  userId          String        @db.Uuid
+  provider        OAuthProvider
+  providerSubject String        @db.VarChar(255)
+  providerEmail   String?       @db.VarChar(320)
+  metadata        Json?
+  createdAt       DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime      @updatedAt @db.Timestamptz(3)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, providerSubject])
+  @@index([userId, provider])
+}
+
+model PasskeyCredential {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  credentialId   String    @unique @db.Text
+  publicKey      Bytes
+  counter        BigInt    @default(0)
+  transports     String[]
+  relyingPartyId String    @db.VarChar(255)
+  deviceLabel    String?   @db.VarChar(160)
+  backedUp       Boolean   @default(false)
+  lastUsedAt     DateTime? @db.Timestamptz(3)
+  revokedAt      DateTime? @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, revokedAt])
+}
+
+model MfaMethod {
+  id                String         @id @default(uuid()) @db.Uuid
+  userId            String         @db.Uuid
+  type              MfaType
+  label             String?        @db.VarChar(160)
+  encryptedMetadata Bytes?
+  verifiedAt        DateTime?      @db.Timestamptz(3)
+  preferred         Boolean        @default(false)
+  revokedAt         DateTime?      @db.Timestamptz(3)
+  createdAt         DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime       @updatedAt @db.Timestamptz(3)
+  user              User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  recoveryCodes     RecoveryCode[]
+
+  @@index([userId, type, revokedAt])
+}
+
+model RecoveryCode {
+  id          String     @id @default(uuid()) @db.Uuid
+  userId      String     @db.Uuid
+  mfaMethodId String?    @db.Uuid
+  codeHash    String     @unique @db.VarChar(255)
+  usedAt      DateTime?  @db.Timestamptz(3)
+  revokedAt   DateTime?  @db.Timestamptz(3)
+  createdAt   DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime   @updatedAt @db.Timestamptz(3)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Restrict)
+  mfaMethod   MfaMethod? @relation(fields: [mfaMethodId], references: [id], onDelete: SetNull)
+
+  @@index([userId, usedAt, revokedAt])
+}
+
+model Invitation {
+  id                    String           @id @default(uuid()) @db.Uuid
+  organizationId        String           @db.Uuid
+  branchId              String?          @db.Uuid
+  invitedById           String           @db.Uuid
+  acceptedById          String?          @db.Uuid
+  destinationHash       String           @db.VarChar(255)
+  normalizedDestination String           @db.VarChar(320)
+  tokenHash             String           @unique @db.VarChar(255)
+  intendedRoleKeys      String[]
+  jobTitle              String?          @db.VarChar(160)
+  status                InvitationStatus @default(PENDING)
+  expiresAt             DateTime         @db.Timestamptz(3)
+  acceptedAt            DateTime?        @db.Timestamptz(3)
+  revokedAt             DateTime?        @db.Timestamptz(3)
+  createdAt             DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime         @updatedAt @db.Timestamptz(3)
+  organization          Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  branch                Branch?          @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  invitedBy             User             @relation("InvitationSender", fields: [invitedById], references: [id], onDelete: Restrict)
+  acceptedBy            User?            @relation("InvitationAcceptor", fields: [acceptedById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, branchId, status])
+  @@index([destinationHash, status, expiresAt])
+}
+
+model Address {
+  id                  String            @id @default(uuid()) @db.Uuid
+  userId              String?           @db.Uuid
+  organizationId      String?           @db.Uuid
+  type                AddressType       @default(OTHER)
+  label               String?           @db.VarChar(100)
+  line1               String            @db.VarChar(255)
+  line2               String?           @db.VarChar(255)
+  locality            String            @db.VarChar(160)
+  district            String?           @db.VarChar(160)
+  postalCode          String?           @db.VarChar(32)
+  countryCode         String            @default("LK") @db.Char(2)
+  latitude            Decimal?          @db.Decimal(10, 7)
+  longitude           Decimal?          @db.Decimal(10, 7)
+  verifiedAt          DateTime?         @db.Timestamptz(3)
+  createdAt           DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime          @updatedAt @db.Timestamptz(3)
+  deletedAt           DateTime?         @db.Timestamptz(3)
+  user                User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization        Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  originPackages      Package[]         @relation("PackageOriginAddress")
+  destinationPackages Package[]         @relation("PackageDestinationAddress")
+  requestPickup       CustomerRequest[] @relation("RequestPickupAddress")
+  requestDelivery     CustomerRequest[] @relation("RequestDeliveryAddress")
+
+  @@index([userId, deletedAt])
+  @@index([organizationId, deletedAt])
+}
+
+model Hub {
+  id                  String          @id @default(uuid()) @db.Uuid
+  organizationId      String          @db.Uuid
+  branchId            String          @db.Uuid
+  code                String          @db.VarChar(64)
+  name                String          @db.VarChar(200)
+  status              HubStatus       @default(ACTIVE)
+  capacity            Int?
+  timezone            String          @default("Asia/Colombo") @db.VarChar(64)
+  addressData         Json?
+  latitude            Decimal?        @db.Decimal(10, 7)
+  longitude           Decimal?        @db.Decimal(10, 7)
+  createdAt           DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime        @updatedAt @db.Timestamptz(3)
+  deletedAt           DateTime?       @db.Timestamptz(3)
+  organization        Organization    @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  branch              Branch          @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  originPackages      Package[]       @relation("PackageOriginHub")
+  destinationPackages Package[]       @relation("PackageDestinationHub")
+  trackingEvents      TrackingEvent[]
+
+  @@unique([organizationId, code])
+  @@index([branchId, status])
+  @@index([deletedAt])
+}
+
+model Package {
+  id                   String              @id @default(uuid()) @db.Uuid
+  organizationId       String              @db.Uuid
+  customerId           String?             @db.Uuid
+  originBranchId       String?             @db.Uuid
+  destinationBranchId  String?             @db.Uuid
+  originHubId          String?             @db.Uuid
+  destinationHubId     String?             @db.Uuid
+  originAddressId      String?             @db.Uuid
+  destinationAddressId String?             @db.Uuid
+  trackingCode         String              @unique @db.VarChar(64)
+  legacyId             String?             @unique @db.VarChar(100)
+  recipientName        String              @db.VarChar(160)
+  recipientPhone       String?             @db.VarChar(32)
+  weightKg             Decimal             @db.Decimal(10, 3)
+  serviceLevel         String              @db.VarChar(64)
+  paymentMode          PaymentMode
+  codAmount            Decimal?            @db.Decimal(12, 2)
+  quotedAmount         Decimal             @db.Decimal(12, 2)
+  chargedAmount        Decimal?            @db.Decimal(12, 2)
+  currency             String              @default("LKR") @db.Char(3)
+  status               PackageStatus       @default(DRAFT)
+  version              Int                 @default(1)
+  confirmedAt          DateTime?           @db.Timestamptz(3)
+  deliveredAt          DateTime?           @db.Timestamptz(3)
+  cancelledAt          DateTime?           @db.Timestamptz(3)
+  createdAt            DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt            DateTime            @updatedAt @db.Timestamptz(3)
+  deletedAt            DateTime?           @db.Timestamptz(3)
+  organization         Organization        @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  customer             User?               @relation("PackageCustomer", fields: [customerId], references: [id], onDelete: SetNull)
+  originBranch         Branch?             @relation("PackageOriginBranch", fields: [originBranchId], references: [id], onDelete: SetNull)
+  destinationBranch    Branch?             @relation("PackageDestinationBranch", fields: [destinationBranchId], references: [id], onDelete: SetNull)
+  originHub            Hub?                @relation("PackageOriginHub", fields: [originHubId], references: [id], onDelete: SetNull)
+  destinationHub       Hub?                @relation("PackageDestinationHub", fields: [destinationHubId], references: [id], onDelete: SetNull)
+  originAddress        Address?            @relation("PackageOriginAddress", fields: [originAddressId], references: [id], onDelete: SetNull)
+  destinationAddress   Address?            @relation("PackageDestinationAddress", fields: [destinationAddressId], references: [id], onDelete: SetNull)
+  assignments          PackageAssignment[]
+  trackingEvents       TrackingEvent[]
+  sourceRequest        CustomerRequest?
+
+  @@index([organizationId, status, createdAt])
+  @@index([customerId, createdAt])
+  @@index([originBranchId, status])
+  @@index([destinationBranchId, status])
+  @@index([deletedAt])
+}
+
+model PackageAssignment {
+  id           String                  @id @default(uuid()) @db.Uuid
+  packageId    String                  @db.Uuid
+  riderId      String                  @db.Uuid
+  branchId     String                  @db.Uuid
+  assignedById String?                 @db.Uuid
+  status       PackageAssignmentStatus @default(PENDING)
+  assignedAt   DateTime                @default(now()) @db.Timestamptz(3)
+  acceptedAt   DateTime?               @db.Timestamptz(3)
+  completedAt  DateTime?               @db.Timestamptz(3)
+  cancelledAt  DateTime?               @db.Timestamptz(3)
+  notes        String?                 @db.Text
+  createdAt    DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime                @updatedAt @db.Timestamptz(3)
+  package      Package                 @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  rider        RiderProfile            @relation(fields: [riderId], references: [id], onDelete: Restrict)
+  branch       Branch                  @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  assignedBy   User?                   @relation("AssignmentCreator", fields: [assignedById], references: [id], onDelete: SetNull)
+
+  @@index([packageId, status])
+  @@index([riderId, status, assignedAt])
+  @@index([branchId, status])
+}
+
+model TrackingEvent {
+  id              String             @id @default(uuid()) @db.Uuid
+  packageId       String             @db.Uuid
+  hubId           String?            @db.Uuid
+  actorId         String?            @db.Uuid
+  type            TrackingEventType
+  visibility      TrackingVisibility @default(PUBLIC)
+  publicMessage   String?            @db.Text
+  internalDetails Json?
+  eventAt         DateTime           @default(now()) @db.Timestamptz(3)
+  sequence        Int
+  createdAt       DateTime           @default(now()) @db.Timestamptz(3)
+  package         Package            @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  hub             Hub?               @relation(fields: [hubId], references: [id], onDelete: SetNull)
+  actor           User?              @relation("TrackingActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@unique([packageId, sequence])
+  @@index([packageId, eventAt])
+  @@index([hubId, eventAt])
+}
+
+model CustomerRequest {
+  id                 String                @id @default(uuid()) @db.Uuid
+  organizationId     String                @db.Uuid
+  branchId           String?               @db.Uuid
+  customerId         String                @db.Uuid
+  pickupAddressId    String                @db.Uuid
+  deliveryAddressId  String                @db.Uuid
+  resultingPackageId String?               @unique @db.Uuid
+  requestCode        String                @unique @db.VarChar(64)
+  status             CustomerRequestStatus @default(DRAFT)
+  packageDetails     Json
+  quotedAmount       Decimal?              @db.Decimal(12, 2)
+  currency           String                @default("LKR") @db.Char(3)
+  reviewedById       String?               @db.Uuid
+  reviewedAt         DateTime?             @db.Timestamptz(3)
+  decisionReason     String?               @db.Text
+  createdAt          DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime              @updatedAt @db.Timestamptz(3)
+  organization       Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  branch             Branch?               @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  customer           User                  @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  pickupAddress      Address               @relation("RequestPickupAddress", fields: [pickupAddressId], references: [id], onDelete: Restrict)
+  deliveryAddress    Address               @relation("RequestDeliveryAddress", fields: [deliveryAddressId], references: [id], onDelete: Restrict)
+  resultingPackage   Package?              @relation(fields: [resultingPackageId], references: [id], onDelete: SetNull)
+  reviewedBy         User?                 @relation("CustomerRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, branchId, status, createdAt])
+  @@index([customerId, createdAt])
+}
+
+model PricingRule {
+  id             String            @id @default(uuid()) @db.Uuid
+  organizationId String            @db.Uuid
+  branchId       String?           @db.Uuid
+  key            String            @db.VarChar(100)
+  serviceLevel   String            @db.VarChar(64)
+  status         PricingRuleStatus @default(DRAFT)
+  priority       Int               @default(0)
+  currency       String            @default("LKR") @db.Char(3)
+  ruleDefinition Json
+  effectiveFrom  DateTime          @db.Timestamptz(3)
+  effectiveUntil DateTime?         @db.Timestamptz(3)
+  createdAt      DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime          @updatedAt @db.Timestamptz(3)
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  branch         Branch?           @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, branchId, key, effectiveFrom])
+  @@index([organizationId, branchId, serviceLevel, status, effectiveFrom])
+}
+
+model Activity {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  branchId       String?      @db.Uuid
+  actorId        String?      @db.Uuid
+  type           String       @db.VarChar(100)
+  message        String       @db.Text
+  resourceType   String?      @db.VarChar(100)
+  resourceId     String?      @db.Uuid
+  metadata       Json?
+  occurredAt     DateTime     @default(now()) @db.Timestamptz(3)
+  createdAt      DateTime     @default(now()) @db.Timestamptz(3)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  branch         Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  actor          User?        @relation("ActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, occurredAt])
+  @@index([branchId, occurredAt])
+  @@index([resourceType, resourceId])
+}
+
+model AuditLog {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String?       @db.Uuid
+  branchId       String?       @db.Uuid
+  actorId        String?       @db.Uuid
+  sessionId      String?       @db.Uuid
+  action         String        @db.VarChar(160)
+  resourceType   String?       @db.VarChar(100)
+  resourceId     String?       @db.Uuid
+  outcome        String        @db.VarChar(64)
+  requestId      String        @db.VarChar(128)
+  metadata       Json?
+  occurredAt     DateTime      @default(now()) @db.Timestamptz(3)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  branch         Branch?       @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  actor          User?         @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  session        Session?      @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, occurredAt])
+  @@index([actorId, occurredAt])
+  @@index([resourceType, resourceId])
+  @@index([requestId])
+}
+
+model ApprovalRequest {
+  id                 String         @id @default(uuid()) @db.Uuid
+  organizationId     String         @db.Uuid
+  branchId           String?        @db.Uuid
+  requestedById      String         @db.Uuid
+  reviewedById       String?        @db.Uuid
+  type               String         @db.VarChar(100)
+  targetResourceType String         @db.VarChar(100)
+  targetResourceId   String         @db.Uuid
+  requestedAction    String         @db.VarChar(160)
+  requiredPermission String         @db.VarChar(160)
+  status             ApprovalStatus @default(PENDING)
+  requestReason      String?        @db.Text
+  decisionReason     String?        @db.Text
+  expiresAt          DateTime?      @db.Timestamptz(3)
+  reviewedAt         DateTime?      @db.Timestamptz(3)
+  createdAt          DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime       @updatedAt @db.Timestamptz(3)
+  organization       Organization   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  branch             Branch?        @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  requestedBy        User           @relation("ApprovalRequester", fields: [requestedById], references: [id], onDelete: Restrict)
+  reviewedBy         User?          @relation("ApprovalReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, branchId, status, createdAt])
+  @@index([targetResourceType, targetResourceId])
+  @@index([requestedById, status])
+}
+
+model IdempotencyRecord {
+  id             String           @id @default(uuid()) @db.Uuid
+  scopeHash      String           @db.VarChar(64)
+  keyHash        String           @db.VarChar(64)
+  requestHash    String           @db.VarChar(64)
+  userId         String           @db.Uuid
+  organizationId String?          @db.Uuid
+  branchId       String?          @db.Uuid
+  workspaceType  String           @db.VarChar(32)
+  endpoint       String           @db.VarChar(255)
+  method         String           @db.VarChar(16)
+  state          IdempotencyState @default(IN_PROGRESS)
+  responseStatus Int?
+  responseBody   Json?
+  failureCode    String?          @db.VarChar(100)
+  attempts       Int              @default(1)
+  lockedAt       DateTime         @default(now()) @db.Timestamptz(3)
+  completedAt    DateTime?        @db.Timestamptz(3)
+  expiresAt      DateTime         @db.Timestamptz(3)
+  createdAt      DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime         @updatedAt @db.Timestamptz(3)
+
+  @@unique([scopeHash, endpoint, method, keyHash])
+  @@index([state, expiresAt])
+  @@index([userId, createdAt])
+  @@index([organizationId, branchId, createdAt])
+}
+
+model BackgroundJobRun {
+  id             String              @id @default(uuid()) @db.Uuid
+  jobName        String              @db.VarChar(160)
+  lockKey        BigInt
+  status         BackgroundJobStatus @default(RUNNING)
+  attempt        Int                 @default(1)
+  processedCount Int                 @default(0)
+  startedAt      DateTime            @default(now()) @db.Timestamptz(3)
+  completedAt    DateTime?           @db.Timestamptz(3)
+  durationMs     Int?
+  failureCode    String?             @db.VarChar(100)
+  failureMessage String?             @db.VarChar(500)
+  nextRetryAt    DateTime?           @db.Timestamptz(3)
+  metadata       Json?
+  createdAt      DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime            @updatedAt @db.Timestamptz(3)
+
+  @@index([jobName, startedAt])
+  @@index([status, nextRetryAt])
+}
+
+model DeadLetterJob {
+  id             String    @id @default(uuid()) @db.Uuid
+  jobName        String    @db.VarChar(160)
+  jobRunId       String?   @db.Uuid
+  failureCode    String    @db.VarChar(100)
+  failureMessage String    @db.VarChar(500)
+  attempts       Int
+  safeContext    Json?
+  failedAt       DateTime  @default(now()) @db.Timestamptz(3)
+  resolvedAt     DateTime? @db.Timestamptz(3)
+  resolutionNote String?   @db.VarChar(500)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@index([jobName, failedAt])
+  @@index([resolvedAt, failedAt])
+}

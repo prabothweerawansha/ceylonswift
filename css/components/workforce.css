@@ -1,0 +1,36 @@
+.workforce-heading { align-items: flex-end; }
+.workforce-toolbar { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(170px, .38fr) auto; gap: 12px; align-items: end; padding: 16px; margin-bottom: 18px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: var(--bg-card); }
+.workforce-toolbar label, .workforce-branch { display: grid; gap: 6px; color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.workforce-toolbar input, .workforce-toolbar select, .workforce-branch select, .workforce-invite-panel input, .workforce-invite-panel select, .workforce-accept-card input { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-deep); color: var(--text-main); }
+.workforce-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.workforce-card { align-items: flex-start; }
+.workforce-card-title { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.workforce-card-title h3 { font: 700 15px var(--font-title); }
+.workforce-card-title p { margin-top: 3px; color: var(--text-muted); font-size: 11px; }
+.workforce-card dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.workforce-card dl div { min-width: 0; }
+.workforce-card dt { color: var(--text-muted); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.workforce-card dd { margin-top: 3px; overflow-wrap: anywhere; color: var(--text-main); font-size: 11px; }
+.workforce-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-top: 14px; }
+.workforce-actions .btn { padding: 7px 10px; font-size: 10px; }
+.workforce-branch { flex: 1 1 190px; }
+.workforce-state, .workforce-empty { grid-column: 1 / -1; padding: 24px; border: 1px dashed var(--border-color); border-radius: var(--border-radius-md); color: var(--text-muted); text-align: center; }
+.workforce-error { border-color: rgba(244, 63, 94, .35); color: var(--color-danger, #fb7185); }
+.workforce-empty { display: grid; gap: 4px; }
+.workforce-empty strong { color: var(--text-main); }
+.workforce-load-more { display: block; margin: 18px auto; }
+.workforce-invite-panel { max-width: 780px; padding: 22px; margin: 24px auto 0; border: 1px solid var(--border-glow); border-radius: var(--border-radius-md); background: var(--bg-card); }
+.workforce-invite-panel[hidden] { display: none; }
+.workforce-invite-panel .form-grid { margin: 18px 0; }
+.workforce-form-message { margin-top: 12px; color: var(--text-muted); overflow-wrap: anywhere; font-size: 11px; }
+.workforce-list { display: grid; }
+.workforce-list-row { display: flex; justify-content: space-between; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
+.workforce-list-row:last-child { border-bottom: 0; }
+.workforce-list-row > div:first-child { display: grid; gap: 4px; }
+.workforce-list-row span { color: var(--text-muted); font-size: 10px; }
+.workforce-accept-overlay { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 20px; background: rgba(3, 8, 18, .84); backdrop-filter: blur(16px); }
+.workforce-accept-card { width: min(100%, 480px); }
+.workforce-accept-card h2 { margin-bottom: 8px; }
+.workforce-accept-card > p { margin-bottom: 18px; color: var(--text-muted); }
+.workforce-accept-card .form-group { margin-bottom: 14px; }
+@media (max-width: 720px) { .workforce-toolbar { grid-template-columns: 1fr; } .workforce-grid { grid-template-columns: 1fr; } .workforce-card { display: grid; } .workforce-card dl { grid-template-columns: 1fr; } .workforce-list-row { align-items: flex-start; flex-direction: column; } }

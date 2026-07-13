@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-auth-status="initializing">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon"
-    href="C:\Users\prabo\Dev\Labs\Web_Prototypes\Fast-Deliveries-Across-Sri-Lanka\falcon-logo-template-free-vector.png" />
+  <link rel="icon" href="falcon-logo-template-free-vector.png" />
   <title>CeylonSwift | Sri Lanka's Smartest & Fastest Delivery Service</title>
   <meta name="description"
     content="CeylonSwift powers ultra-fast, reliable parcel deliveries across Sri Lanka. Track shipments in real time, manage dispatch operations, analyze hub performance, and experience nationwide courier services built for speed and precision.">
@@ -39,10 +38,14 @@
 }
 </script>
   <!-- Production CSS bundle: 19 files → 1 request, minified -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/bundle.min.css">
 </head>
 
-<body>
+<body class="public-view">
 
   <!-- Top Sliding Security OTP Banner -->
   <div class="security-otp-banner" id="security-otp-banner">
@@ -116,19 +119,22 @@
 
   <!-- Main Content Body -->
   <main class="main-content">
+    <p id="operations-live-status" class="operations-live-status" role="status" aria-live="polite"></p>
 
     <!-- Role Session Controller Panel (Static Secure Top Widget) -->
-    <div class="session-control-bar" id="session-control-bar" style="display: none;">
-      <div class="session-indicator">
-        <span>Active Session:</span>
-        <div id="session-active-badge" class="role-tag owner">Owner 👑</div>
+    <div class="session-control-bar authenticated-shell" id="session-control-bar" style="display: none;">
+      <div class="session-avatar" id="session-avatar" aria-hidden="true">CS</div>
+      <div class="session-identity">
+        <strong id="session-display-name">CeylonSwift user</strong>
+        <span><span id="session-workspace-name">Workspace required</span><span aria-hidden="true"> · </span><span
+            id="session-role-label">Restricted access</span></span>
       </div>
-      <div id="session-user-info" style="font-size: 13px; font-weight: 500; color: var(--text-muted);">
-        prabothweerawansha@gmail.com
+      <div class="session-actions" aria-label="Account and workspace actions">
+        <button type="button" class="shell-action" id="session-workspace-switch">Switch workspace</button>
+        <button type="button" class="shell-action" id="session-security-link">Security</button>
+        <button type="button" class="shell-action" id="session-logout-all">Sign out all devices</button>
+        <button type="button" class="shell-action shell-action-primary" id="session-logout">Sign out</button>
       </div>
-      <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 11px;" onclick="handleLogout()">
-        Log Out Session
-      </button>
     </div>
 
     <!-- 🌐 NEW PUBLIC WELCOME LANDING HOMEPAGE -->
@@ -453,7 +459,6 @@
           </button>
         </div>
       </div>
-
       <!-- Quick Metrics Grid -->
       <div class="stats-grid">
         <div class="stat-card">
@@ -1058,6 +1063,17 @@
                 <input type="text" id="cust-phone" required placeholder="e.g., 077 456 7890">
               </div>
               <div class="form-group">
+                <label>Pickup Address</label>
+                <textarea id="cust-pickup-address" required placeholder="e.g., 45, Flower Road, Colombo 07"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Origin Hub District</label>
+                <select id="cust-origin-hub" class="select-style" style="padding: 12px;"
+                  onchange="calculateCustomerRequestFee()">
+                  <option value="Colombo">Colombo</option>
+                </select>
+              </div>
+              <div class="form-group">
                 <label>Full Delivery Address</label>
                 <textarea id="cust-address" required placeholder="e.g., 12, Galle Road, Colombo 03"></textarea>
               </div>
@@ -1118,6 +1134,86 @@
             </div>
           </div>
         </div>
+      </div>
+      <div class="glass-panel customer-delivery-history-panel">
+        <div class="panel-header">
+          <div>
+            <h4>My Deliveries</h4>
+            <p>Backend-verified requests and packages for your account.</p>
+          </div>
+        </div>
+        <div id="customer-delivery-history" class="operation-history-grid" aria-live="polite">
+          <p class="operation-empty">Loading delivery history…</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="partner-home" class="tab-section identity-placeholder-section">
+      <div class="page-header">
+        <div>
+          <p class="section-kicker">Partner organization</p>
+          <h2>Partner workspace</h2>
+          <p>Your workspace is isolated from CeylonSwift internal operations.</p>
+        </div>
+      </div>
+      <div class="identity-placeholder-grid">
+        <article class="identity-placeholder-card"><span>Workspace overview</span>
+          <h3>Secure partner access is active</h3>
+          <p>Only capabilities authorized for this organization appear in navigation.</p>
+        </article>
+        <article class="identity-placeholder-card"><span>Operations</span>
+          <h3>Partner operations are coming soon</h3>
+          <p>Package and workflow APIs are not connected during this phase.</p><button class="btn btn-secondary"
+            type="button" disabled>Coming soon</button>
+        </article>
+      </div>
+    </section>
+
+    <section id="security-center" class="tab-section identity-placeholder-section">
+      <div class="page-header">
+        <div>
+          <p class="section-kicker">Account protection</p>
+          <h2>Security & sessions</h2>
+          <p>Manage this browser session without exposing token or device identifiers.</p>
+        </div>
+      </div>
+      <div class="identity-placeholder-grid">
+        <article class="identity-placeholder-card"><span>Current session</span>
+          <h3>Protected by rotating session credentials</h3>
+          <p>Access tokens remain in memory and refresh credentials remain in an HttpOnly cookie.</p>
+        </article>
+        <article class="identity-placeholder-card"><span>Account action</span>
+          <h3>Sign out everywhere</h3>
+          <p>Revoke all active sessions if you no longer recognize this device.</p><button class="btn btn-secondary"
+            type="button" onclick="window.ceylonSwiftAuth.logoutAll()">Sign out all devices</button>
+        </article>
+      </div>
+    </section>
+
+    <section id="access-management" class="tab-section identity-placeholder-section">
+      <div class="page-header">
+        <div>
+          <p class="section-kicker">Organization security</p>
+          <h2>Access management</h2>
+          <p>Your backend-derived permissions allow this entry. Role administration workflows are not migrated in Phase
+            5.</p>
+        </div>
+      </div>
+      <div class="identity-placeholder-card"><span>Protected capability</span>
+        <h3>Access controls are available through secure APIs</h3>
+        <p>The production management interface will be connected in a later approved phase.</p><button
+          class="btn btn-secondary" type="button" disabled>Interface coming soon</button>
+      </div>
+    </section>
+
+    <section id="access-unavailable" class="tab-section identity-placeholder-section">
+      <div class="identity-state-card" role="status"><span class="identity-state-icon" aria-hidden="true">!</span>
+        <p class="section-kicker">Access unavailable</p>
+        <h2>Workspace permissions could not be loaded</h2>
+        <p>For your protection, navigation is hidden until the active workspace can be validated.</p>
+        <div><button class="btn btn-secondary" type="button"
+            onclick="window.ceylonSwiftAuth.openWorkspaceSelector()">Choose workspace</button><button
+            class="btn btn-primary" type="button" onclick="handleLogout()">Sign out safely</button></div>
       </div>
     </section>
 
@@ -1264,11 +1360,11 @@
   </div>
 
   <!-- Universal Sign-in Modal Portal -->
-  <div class="modal-overlay" id="authPortalModal">
-    <div class="modal-box" style="max-width: 500px;">
+  <div class="modal-overlay" id="authPortalModal" role="dialog" aria-modal="true" aria-labelledby="auth-surface-title">
+    <div class="modal-box auth-modal-box">
       <div class="modal-header">
-        <h3>CeylonSwift Client Portal</h3>
-        <button class="close-modal" onclick="closeModal('authPortalModal')">
+        <h3>Welcome back</h3>
+        <button class="close-modal" onclick="closeModal('authPortalModal')" aria-label="Close sign in">
           <svg viewBox="0 0 24 24" fill="none">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
@@ -1276,14 +1372,7 @@
         </button>
       </div>
 
-      <!-- Auth Role Tabs -->
-      <div class="auth-tabs" id="auth-portal-tabs">
-        <button class="auth-tab-btn active" id="tab-btn-customer" onclick="switchAuthTab('customer')">👤
-          Customer</button>
-        <button class="auth-tab-btn" id="tab-btn-rider" onclick="switchAuthTab('rider')">🏍️ Rider</button>
-        <button class="auth-tab-btn" id="tab-btn-office" onclick="switchAuthTab('office')">🏢 Office Staff</button>
-        <button class="auth-tab-btn" id="tab-btn-owner" onclick="switchAuthTab('owner')">👑 Owner</button>
-      </div>
+      <p id="auth-status-message" class="auth-desc" role="status" aria-live="polite" hidden></p>
 
       <!-- 👤 CUSTOMER AUTH VIEW -->
       <div class="auth-form-view active" id="auth-view-customer">
@@ -1295,7 +1384,12 @@
             <input type="text" id="cust-auth-input" name="email" autocomplete="email" required
               placeholder="e.g., nilan@gmail.com or 0771234567">
           </div>
+          <div class="form-group" style="margin-bottom: 12px;"><label>Password</label><input type="password"
+              id="cust-password-input" autocomplete="current-password" required minlength="8"
+              placeholder="Enter your password"></div>
           <button type="submit" class="btn btn-primary auth-submit-btn">Access Customer Portal 🚀</button>
+          <button type="button" class="btn btn-secondary" style="width:100%; margin-top:8px;"
+            onclick="requestBackendOtpForRole('customer')">Request verification code</button>
         </form>
         <div class="google-auth-divider">or</div>
         <button type="button" class="google-auth-btn" onclick="openGoogleSelector()">
@@ -1336,7 +1430,12 @@
               <input type="text" id="rider-login-input" name="username" autocomplete="username" required
                 placeholder="e.g., EMP-102 or 0751122334">
             </div>
+            <div class="form-group" style="margin-bottom:12px;"><label>Password</label><input type="password"
+                id="rider-password-input" autocomplete="current-password" required minlength="8"
+                placeholder="Enter your password"></div>
             <button type="submit" class="btn btn-primary auth-submit-btn">Rider Secure Sign In 🏍️</button>
+            <button type="button" class="btn btn-secondary" style="width:100%; margin-top:8px;"
+              onclick="requestBackendOtpForRole('rider')">Request verification code</button>
           </form>
           <div class="google-auth-divider">or</div>
           <button type="button" class="google-auth-btn" onclick="openGoogleSelector()">
@@ -1419,7 +1518,12 @@
               <input type="text" id="office-login-input" name="username" autocomplete="username" required
                 placeholder="e.g., EMP-104 or 0719876543">
             </div>
+            <div class="form-group" style="margin-bottom:12px;"><label>Password</label><input type="password"
+                id="office-password-input" autocomplete="current-password" required minlength="8"
+                placeholder="Enter your password"></div>
             <button type="submit" class="btn btn-primary auth-submit-btn">Staff Secure Sign In 🏢</button>
+            <button type="button" class="btn btn-secondary" style="width:100%; margin-top:8px;"
+              onclick="requestBackendOtpForRole('office')">Request verification code</button>
           </form>
           <div class="google-auth-divider">or</div>
           <button type="button" class="google-auth-btn" onclick="openGoogleSelector()">
@@ -1501,6 +1605,8 @@
             </div>
             <button type="submit" class="btn btn-danger auth-submit-btn"
               style="box-shadow: 0 0 15px rgba(244, 63, 94, 0.3);">Proceed to 2-Step Verify 👑</button>
+            <button type="button" class="btn btn-secondary" style="width:100%; margin-top:8px;"
+              onclick="requestBackendOtpForRole('owner')">Request verification code</button>
           </form>
           <div class="google-auth-divider">or</div>
           <button type="button" class="google-auth-btn" onclick="openGoogleSelector()">
@@ -1545,8 +1651,8 @@
 
       <!-- 🔑 UNIVERSAL OTP GATEWAY VIEW (For Standard Users and Google One-Click Logins) -->
       <div class="auth-form-view" id="auth-view-universal-otp" style="display: none;">
-        <p class="auth-desc" style="color: var(--primary); font-weight: 600;">2-Step Verification required. An OTP code
-          has been sent to your simulated device/inbox.</p>
+        <p class="auth-desc" style="color: var(--primary); font-weight: 600;">A verification code has been requested
+          through your registered delivery channel.</p>
         <form onsubmit="handleUniversalOTPVerify(event)">
           <div class="form-group" style="margin-bottom: 16px;">
             <label>Enter 6-Digit OTP Security Code</label>
@@ -1562,6 +1668,25 @@
         </form>
       </div>
 
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="workspaceSelectorModal" role="dialog" aria-modal="true"
+    aria-labelledby="workspace-selector-title" aria-describedby="workspace-selector-status">
+    <div class="modal-box workspace-selector-box">
+      <div class="modal-header">
+        <div>
+          <p class="auth-eyebrow">Active context</p>
+          <h2 id="workspace-selector-title">Choose workspace</h2>
+        </div><button type="button" class="close-modal" data-workspace-close aria-label="Close workspace selector"><svg
+            viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></button>
+      </div>
+      <p id="workspace-selector-status" class="workspace-selector-status" role="status" aria-live="polite">Choose the
+        workspace you want to use.</p>
+      <div id="workspace-selector-list" class="workspace-selector-list"></div>
     </div>
   </div>
 
@@ -1679,7 +1804,9 @@
     </div>
   </div>
 
+  <script src="js/config/public-runtime-config.js"></script>
   <script src="app.js"></script>
+  <script type="module" src="js/compatibility/legacy-auth-bridge.js?v=phase5-3"></script>
 </body>
 
 </html>

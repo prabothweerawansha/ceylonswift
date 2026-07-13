@@ -1,0 +1,2 @@
+const ROLE_MAP = Object.freeze({ CUSTOMER: 'Customer', VIP_CUSTOMER: 'Customer', RIDER: 'Rider', AGENT: 'Office', OFFICE_STAFF: 'Office', BRANCH_MANAGER: 'Office', ADMIN: 'Owner', OWNER: 'Owner', SUPER_ADMIN: 'Owner', PARTNER_USER: null, PARTNER_ADMIN: null, Customer: 'Customer', Rider: 'Rider', Office: 'Office', Owner: 'Owner' });
+export function mapLegacyRole(roles = []) { return roles.map(role => ROLE_MAP[role]).find(Boolean) ?? null; }

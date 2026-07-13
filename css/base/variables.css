@@ -3,8 +3,6 @@
  * Design System & Stylesheet (Upgraded with Multi-Role Portals)
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-
 :root {
   /* Colors */
   --bg-main: #060913;
@@ -61,4 +59,3 @@
   --border-radius-md: 16px;
   --border-radius-lg: 24px;
 }
-

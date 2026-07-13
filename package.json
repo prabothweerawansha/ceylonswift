@@ -5,7 +5,9 @@
   "scripts": {
     "build:css": "node build-css.js && postcss css/bundle.css -o css/bundle.min.css --no-map",
     "watch:css": "node build-css.js && chokidar \"css/**/*.css\" --ignore \"css/bundle*\" -c \"node build-css.js && postcss css/bundle.css -o css/bundle.min.css --no-map\"",
-    "build": "npm run build:css"
+    "build": "npm run build:css",
+    "test": "node --test test/frontend/*.test.mjs",
+    "test:frontend": "node --test test/frontend/*.test.mjs"
   },
   "devDependencies": {
     "chokidar-cli": "^3.0.0",

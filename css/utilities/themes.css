@@ -101,22 +101,21 @@ body.light-theme {
   width: min(1180px, calc(100% - 32px));
   max-width: calc(100vw - 32px);
   margin: 0 auto;
-  min-height: calc(92px - (22px * var(--scroll-progress)));
-  padding: calc(18px - (6px * var(--scroll-progress))) calc(26px - (6px * var(--scroll-progress)));
-  top: calc(20px - (8px * var(--scroll-progress)));
-  border-radius: calc(28px - (7px * var(--scroll-progress)));
+  min-height: 92px;
+  padding: 18px 26px;
+  top: 20px;
+  border-radius: 28px;
   background:
     linear-gradient(112deg, rgba(17, 54, 76, .96), rgba(20, 31, 57, .97) 48%, rgba(42, 28, 72, .96));
   border-color: rgba(137, 199, 230, .22);
   box-shadow:
-    0 calc(22px - (8px * var(--scroll-progress))) calc(70px - (24px * var(--scroll-progress))) rgba(3, 7, 24, .48),
-    0 0 calc(24px * var(--scroll-velocity)) rgba(83, 217, 255, .22),
+    0 22px 70px rgba(3, 7, 24, .48),
     inset 0 1px 0 rgba(255,255,255,.2), inset 0 -1px 0 rgba(255,255,255,.04);
-  transform: translate3d(0, calc(-1.5px * var(--scroll-velocity)), 0);
+  transform: translate3d(0, 0, 0);
   transition: background .28s ease, border-color .28s ease, box-shadow .18s linear;
   overflow: visible;
   isolation: isolate;
-  will-change: min-height, padding, transform;
+  will-change: transform;
 }
 
 .public-navbar.is-scrolled {
@@ -135,6 +134,7 @@ body.light-theme {
 .public-navbar .nav-links {
   min-width: 0;
   justify-content: center;
+  position: relative;
 }
 
 .public-navbar::before {
@@ -148,24 +148,19 @@ body.light-theme {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
-  opacity: clamp(0, calc(var(--scroll-velocity) * 1.8), .82);
+  opacity: .38;
   transition: opacity .16s linear;
 }
 
-.public-navbar .nav-links a { position: relative; padding: 10px 2px; }
+.public-navbar .nav-links a { position: relative; padding: 10px 12px; }
 .public-navbar .nav-links a::after {
-  content: "";
-  position: absolute;
-  left: 50%; right: 50%; bottom: 2px;
-  height: 2px;
-  border-radius: 9px;
-  background: linear-gradient(90deg, var(--primary), #a88cff);
-  box-shadow: 0 0 10px var(--primary-glow);
-  transition: left .3s ease, right .3s ease;
+  display: none;
 }
-.public-navbar .nav-links a:hover::after,
-.public-navbar .nav-links a.active::after { left: 0; right: 0; }
-.public-navbar .nav-links a.active { color: #fff; }
+
+.public-navbar .nav-links a {
+  text-shadow: none;
+  transition: color .2s ease, text-shadow .2s ease, opacity .2s ease;
+}
 
 .public-navbar .logo-icon,
 .btn-primary {

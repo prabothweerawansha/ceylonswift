@@ -122,6 +122,29 @@ main.main-content {
   border-color: var(--primary);
 }
 
+.authenticated-shell { gap: 14px; padding: 12px 14px; background: linear-gradient(120deg, rgba(16, 32, 53, 0.88), rgba(20, 21, 45, 0.84)); }
+.session-avatar { display: flex; width: 42px; height: 42px; flex: 0 0 42px; align-items: center; justify-content: center; border-radius: 14px; background: linear-gradient(135deg, rgba(0, 242, 254, 0.22), rgba(168, 85, 247, 0.24)); border: 1px solid rgba(126, 220, 242, 0.22); color: var(--text-main); font: 800 13px var(--font-title); }
+.session-identity { display: grid; gap: 3px; min-width: 0; margin-right: auto; }
+.session-identity strong { overflow: hidden; color: var(--text-main); font: 700 13px var(--font-title); text-overflow: ellipsis; white-space: nowrap; }
+.session-identity > span { overflow: hidden; color: var(--text-muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.session-actions { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+.shell-action { min-height: 36px; padding: 7px 10px; border: 1px solid var(--border-color); border-radius: 10px; background: rgba(255,255,255,0.025); color: var(--text-muted); font: 700 10px var(--font-body); cursor: pointer; }
+.shell-action:hover { border-color: rgba(0, 242, 254, 0.28); color: var(--text-main); }
+.shell-action-primary { border-color: rgba(0, 242, 254, 0.22); color: var(--primary); background: rgba(0, 242, 254, 0.07); }
+.shell-action:focus-visible, .nav-item:focus-visible { outline: 3px solid color-mix(in srgb, var(--primary) 40%, transparent); outline-offset: 2px; }
+.nav-menu button.nav-item { width: 100%; font: inherit; text-align: left; }
+.nav-icon-mark { display: inline-flex; width: 25px; height: 25px; flex: 0 0 25px; align-items: center; justify-content: center; border-radius: 9px; background: rgba(255,255,255,0.045); color: currentColor; font: 800 10px var(--font-title); }
+
+@media (max-width: 980px) {
+  .authenticated-shell { align-items: flex-start; flex-wrap: wrap; }
+  .session-actions { width: 100%; justify-content: flex-start; padding-left: 56px; }
+}
+
+@media (max-width: 600px) {
+  .session-actions { padding-left: 0; }
+  .shell-action { flex: 1 1 calc(50% - 7px); }
+}
+
 /* Security Restriction Message Banner */
 .security-alert {
   background: rgba(239, 68, 68, 0.08);

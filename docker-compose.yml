@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ceylonswift_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-ceylonswift}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ceylonswift_dev}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ceylonswift_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  ceylonswift_postgres_data:
+    name: ceylonswift_postgres_data

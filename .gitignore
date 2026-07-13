@@ -1,6 +1,45 @@
-node_modules/
+# Environment and secrets
 .env
-css/bundle.css
-css/bundle.min.cssgit remote add origin https://github.com/YOUR_USERNAME/ceylonswift.git
-git branch -M main
-git push -u origin main
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+secrets/
+private/
+credentials/
+
+# Node dependencies
+node_modules/
+backend/node_modules/
+
+# Build output
+dist/
+build/
+coverage/
+*.log
+logs/
+
+# Database and Prisma temporary files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backend/prisma/*.db
+
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Local uploads and generated data
+uploads/
+storage/
