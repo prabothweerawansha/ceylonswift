@@ -31,6 +31,7 @@ async function main(): Promise<void> {
   const riderRole = await prisma.role.findFirstOrThrow({ where: { key: 'RIDER', organizationId: null, isActive: true } });
   const riderFixtures = [
     { email: 'rider.active.two.dev@example.test', employeeNumber: 'DEV-RIDER-02', name: 'Development Active Rider Two', branchId: branches[0]!.id, status: RiderStatus.AVAILABLE },
+    { email: 'rider.active.three.dev@example.test', employeeNumber: 'DEV-RIDER-03', name: 'Development Active Rider Three', branchId: branches[0]!.id, status: RiderStatus.AVAILABLE },
     { email: 'rider.suspended.dev@example.test', employeeNumber: 'DEV-RIDER-SUSPENDED', name: 'Development Suspended Rider', branchId: branches[0]!.id, status: RiderStatus.SUSPENDED },
     { email: 'rider.other.branch.dev@example.test', employeeNumber: 'DEV-RIDER-OTHER-BRANCH', name: 'Development Other Branch Rider', branchId: branches[1]!.id, status: RiderStatus.AVAILABLE },
   ];

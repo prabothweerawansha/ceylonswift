@@ -40,7 +40,7 @@ export class MaintenanceJobsService implements OnModuleInit, OnModuleDestroy {
 
   private jobs(): Job[] {
     return [
-      { name: 'expired-idempotency', run: (tx, batch) => this.deleteBatch(tx, 'idempotencyRecord', { expiresAt: { lt: new Date() } }, batch, 'expiresAt') },
+      { name: 'expired-idempotency', run: (tx, batch) => this.deleteBatch(tx, 'idempotencyRecord', { expiresAt: { lt: this.daysAgo(this.retention('idempotencyDays')) } }, batch, 'expiresAt') },
       { name: 'expired-refresh-tokens', run: (tx, batch) => this.deleteBatch(tx, 'refreshToken', { expiresAt: { lt: this.daysAgo(this.retention('sessionsDays')) } }, batch, 'expiresAt') },
       { name: 'expired-sessions', run: (tx, batch) => this.cleanupSessions(tx, batch) },
       { name: 'expired-otp-challenges', run: (tx, batch) => this.deleteBatch(tx, 'otpChallenge', { expiresAt: { lt: this.daysAgo(this.retention('challengesDays')) } }, batch, 'expiresAt') },
@@ -110,7 +110,7 @@ export class MaintenanceJobsService implements OnModuleInit, OnModuleDestroy {
     return (await delegate.deleteMany({ where: { id: { in: ids.map((row) => row.id) } } })).count;
   }
 
-  private retention(key: 'loginAttemptsDays' | 'challengesDays' | 'sessionsDays' | 'invitationsDays' | 'auditDays'): number { return this.config.get<number>(`retention.${key}`, 90); }
+  private retention(key: 'loginAttemptsDays' | 'challengesDays' | 'sessionsDays' | 'invitationsDays' | 'idempotencyDays' | 'auditDays'): number { return this.config.get<number>(`retention.${key}`, 90); }
   private daysAgo(days: number): Date { return new Date(Date.now() - days * 86400000); }
   private lockKey(name: string): bigint { return BigInt(`0x${createHash('sha256').update(name).digest('hex').slice(0, 15)}`); }
   private readonly isTransient = (error: unknown): boolean => error instanceof Prisma.PrismaClientKnownRequestError && ['P1001', 'P1002', 'P1008', 'P2024'].includes(error.code);

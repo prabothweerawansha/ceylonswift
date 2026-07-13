@@ -6,5 +6,6 @@ import { HealthService } from './health.service';
 @Module({
   controllers: [HealthController],
   providers: [HealthService, PrismaHealthIndicator],
+  exports: [PrismaHealthIndicator],
 })
 export class HealthModule {}

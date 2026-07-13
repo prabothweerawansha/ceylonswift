@@ -53,7 +53,7 @@ export class IdempotencyService {
     return changed.count;
   }
 
-  private async acquire(input: IdempotencyInput, identity: { scopeHash: string; keyHash: string; requestHash: string }, collided = false): Promise<{ record: IdempotencyRecord; replay: boolean }> {
+  private async acquire(input: IdempotencyInput, identity: { scopeHash: string; keyHash: string; requestHash: string }, attempt = 0): Promise<{ record: IdempotencyRecord; replay: boolean }> {
     const now = new Date();
     const ttl = this.config.get<number>('idempotency.ttlSeconds', 86400);
     const staleSeconds = this.config.get<number>('idempotency.inProgressTimeoutSeconds', 120);
@@ -85,7 +85,7 @@ export class IdempotencyService {
       return { record, replay: false };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }); }
     catch (error) {
-      if (!collided && error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return this.acquire(input, identity, true);
+      if (attempt < 3 && error instanceof Prisma.PrismaClientKnownRequestError && ['P2002', 'P2034'].includes(error.code)) return this.acquire(input, identity, attempt + 1);
       throw error;
     }
   }
