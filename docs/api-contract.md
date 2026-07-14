@@ -1,12 +1,12 @@
 # REST API contract
 
-Phase 0 design only. All production endpoints are versioned under `/api/v1`.
+All production endpoints are versioned under `/api/v1`.
 
 ## Common conventions
 
 - JSON request and response bodies use UTF-8.
-- Successful single-resource response: `{ "success": true, "data": {}, "requestId": "..." }`.
-- Successful collection response includes `data`, `pageInfo`, and `requestId`.
+- Successful single-resource response: `{ "success": true, "data": {}, "requestId": "...", "timestamp": "..." }`.
+- Successful collection response includes `data`, `pageInfo`, `requestId`, and `timestamp`.
 - Timestamps use ISO 8601 UTC.
 - IDs are UUID strings unless a public tracking code is explicitly required.
 - Unknown request fields are rejected.
@@ -23,7 +23,8 @@ Error shape:
     "message": "Unable to complete authentication.",
     "details": null
   },
-  "requestId": "019..."
+  "requestId": "019...",
+  "timestamp": "2026-07-15T00:00:00.000Z"
 }
 ```
 
@@ -133,7 +134,8 @@ Collections use cursor pagination:
   "success": true,
   "data": [],
   "pageInfo": { "nextCursor": null, "hasNextPage": false, "limit": 25 },
-  "requestId": "019..."
+  "requestId": "019...",
+  "timestamp": "2026-07-15T00:00:00.000Z"
 }
 ```
 

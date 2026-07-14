@@ -36,6 +36,7 @@ describe('API foundation (e2e)', () => {
       data: { status: 'ok', database: 'connected', environment: 'test' },
     });
     expect(response.body.requestId).toBe(response.headers['x-request-id']);
+    expect(new Date(response.body.timestamp).toISOString()).toBe(response.body.timestamp);
   });
 
   it('returns the documented error envelope when the database is unavailable', async () => {
@@ -46,6 +47,7 @@ describe('API foundation (e2e)', () => {
       error: { code: 'HEALTH_DATABASE_UNAVAILABLE', details: null },
     });
     expect(response.body.requestId).toBeDefined();
+    expect(new Date(response.body.timestamp).toISOString()).toBe(response.body.timestamp);
   });
 
   it('provides shallow liveness without requiring the database', async () => {
@@ -65,5 +67,6 @@ describe('API foundation (e2e)', () => {
     expect(response.body.success).toBe(false);
     expect(response.body.error.code).toBe('RESOURCE_NOT_FOUND');
     expect(response.body.requestId).toBeDefined();
+    expect(new Date(response.body.timestamp).toISOString()).toBe(response.body.timestamp);
   });
 });

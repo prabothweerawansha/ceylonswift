@@ -28,20 +28,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exceptionResponse
         : { message: typeof exceptionResponse === 'string' ? exceptionResponse : undefined };
     const validationMessages = Array.isArray(body.message) ? body.message : null;
+    const isServerError = status >= 500;
 
     response.status(status).json({
       success: false,
       error: {
         code: body.code ?? this.defaultCode(status),
         message:
-          status >= 500
+          isServerError
             ? 'The service could not complete the request.'
             : validationMessages
               ? 'The request contains invalid fields.'
               : (body.message ?? 'Unable to complete the request.'),
-        details: validationMessages ?? body.details ?? null,
+        details: isServerError ? null : (validationMessages ?? body.details ?? null),
       },
       requestId: request.requestId,
+      timestamp: new Date().toISOString(),
     });
   }
 
