@@ -2,7 +2,7 @@ const ROLE_LABELS = Object.freeze({ CUSTOMER: 'Customer', VIP_CUSTOMER: 'VIP cus
 
 export class AuthenticatedShell {
   constructor({ getAuth, onWorkspaceSwitch, onSecurity }) { this.getAuth = getAuth; this.onWorkspaceSwitch = onWorkspaceSwitch; this.onSecurity = onSecurity; this.bound = false; }
-  init() { if (this.bound) return; this.bound = true; document.getElementById('session-workspace-switch')?.addEventListener('click', () => this.onWorkspaceSwitch()); document.getElementById('session-security-link')?.addEventListener('click', () => this.onSecurity()); document.getElementById('session-logout')?.addEventListener('click', () => globalThis.handleLogout()); document.getElementById('session-logout-all')?.addEventListener('click', async () => { globalThis.resetSavedNavigationSection?.(); await this.getAuth().logoutAll(); }); }
+  init() { if (this.bound) return; this.bound = true; document.getElementById('session-workspace-switch')?.addEventListener('click', () => this.onWorkspaceSwitch()); document.getElementById('session-security-link')?.addEventListener('click', () => this.onSecurity()); document.getElementById('session-logout')?.addEventListener('click', () => globalThis.handleLogout()); document.getElementById('session-logout-all')?.addEventListener('click', () => globalThis.handleLogout(true)); }
   render(snapshot) {
     this.init();
     const bar = document.getElementById('session-control-bar'); if (!bar) return;
