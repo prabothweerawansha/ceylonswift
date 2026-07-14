@@ -1,3 +1,8 @@
+import { mapCustomerRequestCreatePayload } from './customer-request-payload.js?v=reliable-errors-2';
+import { FormErrorController } from '../errors/error-state-controller.js';
+import { normalizeError, safeDevelopmentLog } from '../errors/error-normalizer.js';
+import { showToast } from '../errors/error-presenter.js';
+
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 const displayStatus = value => String(value || '').toLowerCase().replaceAll('_', ' ').replace(/^./, character => character.toUpperCase());
 const serviceValue = value => value === 'instant' ? 'SAME_DAY' : String(value || 'EXPRESS').toUpperCase();
@@ -15,6 +20,7 @@ export class OperationsController {
     this.error = null;
     this.busy = false;
     this.pendingMutations = new Set();
+    this.customerFormErrors = null;
   }
 
   permissions() { return new Set(this.snapshot?.capabilities?.permissions || []); }
@@ -157,32 +163,50 @@ export class OperationsController {
       const ids = prefix === 'home' ? ['home-calc-result-total','home-calc-base','home-calc-weight-fee','home-calc-markup'] : prefix === 'portal' ? ['calc-result-total','calc-base','calc-weight-fee','calc-markup'] : ['cust-result-price','cust-base-val','cust-weight-val'];
       const values = [`${result.currency} ${result.amount}`, `${result.currency} ${result.breakdown.baseFee}`, `${result.currency} ${result.breakdown.weightSurcharge}`, `${result.currency} ${result.breakdown.zoneSurcharge}`];
       ids.forEach((id, index) => { const element = document.getElementById(id); if (element) element.textContent = values[index]; });
-    } catch (error) { this.announce(error?.message || 'Unable to calculate the delivery estimate.', 'error'); }
+    } catch (error) { const state = normalizeError(error); this.announce(state.message, state.severity); if (state.kind !== 'validation') showToast(state); }
   }
 
   async submitCustomerRequest(event) {
     event?.preventDefault();
     if (this.pendingMutations.has('customer-booking')) return;
     if (this.snapshot?.status !== 'authenticated') { globalThis.openAuthPortal?.('customer'); return; }
-    const pickup = document.getElementById('cust-pickup-address')?.value.trim();
-    const delivery = document.getElementById('cust-address')?.value.trim();
-    const payload = {
-      ...this.pricingPayload('cust'),
-      recipientName: document.getElementById('cust-recipient')?.value.trim(),
-      recipientPhone: phoneValue(document.getElementById('cust-phone')?.value),
-      pickupAddress: { type: 'PICKUP', label: 'Pickup', line1: pickup, locality: this.selectedHub('cust-origin-hub')?.district || 'Colombo', countryCode: 'LK' },
-      deliveryAddress: { type: 'DELIVERY', label: 'Delivery', line1: delivery, locality: this.selectedHub('cust-hub')?.district || 'Colombo', countryCode: 'LK' },
-    };
-    this.pendingMutations.add('customer-booking');
-    const submitButton = event?.submitter; if (submitButton) submitButton.disabled = true;
+    const form = document.getElementById('customerRequestForm');
+    this.customerFormErrors ||= new FormErrorController(form, { summaryId: 'customerRequestErrorSummary', fields: {
+      recipientName: 'cust-recipient', recipientPhone: 'cust-phone', weightKg: 'cust-weight', originHubId: 'cust-origin-hub', destinationHubId: 'cust-hub',
+      'pickupAddress.line1': 'cust-pickup-address', 'pickupAddress.locality': 'cust-origin-hub', 'deliveryAddress.line1': 'cust-address', 'deliveryAddress.locality': 'cust-hub', codAmount: 'cust-cod-val',
+    } });
+    this.customerFormErrors.clearAll();
+    const submitButton = event?.submitter || form?.querySelector('[type=submit]');
+    const originalLabel = submitButton?.textContent;
     try {
+      const pickup = document.getElementById('cust-pickup-address')?.value.trim();
+      const delivery = document.getElementById('cust-address')?.value.trim();
+      const paymentMode = paymentValue(document.getElementById('cust-payment')?.value);
+      const payload = mapCustomerRequestCreatePayload({
+        recipientName: document.getElementById('cust-recipient')?.value.trim(),
+        recipientPhone: document.getElementById('cust-phone')?.value,
+        weightKg: document.getElementById('cust-weight')?.value,
+        serviceLevel: 'EXPRESS', paymentMode,
+        ...(paymentMode === 'COD' ? { codAmount: document.getElementById('cust-cod-val')?.value } : {}),
+        originHubId: this.selectedHub('cust-origin-hub')?.id,
+        destinationHubId: this.selectedHub('cust-hub')?.id,
+        pickupAddress: { line1: pickup, locality: this.selectedHub('cust-origin-hub')?.district || 'Colombo', countryCode: 'LK' },
+        deliveryAddress: { line1: delivery, locality: this.selectedHub('cust-hub')?.district || 'Colombo', countryCode: 'LK' },
+      });
+      this.pendingMutations.add('customer-booking');
+      if (submitButton) { submitButton.disabled = true; submitButton.setAttribute('aria-busy', 'true'); submitButton.textContent = 'Submitting booking…'; }
       const created = await this.api.createRequest(payload);
       await this.api.submitRequest(created.id);
-      document.getElementById('customerRequestForm')?.reset();
+      form?.reset();
       await this.reload();
       this.announce(`Booking ${created.requestCode} was submitted securely.`, 'success');
-    } catch (error) { this.announce(`${error?.message || 'Unable to submit the booking.'}${error?.requestId ? ` Support request: ${error.requestId}` : ''}`, 'error'); }
-    finally { this.pendingMutations.delete('customer-booking'); if (submitButton) submitButton.disabled = false; }
+    } catch (error) {
+      const state = this.customerFormErrors.show(error); safeDevelopmentLog(error, 'customer booking');
+      if (!Object.keys(state.fieldErrors).length) { this.announce(state.message, 'error'); if (state.kind !== 'validation') showToast(state); }
+    } finally {
+      this.pendingMutations.delete('customer-booking');
+      if (submitButton) { submitButton.disabled = navigator.onLine === false; submitButton.removeAttribute('aria-busy'); submitButton.textContent = originalLabel; }
+    }
   }
 
   async track(code, target = 'public') {
@@ -212,7 +236,7 @@ export class OperationsController {
     };
     this.pendingMutations.add('package-create'); const submitButton = event?.submitter; if (submitButton) submitButton.disabled = true;
     try { await this.api.createPackage(payload); document.getElementById('pkgForm')?.reset(); globalThis.closeModal?.('pkgModal'); await this.reload(); this.announce('Package created securely.', 'success'); }
-    catch (error) { this.announce(`${error?.message || 'Unable to create the package.'}${error?.requestId ? ` Support request: ${error.requestId}` : ''}`, 'error'); }
+    catch (error) { const state = normalizeError(error); this.announce(state.message, state.severity); showToast(state); }
     finally { this.pendingMutations.delete('package-create'); if (submitButton) submitButton.disabled = false; }
   }
 
@@ -246,9 +270,9 @@ export class OperationsController {
       if (current.status === 'CONFIRMED') current = await this.api.transition(current.id, 'AWAITING_PICKUP', current.version);
       await this.api.assign(current.id, rider.backendRiderId, current.version);
       await this.reload(); this.announce('Rider assigned securely.', 'success');
-    } catch (error) { this.announce(error?.message || 'Unable to dispatch this package.', 'error'); }
+    } catch (error) { const state = normalizeError(error); this.announce(state.message, state.severity); showToast(state); }
   }
-  async mutate(key, operation) { if (this.pendingMutations.has(key)) return; this.pendingMutations.add(key); try { await operation(); await this.reload(); this.announce('Delivery operation completed.', 'success'); } catch (error) { this.announce(`${error?.message || 'Delivery operation failed.'}${error?.requestId ? ` Support request: ${error.requestId}` : ''}`, 'error'); } finally { this.pendingMutations.delete(key); } }
+  async mutate(key, operation) { if (this.pendingMutations.has(key)) return; this.pendingMutations.add(key); try { await operation(); await this.reload(); this.announce('Delivery operation completed.', 'success'); } catch (error) { const state = normalizeError(error); this.announce(state.message, state.severity); showToast(state); } finally { this.pendingMutations.delete(key); } }
 
   renderRequestHistory() {
     const container = document.getElementById('customer-delivery-history'); if (!container) return;
@@ -257,6 +281,6 @@ export class OperationsController {
     container.innerHTML = packages + requests || '<p class="operation-empty">No delivery history yet.</p>';
   }
 
-  renderStatus() { const status = document.getElementById('operations-live-status'); if (!status) return; status.textContent = this.busy ? 'Loading delivery data…' : this.error ? 'Delivery data is temporarily unavailable.' : ''; }
+  renderStatus() { const status = document.getElementById('operations-live-status'); if (!status) return; const state = this.error ? normalizeError(this.error) : null; status.textContent = this.busy ? 'Loading delivery data…' : state ? state.message : ''; status.dataset.kind = state?.severity || 'info'; }
   announce(message, kind = 'info') { const status = document.getElementById('operations-live-status'); if (status) { status.textContent = message; status.dataset.kind = kind; } }
 }

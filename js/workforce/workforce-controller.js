@@ -1,3 +1,5 @@
+import { normalizeError } from '../errors/error-normalizer.js';
+
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 const label = value => String(value ?? '').toLowerCase().replaceAll('_', ' ').replace(/^./, character => character.toUpperCase());
 const initials = value => String(value || 'CS').split(/\s+/).slice(0, 2).map(part => part[0]?.toUpperCase()).join('');
@@ -92,6 +94,7 @@ export class WorkforceController {
   }
 
   bindTeam(section) {
+    section.querySelector('[data-workforce-retry]')?.addEventListener('click', () => this.reload());
     section.querySelectorAll('[data-team-filter]').forEach(button => button.addEventListener('click', () => this.renderTeam(button.dataset.teamFilter)));
     section.querySelector('[data-workforce-action="open-invite"]')?.addEventListener('click', () => this.openInvite());
     section.querySelector('[data-workforce-action="apply-filter"]')?.addEventListener('click', () => { this.filters.search = section.querySelector('#workforce-search')?.value.trim() || ''; this.filters.status = section.querySelector('#workforce-status')?.value || ''; void this.reload(); });
@@ -117,8 +120,10 @@ export class WorkforceController {
 
   async submitInvite(event) {
     event.preventDefault(); const form = event.currentTarget; const message = form.querySelector('.workforce-form-message'); const values = new FormData(form); const destination = String(values.get('destination') || '').trim();
+    const submit = event.submitter || form.querySelector('[type=submit]'); const original = submit?.textContent; if (submit) { submit.disabled = true; submit.setAttribute('aria-busy', 'true'); submit.textContent = 'Creating invitation…'; }
     try { const result = await this.api.createInvitation({ ...(destination.includes('@') ? { email: destination } : { phone: destination }), branchId: values.get('branchId'), jobTitle: values.get('jobTitle'), roleKeys: [values.get('roleKey')] }); message.textContent = result.developmentAcceptanceToken ? `Invitation created. Development acceptance link: ${location.origin}${location.pathname}?invitation=${encodeURIComponent(result.developmentAcceptanceToken)}` : 'Invitation created and queued for delivery.'; form.reset(); await this.reload(); }
-    catch (error) { message.textContent = error?.message || 'Unable to create invitation.'; }
+    catch (error) { message.textContent = normalizeError(error).message; }
+    finally { if (submit) { submit.disabled = false; submit.removeAttribute('aria-busy'); submit.textContent = original; } }
   }
 
   renderApprovals() {
@@ -129,6 +134,7 @@ export class WorkforceController {
     section.querySelectorAll('[data-approval]').forEach(button => button.addEventListener('click', () => this.decideApproval(button.dataset.approval, button.dataset.decision === 'approve')));
     section.querySelectorAll('[data-revoke-invitation]').forEach(button => button.addEventListener('click', () => this.mutate(() => this.api.revokeInvitation(button.dataset.revokeInvitation))));
     section.querySelectorAll('[data-more]').forEach(button => button.addEventListener('click', () => this.more(button.dataset.more)));
+    section.querySelector('[data-workforce-retry]')?.addEventListener('click', () => this.reload());
   }
 
   approvalRow(item) { const allowed = this.can(item.requiredPermission); return `<div class="workforce-list-row"><div><strong>${escapeHtml(label(item.type))}</strong><span>${escapeHtml(item.branch?.name || 'Organization-wide')} · ${escapeHtml(new Date(item.createdAt).toLocaleDateString())}</span></div>${allowed ? `<div class="workforce-actions"><button class="btn btn-primary" data-approval="${item.id}" data-decision="approve">Approve</button><button class="btn btn-secondary" data-approval="${item.id}" data-decision="reject">Reject</button></div>` : ''}</div>`; }
@@ -146,10 +152,10 @@ export class WorkforceController {
     if (!modal) { modal = document.createElement('div'); modal.id = 'workforce-invitation-accept'; modal.className = 'workforce-accept-overlay'; document.body.append(modal); }
     if (modal.dataset.bound) return;
     modal.innerHTML = `<form class="glass-panel workforce-accept-card"><p class="section-kicker">Workforce invitation</p><h2>Set up your account</h2><p>Your organization and roles come from the signed invitation and cannot be changed here.</p><label class="form-group"><span>Full name</span><input name="displayName" required minlength="2" maxlength="160" autocomplete="name"></label><label class="form-group"><span>Secure password</span><input name="password" type="password" required minlength="12" maxlength="128" autocomplete="new-password"></label><button class="btn btn-primary" type="submit">Accept invitation</button><p role="status"></p></form>`;
-    modal.dataset.bound = 'true'; modal.querySelector('form').addEventListener('submit', async event => { event.preventDefault(); const form = event.currentTarget; const message = form.querySelector('[role=status]'); const data = new FormData(form); try { await this.api.acceptInvitation({ token, displayName: data.get('displayName'), password: data.get('password') }); message.textContent = 'Invitation accepted. Approval is pending; you may sign in after activation.'; history.replaceState(null, '', location.pathname + location.hash); } catch (error) { message.textContent = error?.message || 'Unable to accept invitation.'; } });
+    modal.dataset.bound = 'true'; modal.querySelector('form').addEventListener('submit', async event => { event.preventDefault(); const form = event.currentTarget; const message = form.querySelector('[role=status]'); const data = new FormData(form); const button = event.submitter; if (button) { button.disabled = true; button.setAttribute('aria-busy', 'true'); } try { await this.api.acceptInvitation({ token, displayName: data.get('displayName'), password: data.get('password') }); message.textContent = 'Invitation accepted. Approval is pending; you may sign in after activation.'; history.replaceState(null, '', location.pathname + location.hash); } catch (error) { message.textContent = normalizeError(error).message; } finally { if (button) { button.disabled = false; button.removeAttribute('aria-busy'); } } });
   }
 
-  statusBlock() { if (this.busy) return '<div class="workforce-state" role="status">Loading verified workforce data…</div>'; if (this.error) return `<div class="workforce-state workforce-error" role="alert">${escapeHtml(this.error.message || 'Unable to load workforce data.')} <button class="btn btn-secondary" data-workforce-retry>Retry</button></div>`; return ''; }
+  statusBlock() { if (this.busy) return '<div class="workforce-state" role="status">Loading verified workforce data…</div>'; if (this.error) return `<div class="workforce-state workforce-error" role="alert"><strong>${escapeHtml(normalizeError(this.error).title)}</strong><span>${escapeHtml(normalizeError(this.error).message)}</span><button class="btn btn-secondary" data-workforce-retry>Retry</button></div>`; return ''; }
   empty(message) { return `<div class="workforce-empty"><strong>Nothing to show</strong><span>${escapeHtml(message)}</span></div>`; }
   unavailable(message) { return `<div class="identity-state-card"><p class="section-kicker">Restricted</p><h2>Workforce access unavailable</h2><p>${escapeHtml(message)}</p></div>`; }
 }

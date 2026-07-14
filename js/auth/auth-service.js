@@ -2,6 +2,7 @@ import { ApiClient } from '../api/api-client.js?v=phase4-1';
 import { ApiError, NetworkError, RequestTimeoutError } from '../api/api-errors.js';
 import { AuthState } from './auth-state.js';
 import { ApiAuthAdapter } from './api-auth-adapter.js';
+import { errorMessageFor } from '../errors/error-messages.js';
 
 export class AuthService {
   constructor(config, { fetchImpl = globalThis.fetch, legacyHooks = {} } = {}) { this.config = config; this.state = new AuthState(config.authMode); this.client = new ApiClient({ baseUrl: config.apiBaseUrl, timeoutMs: config.requestTimeoutMs, fetchImpl }); this.legacyHooks = legacyHooks; this.adapter = null; this.client.setAuthenticationFailureHandler(() => this.expireSession()); }
@@ -24,5 +25,5 @@ export class AuthService {
   restoredWorkspace(workspaces, selected) { if (!selected) return null; if (selected.membershipId) return workspaces.find(workspace => workspace.id === selected.membershipId) ?? null; if (!selected.organizationId && !selected.branchId) return workspaces.find(workspace => workspace.type === 'PERSONAL') ?? null; return null; }
   async loadCapabilities(activeWorkspace) { if (!activeWorkspace || this.config.authMode !== 'api') return { capabilities: null, capabilityStatus: 'idle', capabilityError: null }; try { return { capabilities: await this.adapter.getCapabilities(), capabilityStatus: 'ready', capabilityError: null }; } catch (error) { return { capabilities: null, capabilityStatus: 'unavailable', capabilityError: this.safeError(error) }; } }
   safeError(error) { return { code: error?.code ?? 'REQUEST_FAILED', message: this.messageFor(error), requestId: error?.requestId ?? null }; }
-  messageFor(error) { const messages = { AUTH_INVALID_CREDENTIALS: 'Unable to complete authentication.', AUTH_SESSION_INVALID: 'Your session has expired. Please sign in again.', AUTH_RATE_LIMITED: 'Too many attempts. Please wait and try again.', AUTH_OTP_INVALID: 'The verification code is invalid or expired.', AUTH_PROVIDER_UNAVAILABLE: 'Google authentication is currently unavailable.', AUTH_WORKSPACE_INVALID: 'This workspace is no longer available.', AUTH_PERMISSION_DENIED: 'You are not authorized to use this workspace action.', AUTH_STEP_UP_REQUIRED: 'Additional verification is required to continue.', NETWORK_ERROR: 'The authentication service is unavailable. The public site is still available.', REQUEST_TIMEOUT: 'The request timed out. Please try again.' }; return messages[error?.code] ?? error?.message ?? 'Unable to complete the request.'; }
+  messageFor(error) { const authSpecific = { AUTH_OTP_INVALID: 'The verification code is invalid or expired.', AUTH_PROVIDER_UNAVAILABLE: 'Google authentication is currently unavailable.', AUTH_WORKSPACE_INVALID: 'This workspace is no longer available.' }; return authSpecific[error?.code] ?? errorMessageFor({ code: error?.code, status: error?.status }).message; }
 }

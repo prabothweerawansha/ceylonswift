@@ -13,6 +13,7 @@
 @import url("./components/components-late.css");
 @import url("./components/workforce.css");
 @import url("./components/operations.css");
+@import url("./components/errors.css");
 @import url("./pages/home.css");
 @import url("./pages/login.css");
 @import url("./utilities/themes.css");
