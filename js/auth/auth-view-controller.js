@@ -1,4 +1,5 @@
 const ROUTES = Object.freeze({ customer: 'login', workforce: 'staff-login', admin: 'admin-login', partner: 'partner-login' });
+const AUTH_ROUTE_IDS = Object.freeze(Object.values(ROUTES));
 const ROUTE_SURFACES = Object.freeze(Object.fromEntries(Object.entries(ROUTES).map(([surface, route]) => [route, surface])));
 const SURFACE_COPY = Object.freeze({
   customer: ['Welcome back', 'Sign in or create your account'],
@@ -108,4 +109,4 @@ export class AuthViewController {
   handleKeydown(event) { if (event.key === 'Escape') { event.preventDefault(); this.close(); return; } if (event.key !== 'Tab') return; const controls = [...this.modal.querySelectorAll('button:not([disabled]):not([hidden]), input:not([disabled]):not([hidden]), a[href]')].filter(element => element.offsetParent !== null); if (!controls.length) return; const first = controls[0]; const last = controls[controls.length - 1]; if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); } }
 }
 
-export { AUTH_TEMPLATE, ROUTES };
+export { AUTH_ROUTE_IDS, AUTH_TEMPLATE, ROUTES };

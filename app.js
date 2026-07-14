@@ -164,6 +164,26 @@ function resolveNavigationSection(role, savedSection = readSavedNavigationSectio
   return allowedSections.includes(savedSection) ? savedSection : (allowedSections[0] || ROLE_DEFAULT_SECTIONS[role] || PUBLIC_NAVIGATION_SECTION);
 }
 
+function resolveDashboardSection(preferredSection = null) {
+  const allowedSections = state.allowedNavigationSections.filter(section => section !== 'access-unavailable');
+  const requestedSection = allowedSections.includes(preferredSection) ? preferredSection : readSavedNavigationSection();
+  return resolveNavigationSection(state.activeRole, requestedSection, allowedSections);
+}
+
+function openResolvedDashboard({ preferredSection = null, updateRoute = true } = {}) {
+  const hashSection = location.hash.slice(1);
+  const requestedSection = preferredSection || (state.allowedNavigationSections.includes(hashSection) ? hashSection : null);
+  const section = resolveDashboardSection(requestedSection);
+  if (!state.allowedNavigationSections.includes(section)) return false;
+  window.ceylonSwiftNavigation?.activate(document.getElementById('sidebar-nav-menu'), section);
+  displayTabSection(section);
+  if (updateRoute && location.hash !== `#${section}`) history.replaceState(null, '', `${location.pathname}${location.search}#${section}`);
+  return section;
+}
+
+window.resolveAppDashboardSection = resolveDashboardSection;
+window.openAppDashboard = openResolvedDashboard;
+
 function persistNavigationSection(sectionId) {
   if (sectionId === 'access-unavailable') return false;
   const allowedSections = isApiAuthMode() && state.authStatus === 'authenticated' ? state.allowedNavigationSections : (state.activeRole ? (ROLE_NAVIGATION_SECTIONS[state.activeRole] || []) : [PUBLIC_NAVIGATION_SECTION]);
@@ -599,9 +619,8 @@ function applyRoleRouting() {
   if (isApiAuthMode() && window.ceylonSwiftNavigation?.render) {
     const navigation = window.ceylonSwiftNavigation.render(menuContainer, { capabilities: state.capabilities, capabilityStatus: state.capabilityStatus }, section => displayTabSection(section));
     state.allowedNavigationSections = navigation.allowedSections.length ? navigation.allowedSections : ['access-unavailable'];
-    state.activeTab = resolveNavigationSection(state.activeRole, readSavedNavigationSection(), state.allowedNavigationSections);
-    window.ceylonSwiftNavigation.activate(menuContainer, state.activeTab);
-    displayTabSection(state.activeTab, { persist: state.activeTab !== 'access-unavailable' });
+    state.activeTab = openResolvedDashboard({ updateRoute: false }) || 'access-unavailable';
+    if (state.activeTab === 'access-unavailable') displayTabSection(state.activeTab, { persist: false });
     applyCapabilityVisibility();
     return;
   }
@@ -3099,9 +3118,17 @@ function handleDirectHireOffice(event) {
 
 /* ==================== 🚪 SESSION TERMINATION ENGINE ==================== */
 
-async function handleLogout() {
+function preparePublicLogoutNavigation() {
   resetSavedNavigationSection();
-  if (isApiAuthMode()) await window.ceylonSwiftAuth.logout();
+  if (location.hash !== '#home') history.replaceState(null, '', `${location.pathname}${location.search}#home`);
+  window.ceylonSwiftErrors?.hide();
+  const modals = document.querySelectorAll('.modal-overlay');
+  modals.forEach(m => m.classList.remove('active'));
+}
+
+async function handleLogout(allDevices = false) {
+  preparePublicLogoutNavigation();
+  if (isApiAuthMode()) await (allDevices ? window.ceylonSwiftAuth.logoutAll() : window.ceylonSwiftAuth.logout());
   if (state.isSimulating) {
     clearInterval(state.simulationInterval);
     state.isSimulating = false;
@@ -3125,9 +3152,6 @@ async function handleLogout() {
   state.activeRole = null;
   state.currentUser = null;
   state.activeTab = 'public-home';
-  
-  const modals = document.querySelectorAll('.modal-overlay');
-  modals.forEach(m => m.classList.remove('active'));
   
   resetOwnerAuthFlow();
   applyRoleRouting();

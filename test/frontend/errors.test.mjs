@@ -6,6 +6,8 @@ import { errorMessageFor } from '../../js/errors/error-messages.js';
 import { mapFieldErrors } from '../../js/errors/field-error-mapper.js';
 import { normalizeError } from '../../js/errors/error-normalizer.js';
 import { FormErrorController } from '../../js/errors/error-state-controller.js';
+import { AUTH_ROUTE_IDS } from '../../js/auth/auth-view-controller.js';
+import { NAVIGATION_REGISTRY } from '../../js/navigation/navigation-registry.js';
 
 test('backend validation strings and future structured details map to safe field messages', () => {
   assert.deepEqual(mapFieldErrors([
@@ -57,6 +59,24 @@ test('error states include accessible 404, restricted, 500, 503, offline, retry,
   assert.match(controller, /You do not have access to this area/); assert.match(controller, /hit an unexpected problem/); assert.match(controller, /temporarily unavailable/);
   assert.match(controller, /addEventListener\('offline'/); assert.match(controller, /data-requires-online/); assert.match(presenter, /Try Again/);
   assert.match(css, /@media \(max-width: 600px\)/); assert.match(css, /prefers-reduced-motion: reduce/); assert.match(css, /min-height: 44px/);
+});
+
+test('error routing uses canonical auth and navigation registries without stale route aliases', async () => {
+  const [controller, bridge, app] = await Promise.all([
+    readFile(new URL('../../js/errors/error-state-controller.js', import.meta.url), 'utf8'),
+    readFile(new URL('../../js/compatibility/legacy-auth-bridge.js', import.meta.url), 'utf8'),
+    readFile(new URL('../../app.js', import.meta.url), 'utf8'),
+  ]);
+  assert.deepEqual(AUTH_ROUTE_IDS, ['login', 'staff-login', 'admin-login', 'partner-login']);
+  assert.equal(NAVIGATION_REGISTRY.some(item => item.section === 'partner-home'), true);
+  assert.equal(NAVIGATION_REGISTRY.some(item => item.section === 'access-management'), true);
+  assert.match(controller, /new Set\(AUTH_ROUTE_IDS\)/);
+  assert.match(controller, /NAVIGATION_REGISTRY\.map\(item => item\.section\)/);
+  assert.doesNotMatch(controller, /partner-workspace|customer-login/);
+  assert.match(controller, /openAppDashboard/);
+  assert.match(bridge, /completeAuthenticatedNavigation\(snapshot, \{ force: true \}\)/);
+  assert.match(bridge, /selectWorkspaceAndRoute/);
+  assert.match(app, /openResolvedDashboard\(\{ updateRoute: false \}\)/);
 });
 
 test('Book Delivery form has linked help, inline error, summary, and optional phone semantics', async () => {

@@ -1196,7 +1196,7 @@
         <article class="identity-placeholder-card"><span>Account action</span>
           <h3>Sign out everywhere</h3>
           <p>Revoke all active sessions if you no longer recognize this device.</p><button class="btn btn-secondary"
-            type="button" onclick="window.ceylonSwiftAuth.logoutAll()">Sign out all devices</button>
+            type="button" onclick="handleLogout(true)">Sign out all devices</button>
         </article>
       </div>
     </section>
@@ -1822,8 +1822,8 @@
   </section>
 
   <script src="js/config/public-runtime-config.js"></script>
-  <script src="app.js"></script>
-  <script type="module" src="js/compatibility/legacy-auth-bridge.js?v=reliable-errors-2"></script>
+  <script src="app.js?v=auth-transition-routing-1"></script>
+  <script type="module" src="js/compatibility/legacy-auth-bridge.js?v=auth-transition-routing-1"></script>
 </body>
 
 </html>

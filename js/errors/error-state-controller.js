@@ -1,5 +1,11 @@
 import { normalizeError } from './error-normalizer.js';
 import { renderState, showToast } from './error-presenter.js';
+import { AUTH_ROUTE_IDS } from '../auth/auth-view-controller.js?v=post-login-routing-1';
+import { NAVIGATION_REGISTRY } from '../navigation/navigation-registry.js';
+
+const PUBLIC_ROUTES = new Set(['home', 'public-home', 'home-track', 'home-services', 'home-hubs', 'home-about', 'home-help', 'privacy', 'terms']);
+const AUTH_ROUTES = new Set(AUTH_ROUTE_IDS);
+const PROTECTED_ROUTES = new Set(NAVIGATION_REGISTRY.map(item => item.section));
 
 export class FormErrorController {
   constructor(form, { fields = {}, summaryId } = {}) {
@@ -70,14 +76,14 @@ export class ErrorStateController {
       : kind === '503' ? { ...state, title: 'CeylonSwift is temporarily unavailable.', message: 'The public site is still available. Some account and delivery features may not work until the service reconnects.', kind: 'unavailable' }
       : { ...state, title: 'CeylonSwift hit an unexpected problem.', message: 'Your request could not be completed. Try again, or return to a safe page.', kind: 'server' };
     const auth = this.getAuth?.();
-    this.overlay.dataset.kind = routeState.kind; renderState(body, routeState, { retry: routeState.retryable ? () => location.reload() : null, home: () => this.navigate('#home'), track: kind === '404' ? () => this.navigate('#home-track') : null, dashboard: authenticated ? () => { this.hide(); globalThis.openAppSection?.(document.querySelector('#sidebar-nav-menu [data-tab]')?.dataset.tab); } : null, switchWorkspace: kind === '403' && authenticated && auth?.workspaces?.length > 1 ? () => { this.hide(); globalThis.ceylonSwiftAuth?.openWorkspaceSelector?.(); } : null, continuePublic: kind === '503' ? () => this.navigate('#home') : null, back: () => history.back() });
+    this.overlay.dataset.kind = routeState.kind; renderState(body, routeState, { retry: routeState.retryable ? () => location.reload() : null, home: () => this.navigate('#home'), track: kind === '404' ? () => this.navigate('#home-track') : null, dashboard: authenticated ? () => { this.hide(); globalThis.openAppDashboard?.(); } : null, switchWorkspace: kind === '403' && authenticated && auth?.workspaces?.length > 1 ? () => { this.hide(); globalThis.ceylonSwiftAuth?.openWorkspaceSelector?.(); } : null, continuePublic: kind === '503' ? () => this.navigate('#home') : null, back: () => history.back() });
     this.overlay.hidden = false; this.overlay.setAttribute('aria-hidden', 'false'); body?.focus?.();
   }
   hide() { if (!this.overlay) return; this.overlay.hidden = true; this.overlay.setAttribute('aria-hidden', 'true'); }
   navigate(hash) { this.hide(); history.replaceState(null, '', `${location.pathname}${location.search}${hash}`); document.querySelector(hash === '#home' ? '#public-home' : hash)?.scrollIntoView?.(); }
   handleRoute() {
-    const route = location.hash.slice(1); if (!route || ['home', 'home-track', 'home-services', 'home-hubs', 'home-about', 'home-help', 'privacy', 'terms', 'customer-login', 'staff-login'].includes(route)) return this.hide();
-    if (['dashboard', 'packages', 'hubs', 'employees', 'accesscontrol', 'simulator', 'customertrack', 'customerrequest', 'partner-workspace', 'security-center'].includes(route)) {
+    const route = location.hash.slice(1); if (!route || PUBLIC_ROUTES.has(route) || AUTH_ROUTES.has(route)) return this.hide();
+    if (PROTECTED_ROUTES.has(route)) {
       const allowed = Boolean(document.querySelector(`#sidebar-nav-menu [data-tab="${route}"]`)); if (!allowed) this.show({ code: 'ACCESS_DENIED', status: 403 }, '403'); else this.hide(); return;
     }
     this.show({ code: 'RESOURCE_NOT_FOUND', status: 404 }, '404');
