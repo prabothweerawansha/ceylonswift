@@ -1,5 +1,6 @@
+import { showToast as showManagedToast } from '../notifications/toast-manager.js';
+
 const ICONS = Object.freeze({ error: '!', warning: '!', info: 'i', success: '✓' });
-const recentToasts = new Map();
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -39,15 +40,8 @@ export function renderState(container, state, { retry, home, track, back, dashbo
   return container;
 }
 
-export function showToast(state, { duration = 5000 } = {}) {
-  const key = `${state.code}:${state.message}`; const now = Date.now();
-  if (now - (recentToasts.get(key) || 0) < 4000) return null;
-  recentToasts.set(key, now);
-  let host = document.getElementById('error-toast-region');
-  if (!host) { host = element('div', 'error-toast-region'); host.id = 'error-toast-region'; host.setAttribute('aria-live', 'polite'); host.setAttribute('aria-label', 'Notifications'); document.body.append(host); }
-  const toast = element('div', 'error-toast'); toast.dataset.severity = state.severity; toast.setAttribute('role', 'status');
-  const content = element('div', 'error-toast-copy'); content.append(element('strong', '', state.title), element('span', '', state.message));
-  const close = element('button', 'error-toast-close', '×'); close.type = 'button'; close.setAttribute('aria-label', 'Dismiss notification'); close.addEventListener('click', () => toast.remove());
-  toast.append(content, close); host.append(toast); setTimeout(() => toast.remove(), duration);
-  return toast;
+export function showToast(state, { duration } = {}) {
+  const options = { title: state.title };
+  if (Number.isFinite(duration)) options.duration = duration;
+  return showManagedToast(state.message, state.severity, options);
 }

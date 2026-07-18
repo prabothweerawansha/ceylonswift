@@ -37,7 +37,7 @@ export const environmentSchema = Joi.object({
   AUTH_RATE_LIMIT_STORE: Joi.string().valid('memory', 'distributed').default('memory'),
   LOG_LEVEL: Joi.string().valid('fatal', 'error', 'warn', 'info', 'debug', 'trace').default('info'),
   SERVICE_NAME: Joi.string().max(100).default('ceylonswift-api'),
-  SERVICE_VERSION: Joi.string().max(64).default('0.1.0'),
+  SERVICE_VERSION: Joi.string().max(64).default('0.2.0.1-open-beta'),
   REQUEST_TIMEOUT_MS: Joi.number().integer().min(1000).max(120000).default(15000),
   IDEMPOTENCY_TTL_SECONDS: Joi.number().integer().min(60).max(604800).default(86400),
   IDEMPOTENCY_IN_PROGRESS_TIMEOUT_SECONDS: Joi.number().integer().min(10).max(1800).default(120),

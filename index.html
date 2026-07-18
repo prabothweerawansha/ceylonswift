@@ -113,13 +113,21 @@
 
     <div class="sidebar-footer">
       <p>System Powered by</p>
-      <strong>CeylonSwift Premium v1.0</strong>
+      <strong>CeylonSwift Premium System</strong>
     </div>
   </aside>
 
   <!-- Main Content Body -->
   <main class="main-content">
-    <p id="operations-live-status" class="operations-live-status" role="status" aria-live="polite"></p>
+    <div id="operations-live-status" class="operations-live-status" role="status" aria-live="polite"
+      aria-atomic="true" aria-hidden="true" hidden>
+      <div class="operations-toast-copy">
+        <strong id="operations-toast-title" hidden></strong>
+        <span id="operations-toast-message"></span>
+      </div>
+      <button id="operations-toast-close" class="operations-toast-close" type="button"
+        aria-label="Dismiss notification">×</button>
+    </div>
 
     <!-- Role Session Controller Panel (Static Secure Top Widget) -->
     <div class="session-control-bar authenticated-shell" id="session-control-bar" style="display: none;">
@@ -155,7 +163,8 @@
           </div>
         </button>
         <ul class="nav-links">
-          <li><a onclick="scrollToSection('home-tracking')" data-i18n="navTrack">Track</a></li>
+          <li><a href="#home-tracking" data-feature-key="public.track_parcel" onclick="return scrollToSection('home-tracking', { focus: true })" data-i18n="navTrack">Track</a></li>
+          <li><a href="#home-business" data-feature-key="public.join_business" onclick="return scrollToSection('home-business', { focus: true })" data-i18n="navBusiness">For Business</a></li>
           <li><a onclick="scrollToSection('home-services')" data-i18n="navServices">Services</a></li>
           <li><a onclick="scrollToSection('home-hubs')" data-i18n="navHubs">Hubs</a></li>
           <li><a onclick="scrollToSection('home-help')" data-i18n="navHelp">Help</a></li>
@@ -206,44 +215,71 @@
               </select>
             </label>
           </div>
-          <button class="btn btn-primary" onclick="openAuthModal()"
-            style="box-shadow: 0 0 15px rgba(0, 242, 254, 0.45); font-weight: 700;">
-            <span data-i18n="getStarted">Get Started</span>
-          </button>
+          <button class="nav-login-action" type="button" onclick="openLoginEntry()" data-i18n="logIn">Log In</button>
         </div>
       </nav>
 
       <!-- Hero Section -->
       <div class="hero-section" id="home-hero">
-        <div class="hero-badge">
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"
-            style="vertical-align: middle; margin-right: 4px;">
-            <path d="M13 10V3L4 14H11V21L20 10H13Z" />
-          </svg>
-          <span data-i18n="heroBadge">Sri Lanka's Premium Speed Courier</span>
-        </div>
-        <h1 class="hero-title" data-i18n="heroTitle">Lightning Fast Deliveries Across Sri Lanka</h1>
-        <p class="hero-subtitle" data-i18n="heroSubtitle">
-          CeylonSwift is Sri Lanka's smartest, fastest, and most reliable logistics ecosystem. With 6 ultra-capacity
-          sorting centers and live GPS tracked courier dispatches, we deliver your promises on time, every time.
-        </p>
-        <div class="hero-buttons">
-          <button class="btn btn-primary" onclick="openAuthModal()" data-i18n="getStartedNow">Get Started Now</button>
-          <button class="btn btn-secondary" onclick="scrollToSection('home-tracking')" data-i18n="trackShipment">Track
-            Shipment</button>
+        <div class="hero-shell">
+          <div class="hero-copy" data-reveal>
+            <div class="hero-badge">
+              <span class="cs-icon cs-icon--bolt" aria-hidden="true"></span>
+              <span id="home-hero-badge" data-i18n="heroBadge">SRI LANKA'S PREMIUM SPEED COURIER</span>
+            </div>
+            <h1 class="hero-title" id="home-hero-title"><span class="hero-title-line" data-i18n="heroTitleLine1">Sri Lanka Moves</span><span class="hero-title-line"><span data-i18n="heroTitleLine2">Faster with</span> <span class="hero-title-brand">CeylonSwift</span></span></h1>
+            <p class="hero-subtitle" id="home-hero-description" data-i18n="heroSubtitle">Track approved deliveries and discover a smarter CeylonSwift workflow for businesses and tuition classes across Sri Lanka.</p>
+            <div class="hero-buttons">
+              <a class="btn btn-primary" id="home-track-shipment" data-feature-key="public.track_parcel" href="#home-tracking" onclick="return scrollToSection('home-tracking', { focus: true })"><span class="cs-icon cs-icon--search" aria-hidden="true"></span><span data-i18n="trackParcel">Track a Parcel</span><span class="cs-icon cs-icon--arrow-right" aria-hidden="true"></span></a>
+              <button class="btn btn-secondary feature-action-button" id="home-send-parcel" type="button"
+                data-feature-key="public.send_parcel" data-feature-action="send-parcel" disabled aria-disabled="true">
+                <span class="cs-icon cs-icon--send" aria-hidden="true"></span><span data-i18n="sendParcel">Send a Parcel</span><small class="feature-action-label" data-i18n="comingSoon">Coming Soon</small>
+              </button>
+              <a class="btn btn-business" id="home-join-business" data-feature-key="public.join_business"
+                href="#home-business" onclick="return scrollToSection('home-business', { focus: true })">
+                <span class="cs-icon cs-icon--briefcase" aria-hidden="true"></span><span data-i18n="joinBusiness">Join Business</span>
+              </a>
+            </div>
+            <div class="hero-trust-strip" id="hero-trust-strip" aria-label="Service trust summaries"></div>
+          </div>
+          <div class="hero-visual" data-reveal aria-label="CeylonSwift delivery network visual">
+            <div class="hero-orbits" aria-hidden="true"></div>
+            <div class="hero-map-frame">
+              <picture>
+                <source srcset="assets/ceylonswift-hero-route.webp" type="image/webp">
+                <img id="home-hero-media" src="assets/ceylonswift-hero-route.png" width="1024" height="1536"
+                  sizes="(max-width: 760px) 82vw, 44vw" fetchpriority="high" decoding="async"
+                  alt="Stylized courier route across Sri Lanka"
+                  onerror="this.onerror=null;this.src='falcon-logo-template-free-vector.png';this.classList.add('hero-media-fallback')">
+              </picture>
+            </div>
+            <div class="hero-floating-cards" id="hero-floating-cards" aria-live="polite" aria-busy="true">
+              <div class="floating-card-skeleton"></div><div class="floating-card-skeleton"></div><div class="floating-card-skeleton"></div>
+            </div>
+          </div>
         </div>
       </div>
 
+      <template id="hero-card-template">
+        <article class="hero-float-card liquid-glass-card" data-card-key="">
+          <div class="hero-card-heading"><span class="hero-card-icon" aria-hidden="true"></span><span class="hero-card-eyebrow"></span></div>
+          <h2 class="hero-card-title"></h2>
+          <span class="hero-card-status"></span>
+          <div class="hero-card-rows"></div>
+          <button class="hero-card-action" type="button" hidden></button>
+        </article>
+      </template>
+
       <!-- Quick Tracker Station -->
       <div class="public-section" id="home-tracking">
-        <h3 class="public-section-title" data-i18n="trackerTitle">Global Quick Shipment Tracker</h3>
-        <p class="public-section-subtitle" data-i18n="trackerSubtitle">Enter your unique CeylonSwift reference code
-          below to see your package's real-time journey.</p>
+        <h2 class="public-section-title" id="home-tracker-heading" tabindex="-1" data-i18n="trackerTitle">Quick Shipment Tracker</h2>
+        <p class="public-section-subtitle" id="home-tracker-description" data-i18n="trackerSubtitle">Enter your CeylonSwift reference code to check the latest public shipment update.</p>
 
         <div class="glass-panel" style="max-width: 780px; margin: 0 auto;">
           <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <label class="sr-only" for="home-track-input">CeylonSwift tracking reference</label>
             <input type="text" id="home-track-input" class="input-style" style="padding-left: 16px; font-size: 15px;"
-              placeholder="Enter Tracking ID (e.g., CS-4821)..." data-i18n-placeholder="trackingPlaceholder">
+              placeholder="Enter your tracking reference" data-i18n-placeholder="trackingPlaceholder" autocomplete="off" spellcheck="false" aria-describedby="home-tracker-description">
             <button class="btn btn-primary" onclick="queryHomeTracking()" data-i18n="trackShipment">Track
               Shipment</button>
           </div>
@@ -282,31 +318,36 @@
 
       <!-- Services and Interactive Postage Rates Calculator -->
       <div class="public-section" id="home-services">
-        <h3 class="public-section-title" data-i18n="servicesTitle">Delivery Services Built Around Your Schedule</h3>
-        <p class="public-section-subtitle" data-i18n="servicesSubtitle">Choose the right delivery speed, then calculate
-          the live fee using the connected CeylonSwift rate engine.</p>
+        <h3 class="public-section-title" data-i18n="servicesTitle">Delivery services prepared for the complete CeylonSwift launch</h3>
+        <p class="public-section-subtitle" data-i18n="servicesSubtitle">Service availability, delivery windows, and pricing
+          are controlled by area, agreement, and operational capacity.</p>
 
         <div class="service-grid">
           <article class="service-card">
             <span class="service-number">01</span>
-            <h4>Standard Delivery</h4>
-            <p>Reliable islandwide delivery for everyday parcels within two to three business days.</p>
+            <h4 data-i18n="serviceStandardTitle">Standard Delivery</h4>
+            <p data-i18n="serviceStandardCopy">Reliable islandwide delivery for everyday parcels within two to three business days.</p>
           </article>
           <article class="service-card featured">
             <span class="service-number">02</span>
-            <h4>Next-Day Express</h4>
-            <p>Priority hub processing and next-day delivery for time-sensitive shipments.</p>
+            <h4 data-i18n="serviceExpressTitle">Next-Day Express</h4>
+            <p data-i18n="serviceExpressCopy">Priority hub processing and next-day delivery for time-sensitive shipments.</p>
           </article>
           <article class="service-card">
             <span class="service-number">03</span>
-            <h4>Same-Day Lightning</h4>
-            <p>Rapid same-day dispatch across supported routes with live courier tracking.</p>
+            <h4 data-i18n="serviceLightningTitle">Same-Day Lightning</h4>
+            <p data-i18n="serviceLightningCopy">Rapid same-day dispatch across supported routes with live courier tracking.</p>
           </article>
         </div>
 
+        <div class="feature-gate" data-feature-gate="public.rate_calculator" data-feature-state="COMING_SOON">
+          <div class="feature-state-banner" role="status">
+            <span data-i18n="rateCalculator">Rate Calculator</span><strong data-i18n="comingSoon">Coming Soon</strong>
+            <small data-i18n="rateComingSoonCopy">Public pricing stays unavailable until every service rule and area is approved.</small>
+          </div>
+          <div class="feature-gated-content" inert aria-hidden="true">
         <h3 class="public-section-title service-calculator-title">Calculate Your Delivery</h3>
-        <p class="public-section-subtitle">Pricing updates instantly from parcel weight, destination hubs, and service
-          speed.</p>
+        <p class="public-section-subtitle">Pricing will be calculated from approved parcel, area, service, and agreement rules.</p>
 
         <div class="calc-wrapper" style="max-width: 1000px; margin: 0 auto;">
           <div class="glass-panel">
@@ -354,40 +395,76 @@
 
           <div class="calc-result-panel">
             <div class="calc-result-title">Estimated CeylonSwift Fee</div>
-            <div class="calc-result-price" id="home-calc-result-total">LKR 450.00</div>
+            <div class="calc-result-price" id="home-calc-result-total">Unavailable in Open Beta</div>
 
             <div class="calc-result-breakdown">
               <div class="breakdown-row">
                 <div class="breakdown-label">Base Rate</div>
-                <div class="breakdown-val" id="home-calc-base">LKR 300.00</div>
+                <div class="breakdown-val" id="home-calc-base">—</div>
               </div>
               <div class="breakdown-row">
                 <div class="breakdown-label">Weight Fee</div>
-                <div class="breakdown-val" id="home-calc-weight-fee">LKR 50.00</div>
+                <div class="breakdown-val" id="home-calc-weight-fee">—</div>
               </div>
               <div class="breakdown-row">
                 <div class="breakdown-label">Urgency Markup</div>
-                <div class="breakdown-val" id="home-calc-markup">LKR 100.00</div>
+                <div class="breakdown-val" id="home-calc-markup">—</div>
               </div>
               <div class="breakdown-row"
                 style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; margin-top: 4px;">
                 <div class="breakdown-label" style="color: var(--primary);">Est. Transit Time</div>
-                <div class="breakdown-val" id="home-calc-time" style="color: var(--primary);">Next-Day (By 12:00 PM)
+                <div class="breakdown-val" id="home-calc-time" style="color: var(--primary);">Available after launch
                 </div>
               </div>
             </div>
           </div>
         </div>
+          </div>
+        </div>
       </div>
 
-      <!-- CeylonSwift Regional Active Hubs Grid -->
-      <div class="public-section" id="home-hubs">
-        <h3 class="public-section-title" data-i18n="hubsTitle">Our Active Sorting Hubs Network</h3>
-        <p class="public-section-subtitle" data-i18n="hubsSubtitle">Real-time status, processing speed, and rider
-          density of our Sri Lankan regional centers.</p>
+      <!-- Business and Tuition Partners -->
+      <section class="public-section business-open-beta" id="home-business" tabindex="-1"
+        data-feature-key="public.join_business" aria-labelledby="home-business-title">
+        <div class="business-beta-heading">
+          <div>
+            <span class="section-kicker" data-i18n="businessKicker">Built for growing operations</span>
+            <h2 class="public-section-title" id="home-business-title" data-i18n="businessTitle">Choose the Business path that fits your operation.</h2>
+          </div>
+        </div>
+        <p class="public-section-subtitle" data-i18n="businessSubtitle">Approved Sri Lankan teachers, tuition institutes, and businesses can
+          connect their delivery workflow without changing how they manage their customers.</p>
+        <div class="business-path-grid">
+          <article class="business-path-card">
+            <span class="business-path-label" data-i18n="connectedBusinessLabel">Connected Business</span>
+            <h3 data-i18n="connectedBusinessTitle">Website or system integration</h3>
+            <p data-i18n="connectedBusinessCopy">Connect approved order data, exact delivery locations, QR binding, and scheduled pickup workflows.</p>
+          </article>
+          <article class="business-path-card">
+            <span class="business-path-label" data-i18n="businessLiteLabel">Business Lite</span>
+            <h3 data-i18n="businessLiteTitle">No website or system required</h3>
+            <p data-i18n="businessLiteCopy">Add recipients manually or use a secure recipient link, then bind completed records to available QR labels.</p>
+          </article>
+        </div>
+        <div class="business-beta-actions">
+          <button class="btn btn-primary" type="button" onclick="window.openAuthSurface?.('partner')" data-i18n="partnerSignIn">Approved Partner Sign In</button>
+          <button class="btn btn-secondary" type="button" onclick="scrollToSection('home-help', { focus: true })" data-i18n="contactBusiness">Contact the Business Team</button>
+        </div>
+        <p class="business-beta-note" data-i18n="businessNote">New organizations are reviewed and created separately. A normal customer account is not converted into a Business account.</p>
+      </section>
 
-        <div class="hubs-grid" id="home-hubs-container">
-          <!-- Filled dynamically by app.js -->
+      <!-- CeylonSwift Regional Active Hubs Grid -->
+      <div class="public-section feature-gate" id="home-hubs" data-feature-gate="public.hubs" data-feature-state="COMING_SOON">
+        <div class="feature-state-banner" role="status">
+          <span data-i18n="publicHubs">Public Hubs Network</span><strong data-i18n="comingSoon">Coming Soon</strong>
+          <small data-i18n="publicHubsCopy">Internal capacity and parcel-load information is never exposed as public demo data.</small>
+        </div>
+        <div class="feature-gated-content" inert aria-hidden="true">
+          <h3 class="public-section-title" data-i18n="hubsTitle">CeylonSwift Sorting Hubs Network</h3>
+          <p class="public-section-subtitle" data-i18n="hubsSubtitle">Approved public hub information will appear here when the network is ready.</p>
+          <div class="hubs-grid" id="home-hubs-container">
+            <!-- Filled only when the public hubs feature is enabled -->
+          </div>
         </div>
       </div>
 
@@ -407,11 +484,11 @@
             </div>
           </div>
           <div class="help-list">
-            <div class="help-item"><strong>Tracking assistance</strong><span>Check current status and the latest transit
+            <div class="help-item"><strong data-i18n="helpTrackingTitle">Tracking assistance</strong><span data-i18n="helpTrackingCopy">Check current status and the latest transit
                 event.</span></div>
-            <div class="help-item"><strong>Delivery changes</strong><span>Sign in to manage an eligible shipment
+            <div class="help-item"><strong data-i18n="helpChangesTitle">Delivery changes</strong><span data-i18n="helpChangesCopy">Sign in to manage an eligible shipment
                 request.</span></div>
-            <div class="help-item"><strong>Business support</strong><span>Access staff and customer tools through Get
+            <div class="help-item"><strong data-i18n="helpBusinessTitle">Business support</strong><span data-i18n="helpBusinessCopy">Access staff and customer tools through Get
                 Started.</span></div>
           </div>
         </div>
@@ -424,10 +501,26 @@
             <span class="section-kicker" data-i18n="aboutKicker">About CeylonSwift</span>
             <h3 data-i18n="aboutTitle">One connected delivery network, built for Sri Lanka.</h3>
           </div>
-          <p data-i18n="aboutCopy">CeylonSwift connects customer requests, office operations, sorting hubs, riders,
-            tracking, and delivery pricing in one logistics workspace. Every public tool on this page uses the same
-            application data and operational workflows available inside the portal.</p>
+          <div class="about-copy-group">
+            <span class="release-pill" data-i18n="releaseLabel">Mark 0.2 · Open Beta</span>
+            <p data-i18n="aboutCopy">CeylonSwift connects customer requests, office operations, sorting hubs, riders,
+              tracking, and delivery pricing in one logistics workspace. Every public tool on this page uses the same
+              application data and operational workflows available inside the portal.</p>
+          </div>
         </div>
+        <section class="reviews-panel" id="home-reviews" aria-labelledby="home-reviews-title" data-reveal hidden>
+          <div class="reviews-heading">
+            <div><span class="section-kicker">Delivery-backed feedback</span><h2 id="home-reviews-title" tabindex="-1">Verified customer reviews</h2></div>
+            <div class="review-controls" aria-label="Customer review controls">
+              <button type="button" id="reviews-previous" aria-label="Previous review">←</button>
+              <button type="button" id="reviews-toggle" aria-label="Pause automatic review rotation" aria-pressed="false">Pause</button>
+              <button type="button" id="reviews-next" aria-label="Next review">→</button>
+            </div>
+          </div>
+          <div class="review-stage" id="home-review-stage" aria-live="polite" aria-atomic="true">
+            <p class="review-empty">Approved reviews from verified completed deliveries will appear here.</p>
+          </div>
+        </section>
       </div>
 
       <!-- Footer section -->
@@ -469,7 +562,7 @@
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="18 15 12 9 6 15" />
               </svg>
-              +12.4% this week
+              No comparison data yet
             </span>
           </div>
           <div class="stat-icon-wrapper blue">
@@ -488,7 +581,7 @@
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="18 15 12 9 6 15" />
               </svg>
-              94% utilization
+              No comparison data yet
             </span>
           </div>
           <div class="stat-icon-wrapper green">
@@ -509,7 +602,7 @@
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="18 15 12 9 6 15" />
               </svg>
-              Fastest payout
+              No comparison data yet
             </span>
           </div>
           <div class="stat-icon-wrapper yellow">
@@ -528,7 +621,7 @@
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="18 15 12 9 6 15" />
               </svg>
-              Top-tier speed
+              No comparison data yet
             </span>
           </div>
           <div class="stat-icon-wrapper purple">
@@ -545,7 +638,7 @@
         <div class="glass-panel">
           <div class="panel-header">
             <h4>Sri Lankan Regional Transit Volume</h4>
-            <span class="badge badge-glow-green" style="letter-spacing: 0.5px;">Live Graph</span>
+            <span class="badge badge-glow-green" id="regional-chart-state" style="letter-spacing: 0.5px;">Awaiting data</span>
           </div>
           <div class="chart-container">
             <canvas id="regionalChart" style="width: 100%; height: 100%;"></canvas>
@@ -1157,6 +1250,68 @@
           <p class="operation-empty">Loading delivery history…</p>
         </div>
       </div>
+    </section>
+
+    <section id="customer-reviews" class="tab-section">
+      <div class="top-header"><div><h2>Reviews</h2><p>Share feedback only for a completed delivery linked to your verified account.</p></div></div>
+      <div class="calc-wrapper" style="max-width:1000px;margin:0 auto;">
+        <div class="glass-panel">
+          <div class="panel-header"><h4>Review a completed delivery</h4></div>
+          <form id="customer-review-form" novalidate>
+            <div class="form-grid" style="display:flex;flex-direction:column;gap:14px;">
+              <div class="form-group"><label for="review-package-id">Delivery ID</label><input id="review-package-id" required autocomplete="off"><span class="field-help">Use the delivery ID shown in My Deliveries.</span></div>
+              <div class="form-group"><label for="review-rating">Rating</label><select id="review-rating" required><option value="">Choose a rating</option><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Poor</option><option value="1">1 — Very poor</option></select></div>
+              <div class="form-group"><label for="review-title">Title <span class="field-optional">(optional)</span></label><input id="review-title" maxlength="120"></div>
+              <div class="form-group"><label for="review-body">Your review</label><textarea id="review-body" minlength="20" maxlength="1500" required></textarea></div>
+              <label class="review-consent"><input id="review-public-consent" type="checkbox"> I consent to public display using a masked name if this review is approved.</label>
+              <button class="btn btn-primary" type="submit">Submit for moderation</button>
+              <p id="review-submit-status" role="status" aria-live="polite"></p>
+            </div>
+          </form>
+        </div>
+        <div class="glass-panel"><div class="panel-header"><h4>My review history</h4></div><div id="customer-review-list" class="operation-history-grid"><p class="operation-empty">No reviews loaded.</p></div></div>
+      </div>
+    </section>
+
+    <section id="website-content" class="tab-section">
+      <div class="top-header"><div><h2>Website Content</h2><p>Create controlled landing-page revisions without changing layout, styling, or executable code.</p></div></div>
+      <div class="glass-panel" style="max-width:980px;margin:0 auto;">
+        <form id="website-content-form" novalidate>
+          <div class="form-grid">
+            <div class="form-group"><label for="content-hero-badge">Hero badge</label><input id="content-hero-badge" maxlength="80" required></div>
+            <div class="form-group"><label for="content-hero-title">Hero title</label><input id="content-hero-title" maxlength="120" required></div>
+            <div class="form-group" style="grid-column:1/-1"><label for="content-hero-description">Hero description</label><textarea id="content-hero-description" maxlength="320" required></textarea></div>
+            <div class="form-group"><label for="content-tracker-title">Tracker heading</label><input id="content-tracker-title" maxlength="100" required></div>
+            <div class="form-group"><label for="content-reviews-title">Reviews heading</label><input id="content-reviews-title" maxlength="100" required></div>
+            <div class="form-group" style="grid-column:1/-1"><label for="content-change-summary">Change summary</label><textarea id="content-change-summary" maxlength="500"></textarea></div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;"><button class="btn btn-primary" type="submit">Create draft</button><button class="btn btn-secondary" id="content-submit-review" type="button" disabled>Submit draft for approval</button></div>
+          <p id="website-content-status" role="status" aria-live="polite"></p>
+        </form>
+        <div class="content-workflow-panel">
+          <h4>Approval and publishing</h4>
+          <p>Use a submitted revision ID. Creator self-approval is blocked by the server.</p>
+          <div class="form-grid">
+            <div class="form-group"><label for="content-workflow-id">Revision ID</label><input id="content-workflow-id" autocomplete="off"></div>
+            <div class="form-group"><label for="content-workflow-reason">Decision reason</label><input id="content-workflow-reason" maxlength="500"></div>
+            <div class="form-group"><label for="content-scheduled-for">Schedule (Asia/Colombo)</label><input id="content-scheduled-for" type="datetime-local"></div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;"><button class="btn btn-secondary" data-content-action="approve" type="button">Approve</button><button class="btn btn-secondary" data-content-action="reject" type="button">Reject</button><button class="btn btn-primary" data-content-action="publish" type="button">Publish</button><button class="btn btn-secondary" data-content-action="rollback" type="button">Create rollback draft</button></div>
+        </div>
+        <div class="content-workflow-panel">
+          <h4>Open Beta feature controls</h4>
+          <p>Global public availability is backend-controlled and audited. Saving requires the feature-policy management permission.</p>
+          <div id="feature-policy-list" class="feature-policy-list" aria-live="polite">
+            <p class="operation-empty">Open this section to load feature policies.</p>
+          </div>
+          <p id="feature-policy-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="review-moderation" class="tab-section">
+      <div class="top-header"><div><h2>Review Moderation</h2><p>Approve, reject, or hide delivery-backed reviews without rewriting customer feedback.</p></div></div>
+      <div id="review-moderation-list" class="operation-history-grid" aria-live="polite"><p class="operation-empty">Loading review queue…</p></div>
     </section>
 
     <section id="partner-home" class="tab-section identity-placeholder-section">
@@ -1821,9 +1976,12 @@
     <div class="error-state-body" data-error-state-body tabindex="-1"></div>
   </section>
 
+  <script src="js/config/release-config.js"></script>
   <script src="js/config/public-runtime-config.js"></script>
-  <script src="app.js?v=auth-transition-routing-1"></script>
-  <script type="module" src="js/compatibility/legacy-auth-bridge.js?v=auth-transition-routing-1"></script>
+  <script src="app.js?v=phase-9a-2"></script>
+  <script type="module" src="js/public/landing-page.js?v=phase-9a-1-visual-2"></script>
+  <script type="module" src="js/compatibility/legacy-auth-bridge.js?v=phase-9a-2"></script>
+  <script type="module" src="js/landing-page/dashboard-controller.js?v=phase-9a-1"></script>
 </body>
 
 </html>

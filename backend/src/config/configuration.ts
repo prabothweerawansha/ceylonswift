@@ -99,7 +99,7 @@ export default (): ApplicationConfiguration => ({
   authRateLimitStore: process.env.AUTH_RATE_LIMIT_STORE ?? 'memory',
   logLevel: process.env.LOG_LEVEL ?? 'info',
   serviceName: process.env.SERVICE_NAME ?? 'ceylonswift-api',
-  serviceVersion: process.env.SERVICE_VERSION ?? '0.1.0',
+  serviceVersion: process.env.SERVICE_VERSION ?? '0.2.0.1-open-beta',
   requestTimeoutMs: Number(process.env.REQUEST_TIMEOUT_MS ?? 15000),
   idempotency: {
     ttlSeconds: Number(process.env.IDEMPOTENCY_TTL_SECONDS ?? 86400),

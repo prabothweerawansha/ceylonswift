@@ -1,6 +1,6 @@
 # CeylonSwift 🚀
 
-## Mark I — Initial Build
+## Mark 0.2 — Open Beta Build
 
 ### Features
 - Basic UI structure
@@ -8,8 +8,18 @@
 - Optimized CSS build system
 - GitHub integration setup
 
-### Notes
-This is the first stable version of the CeylonSwift delivery system.
+### Release identity
+
+- Product version: `0.2.0.1`
+- Package version: `0.2.0-beta.1`
+- Channel: Open Beta
+- Initial operational audience: approved Sri Lankan Business and Tuition partners
+
+This is not Mark I and is not a stable mass-market release. Public parcel
+tracking and the approved Business/Tuition entry are active. Normal-customer
+parcel sending, the public rate calculator, and the public hubs view remain
+controlled coming-soon features until their complete backend workflows are
+approved.
 
 # CeylonSwift Development Log
 

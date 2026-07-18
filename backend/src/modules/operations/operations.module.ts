@@ -11,11 +11,11 @@ import { OperationsRateLimitService } from './services/operations-rate-limit.ser
 import { OperationsService } from './services/operations.service';
 import { PackageTransitionService } from './services/package-transition.service';
 import { PricingService } from './services/pricing.service';
+import { LandingPageModule } from '../landing-page/landing-page.module';
 
 @Module({
-  imports: [AuthModule, AuthorizationModule],
+  imports: [AuthModule, AuthorizationModule, LandingPageModule],
   controllers: [CustomerRequestsController, PackagesController, TrackingController, AssignmentsController, HubsController, PricingController],
   providers: [OperationsService, PricingService, PackageTransitionService, OperationsRateLimitService],
 })
 export class OperationsModule {}
-

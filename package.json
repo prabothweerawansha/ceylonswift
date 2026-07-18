@@ -1,6 +1,6 @@
 {
   "name": "ceylonswift",
-  "version": "1.0.0",
+  "version": "0.2.0-beta.1",
   "description": "CeylonSwift – Smart Deliveries Across Sri Lanka",
   "scripts": {
     "build:css": "node build-css.js && postcss css/bundle.css -o css/bundle.min.css --no-map",

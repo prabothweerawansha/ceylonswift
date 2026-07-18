@@ -18,22 +18,29 @@ const permissions = [
   'permission.manage', 'organization.manage', 'branch.manage', 'audit.read',
   'session.revoke.own', 'session.revoke.any', 'system.reset', 'owner.action.sensitive',
   'role.read', 'permission.read', 'organization.read', 'branch.read', 'staff.read', 'rider.read',
+  'website_content.read', 'website_content.edit', 'website_content.submit',
+  'website_content.approve', 'website_content.publish', 'website_content.rollback',
+  'website_media.upload', 'website_media.approve', 'review.create', 'review.moderate',
+  'feature_policy.read', 'feature_policy.manage',
 ] as const;
 
 const highRiskPermissions = new Set([
   'staff.approve', 'staff.suspend', 'pricing.manage', 'role.assign', 'role.revoke',
   'permission.manage', 'organization.manage', 'session.revoke.any', 'system.reset',
   'owner.action.sensitive',
+  'website_content.approve', 'website_content.publish', 'website_content.rollback',
+  'website_media.approve', 'review.moderate',
+  'feature_policy.manage',
 ]);
 
 const rolePermissions: Record<string, readonly string[]> = {
-  CUSTOMER: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.own', 'tracking.read.public', 'hub.read', 'pricing.read', 'session.revoke.own'],
-  VIP_CUSTOMER: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.own', 'tracking.read.public', 'hub.read', 'pricing.read', 'session.revoke.own'],
+  CUSTOMER: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.own', 'tracking.read.public', 'hub.read', 'pricing.read', 'review.create', 'session.revoke.own'],
+  VIP_CUSTOMER: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.own', 'tracking.read.public', 'hub.read', 'pricing.read', 'review.create', 'session.revoke.own'],
   RIDER: ['profile.read.own', 'profile.update.own', 'package.read.own', 'package.deliver', 'tracking.read.public', 'tracking.update', 'hub.read', 'session.revoke.own'],
   AGENT: ['profile.read.own', 'profile.update.own', 'tracking.read.public', 'hub.read', 'pricing.read', 'session.revoke.own'],
-  OFFICE_STAFF: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.branch', 'package.update', 'tracking.read.public', 'tracking.update', 'hub.read', 'pricing.read', 'organization.read', 'branch.read', 'session.revoke.own'],
+  OFFICE_STAFF: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.branch', 'package.update', 'tracking.read.public', 'tracking.update', 'hub.read', 'pricing.read', 'organization.read', 'branch.read', 'website_content.read', 'website_content.edit', 'website_content.submit', 'feature_policy.read', 'session.revoke.own'],
   BRANCH_MANAGER: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.branch', 'package.update', 'package.assign', 'tracking.read.public', 'tracking.update', 'rider.read', 'rider.approve', 'rider.suspend', 'staff.read', 'staff.invite', 'hub.read', 'hub.manage', 'pricing.read', 'organization.read', 'branch.read', 'branch.manage', 'session.revoke.own'],
-  ADMIN: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.branch', 'package.read.organization', 'package.update', 'package.assign', 'tracking.read.public', 'tracking.update', 'rider.read', 'rider.approve', 'rider.suspend', 'staff.read', 'staff.invite', 'staff.approve', 'staff.suspend', 'hub.read', 'hub.manage', 'pricing.read', 'pricing.manage', 'role.read', 'role.assign', 'role.revoke', 'permission.read', 'organization.read', 'branch.read', 'branch.manage', 'audit.read', 'session.revoke.own', 'session.revoke.any'],
+  ADMIN: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.branch', 'package.read.organization', 'package.update', 'package.assign', 'tracking.read.public', 'tracking.update', 'rider.read', 'rider.approve', 'rider.suspend', 'staff.read', 'staff.invite', 'staff.approve', 'staff.suspend', 'hub.read', 'hub.manage', 'pricing.read', 'pricing.manage', 'role.read', 'role.assign', 'role.revoke', 'permission.read', 'organization.read', 'branch.read', 'branch.manage', 'audit.read', 'website_content.read', 'website_content.edit', 'website_content.submit', 'website_content.approve', 'website_content.publish', 'website_content.rollback', 'website_media.upload', 'website_media.approve', 'review.moderate', 'feature_policy.read', 'feature_policy.manage', 'session.revoke.own', 'session.revoke.any'],
   OWNER: permissions.filter((permission) => permission !== 'system.reset'),
   SUPER_ADMIN: permissions,
   PARTNER_USER: ['profile.read.own', 'profile.update.own', 'package.create', 'package.read.own', 'tracking.read.public', 'hub.read', 'pricing.read', 'session.revoke.own'],

@@ -22,12 +22,13 @@ for (const file of files) {
     console.warn(`⚠️  Skipped (not found): ${file}`);
     continue;
   }
-  const content = fs.readFileSync(filePath, 'utf8');
+  const content = fs.readFileSync(filePath, 'utf8').replace(/[ \t]+$/gm, '').trimEnd();
   totalBytes += Buffer.byteLength(content, 'utf8');
   combined += `/* ── ${file} ── */\n${content}\n\n`;
 }
 
 const outPath = path.join(root, 'css/bundle.css');
+combined = `${combined.trimEnd()}\n`;
 fs.writeFileSync(outPath, combined, 'utf8');
 
 const kb = (totalBytes / 1024).toFixed(1);

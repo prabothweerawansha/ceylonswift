@@ -17,7 +17,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
   constructor(config: ConfigService, private readonly metrics: MetricsService) {
     this.service = config.get<string>('serviceName', 'ceylonswift-api');
     this.environment = config.get<string>('nodeEnv', 'development');
-    this.version = config.get<string>('serviceVersion', '0.1.0');
+    this.version = config.get<string>('serviceVersion', '0.2.0.1-open-beta');
     this.logger = pino({
       level: config.get<string>('logLevel', 'info'),
       redact: {

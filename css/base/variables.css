@@ -58,4 +58,20 @@
   --border-radius-sm: 8px;
   --border-radius-md: 16px;
   --border-radius-lg: 24px;
+
+  /* Public-home semantic colors. Kept separate from dashboard tokens. */
+  --home-canvas: #031027;
+  --home-surface: rgba(5, 19, 43, 0.94);
+  --home-surface-elevated: rgba(13, 31, 67, 0.92);
+  --home-text-primary: #f7fbff;
+  --home-text-secondary: #aebdd2;
+  --home-border: rgba(126, 190, 238, 0.24);
+  --home-brand-cyan: #48e4ff;
+  --home-brand-blue: #279cf4;
+  --home-brand-purple: #9b73ff;
+  --home-focus: #71e8ff;
+  --home-shadow: 0 28px 80px rgba(0, 6, 28, 0.42);
+  --home-card-surface: linear-gradient(145deg, rgba(15, 39, 78, 0.78), rgba(19, 24, 65, 0.72));
+  --home-card-border: rgba(133, 188, 245, 0.3);
+  --home-header-surface: linear-gradient(112deg, rgba(11, 39, 59, 0.96), rgba(15, 26, 51, 0.97) 50%, rgba(37, 25, 68, 0.96));
 }

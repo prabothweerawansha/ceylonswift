@@ -14,9 +14,10 @@ import { OperationsModule } from './modules/operations/operations.module';
 import { OperationalResilienceModule } from './modules/operational-resilience/operational-resilience.module';
 import { RequestTimeoutInterceptor } from './common/interceptors/request-timeout.interceptor';
 import { TraceContextMiddleware } from './common/middleware/trace-context.middleware';
+import { LandingPageModule } from './modules/landing-page/landing-page.module';
 
 @Module({
-  imports: [AppConfigModule, DatabaseModule, HealthModule, AuthModule, AuthorizationModule, OperationalResilienceModule, WorkforceModule, OperationsModule],
+  imports: [AppConfigModule, DatabaseModule, HealthModule, AuthModule, AuthorizationModule, OperationalResilienceModule, WorkforceModule, OperationsModule, LandingPageModule],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: RequestTimeoutInterceptor },

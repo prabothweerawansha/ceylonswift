@@ -33,7 +33,7 @@ export class HealthService {
       database: 'connected',
       timestamp: new Date().toISOString(),
       environment: this.config.get<string>('nodeEnv', 'development'),
-      version: process.env.npm_package_version ?? '0.1.0',
+      version: this.config.get<string>('serviceVersion', '0.2.0.1-open-beta'),
     };
   }
 

@@ -2,6 +2,7 @@ import { mapCustomerRequestCreatePayload } from './customer-request-payload.js?v
 import { FormErrorController } from '../errors/error-state-controller.js';
 import { normalizeError, safeDevelopmentLog } from '../errors/error-normalizer.js';
 import { showToast } from '../errors/error-presenter.js';
+import { dismissToast, showToast as showManagedToast } from '../notifications/toast-manager.js';
 
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 const displayStatus = value => String(value || '').toLowerCase().replaceAll('_', ' ').replace(/^./, character => character.toUpperCase());
@@ -122,7 +123,7 @@ export class OperationsController {
     };
   }
 
-  legacyHub(hub) { return { id: hub.district || hub.code, backendId: hub.id, code: hub.code, name: hub.name, district: hub.district || hub.name, capacity: hub.capacity || 1, riders: hub.activeRiders || 0, activePkgs: hub.activePackages || 0, speed: hub.status === 'ACTIVE' ? '100%' : 'Limited' }; }
+  legacyHub(hub) { return { id: hub.district || hub.code, backendId: hub.id, code: hub.code, name: hub.name, district: hub.district || hub.name, capacity: hub.capacity || 1, riders: hub.activeRiders || 0, activePkgs: hub.activePackages || 0, status: hub.status || 'UNKNOWN' }; }
   hubById(id) { return this.data.hubs.find(hub => hub.id === id); }
   selectedHub(selectId) { const value = document.getElementById(selectId)?.value; return this.data.hubs.find(hub => hub.id === value || hub.district === value || hub.code === value); }
 
@@ -281,6 +282,11 @@ export class OperationsController {
     container.innerHTML = packages + requests || '<p class="operation-empty">No delivery history yet.</p>';
   }
 
-  renderStatus() { const status = document.getElementById('operations-live-status'); if (!status) return; const state = this.error ? normalizeError(this.error) : null; status.textContent = this.busy ? 'Loading delivery data…' : state ? state.message : ''; status.dataset.kind = state?.severity || 'info'; }
-  announce(message, kind = 'info') { const status = document.getElementById('operations-live-status'); if (status) { status.textContent = message; status.dataset.kind = kind; } }
+  renderStatus() {
+    const state = this.error ? normalizeError(this.error) : null;
+    if (this.busy) showManagedToast('Loading delivery data…', 'info', { autoDismiss: false });
+    else if (state) showManagedToast(state.message, state.severity, { title: state.title });
+    else dismissToast();
+  }
+  announce(message, kind = 'info') { showManagedToast(message, kind); }
 }

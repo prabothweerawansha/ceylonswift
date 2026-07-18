@@ -41,6 +41,7 @@ import type {
 import { OperationsRateLimitService } from './operations-rate-limit.service';
 import { PackageTransitionService, RIDER_TRANSITIONS } from './package-transition.service';
 import { PricingService } from './pricing.service';
+import { FeaturePolicyService } from '../../landing-page/services/feature-policy.service';
 
 type Tx = Prisma.TransactionClient;
 const ACTIVE_ASSIGNMENTS = [PackageAssignmentStatus.PENDING, PackageAssignmentStatus.ACCEPTED, PackageAssignmentStatus.ACTIVE];
@@ -65,10 +66,12 @@ export class OperationsService {
     private readonly pricing: PricingService,
     private readonly transitions: PackageTransitionService,
     private readonly limits: OperationsRateLimitService,
+    private readonly features: FeaturePolicyService,
   ) {}
 
   async createRequest(dto: CustomerRequestCreateDto, context: AuthorizationContext, requestId: string) {
     this.requirePersonal(context, 'package.create');
+    await this.features.assertEnabled('public.send_parcel');
     const route = await this.route(dto.originHubId, dto.destinationHubId);
     const quote = await this.pricing.calculate(dto);
     return this.prisma.$transaction(async (tx) => {
@@ -191,6 +194,7 @@ export class OperationsService {
   }
 
   async createPackage(dto: PackageCreateDto, context: AuthorizationContext, requestId: string) {
+    if (context.workspaceType === 'PERSONAL') await this.features.assertEnabled('public.send_parcel');
     this.requirePermission(context, 'package.create');
     const route = await this.route(dto.originHubId, dto.destinationHubId);
     const customerId = context.workspaceType === 'PERSONAL' ? context.userId : dto.customerId ?? null;

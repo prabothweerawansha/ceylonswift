@@ -2,7 +2,7 @@ const ROUTES = Object.freeze({ customer: 'login', workforce: 'staff-login', admi
 const AUTH_ROUTE_IDS = Object.freeze(Object.values(ROUTES));
 const ROUTE_SURFACES = Object.freeze(Object.fromEntries(Object.entries(ROUTES).map(([surface, route]) => [route, surface])));
 const SURFACE_COPY = Object.freeze({
-  customer: ['Welcome back', 'Sign in or create your account'],
+  customer: ['Welcome back', 'Sign in to an existing CeylonSwift account'],
   workforce: ['Team member sign in', 'Secure access for invited CeylonSwift team members'],
   admin: ['Secure administration sign in', 'Protected access for authorized administrators'],
   partner: ['Partner workspace sign in', 'Access your organization’s restricted CeylonSwift workspace'],
@@ -19,7 +19,7 @@ const AUTH_TEMPLATE = `
   <section class="auth-surface active" data-auth-surface="customer" aria-labelledby="auth-surface-title">
     <div data-customer-step="identifier">
       <form id="customer-identifier-form" novalidate>
-        <div class="form-group"><label for="customer-identifier">Mobile number or email address</label><input id="customer-identifier" name="identifier" autocomplete="username" inputmode="email" required placeholder="name@example.com or 077 123 4567"><small>New customer accounts are created after successful verification.</small></div>
+        <div class="form-group"><label for="customer-identifier">Mobile number or email address</label><input id="customer-identifier" name="identifier" autocomplete="username" inputmode="email" required placeholder="name@example.com or 077 123 4567"><small>Public customer registration is not available during the current launch stage.</small></div>
         <button class="btn btn-primary auth-submit-btn" type="submit">Continue</button>
       </form>
       <div class="auth-divider"><span>or</span></div>

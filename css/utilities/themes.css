@@ -17,6 +17,20 @@ body.light-theme {
   --text-main: #0f172a;
   --text-muted: #475569;
   --text-dark: #f8fafc;
+  --home-canvas: #eaf4fa;
+  --home-surface: rgba(241, 248, 252, 0.96);
+  --home-surface-elevated: rgba(255, 255, 255, 0.88);
+  --home-text-primary: #102038;
+  --home-text-secondary: #53677f;
+  --home-border: rgba(59, 125, 174, 0.2);
+  --home-brand-cyan: #008fcb;
+  --home-brand-blue: #176fc4;
+  --home-brand-purple: #7152cb;
+  --home-focus: #007db8;
+  --home-shadow: 0 24px 64px rgba(44, 78, 108, 0.16);
+  --home-card-surface: linear-gradient(145deg, rgba(255, 255, 255, 0.76), rgba(226, 241, 250, 0.66));
+  --home-card-border: rgba(65, 127, 174, 0.22);
+  --home-header-surface: linear-gradient(112deg, rgba(239, 249, 253, 0.94), rgba(248, 249, 253, 0.94) 52%, rgba(245, 240, 252, 0.94));
   
   background-image: 
     radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.05) 0px, transparent 50%),

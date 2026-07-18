@@ -418,3 +418,114 @@ table.data-table tbody tr:hover {
   opacity: 0.3;
   cursor: not-allowed;
 }
+
+/* Phase 9A.1b dashboard theme containment and contrast repair. */
+body:not(.public-view) aside.sidebar .brand-text h1 {
+  background: linear-gradient(to right, #ffffff, #b8c6d8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.light-theme:not(.public-view) aside.sidebar .brand-text h1 {
+  background: linear-gradient(to right, #102038, #354a66);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body:not(.public-view) aside.sidebar .nav-item:not(.active) {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+body:not(.public-view) aside.sidebar .nav-item:not(.active) svg {
+  stroke: currentColor;
+}
+
+body.light-theme:not(.public-view) aside.sidebar .nav-item:not(.active) {
+  color: #42546b;
+}
+
+body:not(.public-view) aside.sidebar .nav-item[aria-disabled="true"] {
+  opacity: .68;
+  cursor: not-allowed;
+}
+
+body.light-theme:not(.public-view) aside.sidebar .nav-item:hover,
+body.light-theme:not(.public-view) aside.sidebar .nav-item:focus-visible {
+  color: #102038;
+  background: rgba(25, 92, 145, .08);
+  border-color: rgba(25, 92, 145, .14);
+}
+
+body:not(.public-view) aside.sidebar .nav-item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+body.light-theme:not(.public-view) #dashboard .chart-container {
+  overflow: hidden;
+  border: 1px solid rgba(35, 57, 86, .10);
+  border-radius: 16px;
+  background: #f5f9fd;
+}
+
+body:not(.light-theme):not(.public-view) #dashboard .chart-container {
+  overflow: hidden;
+  border: 1px solid rgba(158, 190, 225, .10);
+  border-radius: 16px;
+  background: #08101f;
+}
+
+body:not(.public-view) #dashboard .badge-chart-empty {
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--bg-card) 88%, transparent);
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+body:not(.public-view) #dashboard .stat-trend {
+  color: var(--text-muted);
+}
+
+body.light-theme:not(.public-view) .table-wrapper {
+  background: rgba(255, 255, 255, .68);
+  border-color: rgba(35, 57, 86, .12);
+}
+
+body.light-theme:not(.public-view) table.data-table th {
+  color: #43556d;
+  background: rgba(35, 57, 86, .055);
+  border-bottom-color: rgba(35, 57, 86, .12);
+}
+
+body.light-theme:not(.public-view) table.data-table td {
+  color: #17263a;
+  border-bottom-color: rgba(35, 57, 86, .08);
+}
+
+body.light-theme:not(.public-view) table.data-table tbody tr:hover {
+  background: rgba(20, 99, 158, .045);
+}
+
+body.light-theme:not(.public-view) .icon-btn {
+  color: #42546b;
+  background: rgba(255, 255, 255, .78);
+  border-color: rgba(35, 57, 86, .14);
+}
+.feature-policy-list { display: grid; gap: 12px; margin-top: 18px; }
+.feature-policy-row { display: grid; grid-template-columns: minmax(190px, 1fr) minmax(150px, .7fr) minmax(220px, 1.2fr) auto; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--border-color); border-radius: 14px; background: rgba(255,255,255,.025); }
+.feature-policy-copy { display: grid; gap: 3px; min-width: 0; }
+.feature-policy-copy strong { color: var(--text-main); font-size: 13px; }
+.feature-policy-copy small { overflow: hidden; color: var(--text-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.feature-policy-row input, .feature-policy-row select { min-width: 0; }
+
+@media (max-width: 900px) {
+  .feature-policy-row { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 620px) {
+  .feature-policy-row { grid-template-columns: 1fr; }
+  .feature-policy-row .btn { width: 100%; }
+}

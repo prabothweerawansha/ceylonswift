@@ -46,6 +46,14 @@ window.applyBackendAuthCompatibility = function(snapshot) {
   } : null;
   state.loggedInRider = snapshot.role === 'Rider' ? state.currentUser?.name || null : null;
   applyRoleRouting();
+  if (snapshot.status === 'authenticated' && sessionStorage.getItem('ceylonswift_pending_action') === 'SEND_PARCEL') {
+    queueMicrotask(() => {
+      if (state.allowedNavigationSections.includes('customerrequest')) {
+        sessionStorage.removeItem('ceylonswift_pending_action');
+        openResolvedDashboard({ preferredSection: 'customerrequest' });
+      }
+    });
+  }
 };
 
 // API-mode compatibility is memory-only. It keeps the remaining Phase 7 operational
@@ -208,52 +216,109 @@ function shouldResetSavedNavigationSection(role = state.activeRole, authStatus =
 
 const TRANSLATIONS = {
   en: {
-    navTrack: 'Track', navServices: 'Services', navHubs: 'Hubs', navHelp: 'Help', navAbout: 'About',
+    navTrack: 'Track', navBusiness: 'For Business', navServices: 'Services', navHubs: 'Hubs', navHelp: 'Help', navAbout: 'About', logIn: 'Log In',
     getStarted: 'Get Started', heroBadge: "Sri Lanka's Premium Speed Courier",
-    heroTitle: 'Lightning Fast Deliveries Across Sri Lanka',
-    heroSubtitle: "CeylonSwift is Sri Lanka's smartest, fastest, and most reliable logistics ecosystem. With 6 ultra-capacity sorting centers and live GPS tracked courier dispatches, we deliver your promises on time, every time.",
+    heroTitle: 'Sri Lanka Moves Faster with CeylonSwift', heroTitleLine1: 'Sri Lanka Moves', heroTitleLine2: 'Faster with',
+    heroSubtitle: 'Track approved deliveries and discover a smarter CeylonSwift workflow for businesses and tuition classes across Sri Lanka.',
+    sendParcel: 'Send a Parcel', joinBusiness: 'Join Business', comingSoon: 'Coming Soon',
     getStartedNow: 'Get Started Now', trackShipment: 'Track Shipment',
-    trackerTitle: 'Global Quick Shipment Tracker', trackerSubtitle: "Enter your unique CeylonSwift reference code below to see your package's real-time journey.",
-    trackingPlaceholder: 'Enter Tracking ID (e.g., CS-4821)...',
-    servicesTitle: 'Delivery Services Built Around Your Schedule', servicesSubtitle: 'Choose the right delivery speed, then calculate the live fee using the connected CeylonSwift rate engine.',
-    hubsTitle: 'Our Active Sorting Hubs Network', hubsSubtitle: 'Real-time status, processing speed, and rider density of our Sri Lankan regional centers.',
+    trackerTitle: 'Quick Shipment Tracker', trackerSubtitle: 'Enter your CeylonSwift reference code to check the latest public shipment update.',
+    trackingPlaceholder: 'Enter your tracking reference',
+    servicesTitle: 'Delivery services prepared for the complete CeylonSwift launch', servicesSubtitle: 'Service availability, delivery windows, and pricing are controlled by area, agreement, and operational capacity.',
+    serviceStandardTitle: 'Standard Delivery', serviceStandardCopy: 'Reliable islandwide delivery for everyday parcels within two to three business days.',
+    serviceExpressTitle: 'Next-Day Express', serviceExpressCopy: 'Priority hub processing and next-day delivery for time-sensitive shipments.',
+    serviceLightningTitle: 'Same-Day Lightning', serviceLightningCopy: 'Rapid same-day dispatch across supported routes with live courier tracking.',
+    heroCardTrackingEyebrow: 'Tracking', heroCardTrackingTitle: 'Tracking Preview', heroCardPreview: 'Preview', heroCardTrackingRow1: 'Enter a valid reference below', heroCardTrackingRow2: 'Sensitive details stay protected',
+    heroCardJourneyEyebrow: 'Package status', heroCardJourneyTitle: 'Shipment Journey', heroCardJourneyRow1: 'Booked', heroCardJourneyRow2: 'In transit', heroCardJourneyRow3: 'Delivered',
+    heroCardPerformanceEyebrow: 'Service data', heroCardPerformanceTitle: 'Performance Insights', heroCardPerformanceRow1: 'Verified metrics coming soon', heroCardPerformanceRow2: 'No fabricated statistics',
+    heroCardSecurityEyebrow: 'Built-in protection', heroCardSecurityTitle: 'Secure Delivery', heroCardSecurityRow1: 'Verified account access', heroCardSecurityRow2: 'Privacy-aware public tracking', heroCardSecurityRow3: 'Audited operational actions',
+    rateCalculator: 'Rate Calculator', rateComingSoonCopy: 'Public pricing stays unavailable until every service rule and area is approved.',
+    businessKicker: 'Built for growing operations', businessTitle: 'Choose the Business path that fits your operation.',
+    businessSubtitle: 'Approved Sri Lankan teachers, tuition institutes, and businesses can connect their delivery workflow without changing how they manage their customers.',
+    connectedBusinessLabel: 'Connected Business', connectedBusinessTitle: 'Website or system integration', connectedBusinessCopy: 'Connect approved order data, exact delivery locations, QR binding, and scheduled pickup workflows.',
+    businessLiteLabel: 'Business Lite', businessLiteTitle: 'No website or system required', businessLiteCopy: 'Add recipients manually or use a secure recipient link, then bind completed records to available QR labels.',
+    partnerSignIn: 'Approved Partner Sign In', contactBusiness: 'Contact the Business Team', businessNote: 'New organizations are reviewed and created separately. A normal customer account is not converted into a Business account.',
+    publicHubs: 'Public Hubs Network', publicHubsCopy: 'Internal capacity and parcel-load information is never exposed as public demo data.',
+    hubsTitle: 'CeylonSwift Sorting Hubs Network', hubsSubtitle: 'Approved public hub information will appear here when the network is ready.',
     supportKicker: 'Support center', supportTitle: 'Need help with a delivery?', supportCopy: 'Track an active parcel first, or open your account workspace for shipment, rider, billing, and delivery support.',
+    helpTrackingTitle: 'Tracking assistance', helpTrackingCopy: 'Check current status and the latest transit event.',
+    helpChangesTitle: 'Delivery changes', helpChangesCopy: 'Sign in to manage an eligible shipment request.',
+    helpBusinessTitle: 'Business support', helpBusinessCopy: 'Access staff and customer tools through Get Started.',
     trackParcel: 'Track a Parcel', supportPortal: 'Open Support Portal', aboutKicker: 'About CeylonSwift',
     aboutTitle: 'One connected delivery network, built for Sri Lanka.', aboutCopy: 'CeylonSwift connects customer requests, office operations, sorting hubs, riders, tracking, and delivery pricing in one logistics workspace. Every public tool on this page uses the same application data and operational workflows available inside the portal.',
+    releaseLabel: 'Mark 0.2 · Open Beta',
     seoTitle: "CeylonSwift | Sri Lanka's Smartest & Fastest Delivery Service",
     seoDescription: 'Track parcels, compare delivery services, calculate rates, and connect with CeylonSwift across Sri Lanka.',
     settingsTitle: 'Website settings', settingsSubtitle: 'Personalize your experience', themeSetting: 'Appearance', languageSetting: 'Language', languageHint: 'Choose your preferred language', performanceSetting: 'Performance', performanceAuto: 'Auto', performanceFull: 'Full quality', performanceLite: 'Optimized', themeDark: 'Dark theme', themeLight: 'Light theme', statusFull: 'Full quality active', statusLite: 'Optimized for this device', statusAutoFull: 'Auto · Full quality', statusAutoLite: 'Auto · Optimized'
   },
   si: {
-    navTrack: 'හඹායන්න', navServices: 'සේවා', navHubs: 'මධ්‍යස්ථාන', navHelp: 'උදව්', navAbout: 'අප ගැන',
+    navTrack: 'හඹායන්න', navBusiness: 'ව්‍යාපාර සඳහා', navServices: 'සේවා', navHubs: 'මධ්‍යස්ථාන', navHelp: 'උදව්', navAbout: 'අප ගැන', logIn: 'පිවිසෙන්න',
     getStarted: 'ආරම්භ කරන්න', heroBadge: 'ශ්‍රී ලංකාවේ ප්‍රමුඛ වේගවත් කුරියර් සේවාව',
-    heroTitle: 'ශ්‍රී ලංකාව පුරා අකුණු වේගයෙන් බෙදාහැරීම්',
-    heroSubtitle: 'CeylonSwift යනු ශ්‍රී ලංකාවේ බුද්ධිමත්, වේගවත් සහ විශ්වාසදායක සැපයුම් ජාලයකි. සජීවී GPS හඹායෑම සහ සම්බන්ධිත වර්ගීකරණ මධ්‍යස්ථාන සමඟ ඔබේ භාණ්ඩ නියමිත වේලාවට ලබා දෙමු.',
+    heroTitle: 'CeylonSwift සමඟ ශ්‍රී ලංකාව වඩා වේගයෙන් ඉදිරියට', heroTitleLine1: 'ශ්‍රී ලංකාව ඉදිරියට', heroTitleLine2: 'වඩා වේගයෙන්',
+    heroSubtitle: 'අනුමත බෙදාහැරීම් හඹායන්න සහ ශ්‍රී ලංකාවේ ව්‍යාපාර හා උපකාරක පන්ති සඳහා වඩා බුද්ධිමත් CeylonSwift ක්‍රියාවලියක් සොයාගන්න.',
+    sendParcel: 'පාර්සලයක් යවන්න', joinBusiness: 'ව්‍යාපාරයක් ලෙස එක්වන්න', comingSoon: 'ළඟදීම',
     getStartedNow: 'දැන් ආරම්භ කරන්න', trackShipment: 'භාණ්ඩය හඹායන්න',
-    trackerTitle: 'ඉක්මන් භාණ්ඩ හඹායෑම', trackerSubtitle: 'ඔබේ භාණ්ඩයේ සජීවී ගමන බැලීමට CeylonSwift යොමු අංකය ඇතුළත් කරන්න.',
-    trackingPlaceholder: 'හඹායෑම් අංකය ඇතුළත් කරන්න (උදා: CS-4821)...',
-    servicesTitle: 'ඔබේ කාලසටහනට ගැළපෙන බෙදාහැරීමේ සේවා', servicesSubtitle: 'සුදුසු බෙදාහැරීමේ වේගය තෝරා සජීවී ගාස්තුව ගණනය කරන්න.',
-    hubsTitle: 'අපගේ සක්‍රීය වර්ගීකරණ මධ්‍යස්ථාන', hubsSubtitle: 'ශ්‍රී ලංකාව පුරා මධ්‍යස්ථානවල සජීවී තත්ත්වය, සැකසුම් වේගය සහ ධාවක ඝනත්වය.',
+    trackerTitle: 'ඉක්මන් පාර්සල් හඹායෑම', trackerSubtitle: 'නවතම පොදු බෙදාහැරීමේ තත්ත්වය බැලීමට ඔබේ CeylonSwift යොමු අංකය ඇතුළත් කරන්න.',
+    trackingPlaceholder: 'ඔබේ හඹායෑම් යොමු අංකය ඇතුළත් කරන්න',
+    servicesTitle: 'සම්පූර්ණ CeylonSwift දියත් කිරීම සඳහා සූදානම් කළ බෙදාහැරීමේ සේවා', servicesSubtitle: 'සේවා ලබාගත හැකි බව, බෙදාහැරීමේ කාලය සහ මිල ප්‍රදේශය, ගිවිසුම සහ මෙහෙයුම් ධාරිතාව අනුව පාලනය වේ.',
+    serviceStandardTitle: 'සාමාන්‍ය බෙදාහැරීම', serviceStandardCopy: 'දෛනික පාර්සල් සඳහා ව්‍යාපාරික දින දෙක තුනක් ඇතුළත විශ්වාසදායක දිවයින පුරා බෙදාහැරීම.',
+    serviceExpressTitle: 'ඊළඟ දින වේගවත් සේවාව', serviceExpressCopy: 'කාල සංවේදී පාර්සල් සඳහා ප්‍රමුඛ මධ්‍යස්ථාන සැකසුම සහ ඊළඟ දින බෙදාහැරීම.',
+    serviceLightningTitle: 'එදිනම Lightning සේවාව', serviceLightningCopy: 'සහාය දක්වන මාර්ගවල සජීවී රයිඩර් හඹායෑම සමඟ වේගවත් එදිනම බෙදාහැරීම.',
+    heroCardTrackingEyebrow: 'හඹායෑම', heroCardTrackingTitle: 'හඹායෑමේ පෙරදසුන', heroCardPreview: 'පෙරදසුන', heroCardTrackingRow1: 'වලංගු යොමු අංකයක් පහළින් ඇතුළත් කරන්න', heroCardTrackingRow2: 'සංවේදී තොරතුරු ආරක්ෂිතයි',
+    heroCardJourneyEyebrow: 'පාර්සල් තත්ත්වය', heroCardJourneyTitle: 'පාර්සලයේ ගමන', heroCardJourneyRow1: 'වෙන් කළා', heroCardJourneyRow2: 'ගමනාගමනයේ', heroCardJourneyRow3: 'භාර දුන්නා',
+    heroCardPerformanceEyebrow: 'සේවා දත්ත', heroCardPerformanceTitle: 'කාර්ය සාධන තොරතුරු', heroCardPerformanceRow1: 'තහවුරු කළ දත්ත ළඟදීම', heroCardPerformanceRow2: 'ව්‍යාජ සංඛ්‍යාලේඛන නැහැ',
+    heroCardSecurityEyebrow: 'ඇතුළත් ආරක්ෂාව', heroCardSecurityTitle: 'ආරක්ෂිත බෙදාහැරීම', heroCardSecurityRow1: 'තහවුරු කළ ගිණුම් ප්‍රවේශය', heroCardSecurityRow2: 'පෞද්ගලිකත්වය රැකෙන පොදු හඹායෑම', heroCardSecurityRow3: 'විගණනය කළ මෙහෙයුම්',
+    rateCalculator: 'ගාස්තු ගණකය', rateComingSoonCopy: 'සියලු සේවා නීති සහ ප්‍රදේශ අනුමත වන තුරු පොදු මිල ගණනය ලබා නොදේ.',
+    businessKicker: 'වර්ධනය වන මෙහෙයුම් සඳහා', businessTitle: 'ඔබේ මෙහෙයුමට ගැළපෙන ව්‍යාපාර මාර්ගය තෝරන්න.',
+    businessSubtitle: 'අනුමත ශ්‍රී ලාංකික ගුරුවරුන්ට, උපකාරක ආයතනවලට සහ ව්‍යාපාරවලට ඔවුන්ගේ පාරිභෝගික ක්‍රියාවලිය වෙනස් නොකර බෙදාහැරීම් සම්බන්ධ කළ හැක.',
+    connectedBusinessLabel: 'සම්බන්ධිත ව්‍යාපාරය', connectedBusinessTitle: 'වෙබ් අඩවි හෝ පද්ධති සම්බන්ධ කිරීම', connectedBusinessCopy: 'අනුමත ඇණවුම් දත්ත, නිවැරදි ස්ථාන, QR බැඳීම සහ කාලසටහන්ගත pickup ක්‍රියාවලි සම්බන්ධ කරන්න.',
+    businessLiteLabel: 'Business Lite', businessLiteTitle: 'වෙබ් අඩවියක් හෝ පද්ධතියක් අවශ්‍ය නැහැ', businessLiteCopy: 'ලබන්නන් අතින් එක් කරන්න හෝ ආරක්ෂිත ලබන්නාගේ link එක භාවිත කර සම්පූර්ණ දත්ත QR ලේබල්වලට බැඳගන්න.',
+    partnerSignIn: 'අනුමත හවුල්කරු පිවිසුම', contactBusiness: 'ව්‍යාපාර කණ්ඩායම අමතන්න', businessNote: 'නව ආයතන වෙනම සමාලෝචනය කර නිර්මාණය කරයි. සාමාන්‍ය පාරිභෝගික ගිණුමක් ව්‍යාපාර ගිණුමක් බවට පරිවර්තනය නොවේ.',
+    publicHubs: 'පොදු මධ්‍යස්ථාන ජාලය', publicHubsCopy: 'අභ්‍යන්තර ධාරිතාව සහ පාර්සල් ප්‍රමාණය demo දත්ත ලෙස පොදුවේ නොපෙන්වයි.',
+    hubsTitle: 'CeylonSwift වර්ගීකරණ මධ්‍යස්ථාන ජාලය', hubsSubtitle: 'අනුමත පොදු මධ්‍යස්ථාන තොරතුරු ජාලය සූදානම් වූ විට මෙහි පෙන්වයි.',
     supportKicker: 'සහාය මධ්‍යස්ථානය', supportTitle: 'බෙදාහැරීමක් සම්බන්ධයෙන් උදව් අවශ්‍යද?', supportCopy: 'පළමුව සක්‍රීය භාණ්ඩයක් හඹායන්න, නැතිනම් සහාය සඳහා ඔබේ ගිණුම් අවකාශය විවෘත කරන්න.',
+    helpTrackingTitle: 'හඹායෑමේ සහාය', helpTrackingCopy: 'වත්මන් තත්ත්වය සහ නවතම ගමනාගමන සිදුවීම බලන්න.',
+    helpChangesTitle: 'බෙදාහැරීමේ වෙනස්කම්', helpChangesCopy: 'සුදුසු බෙදාහැරීමේ ඉල්ලීමක් කළමනාකරණය කිරීමට පිවිසෙන්න.',
+    helpBusinessTitle: 'ව්‍යාපාර සහාය', helpBusinessCopy: 'පිවිසුම හරහා කාර්ය මණ්ඩල සහ පාරිභෝගික මෙවලම් ලබාගන්න.',
     trackParcel: 'භාණ්ඩයක් හඹායන්න', supportPortal: 'සහාය ද්වාරය විවෘත කරන්න', aboutKicker: 'CeylonSwift ගැන',
     aboutTitle: 'ශ්‍රී ලංකාව සඳහා නිර්මාණය කළ එකම සම්බන්ධිත බෙදාහැරීමේ ජාලයක්.', aboutCopy: 'CeylonSwift පාරිභෝගික ඉල්ලීම්, කාර්යාල මෙහෙයුම්, මධ්‍යස්ථාන, ධාවකයන්, හඹායෑම සහ මිල ගණනය එකම සැපයුම් අවකාශයක සම්බන්ධ කරයි.',
+    releaseLabel: 'Mark 0.2 · විවෘත බීටා',
     seoTitle: 'CeylonSwift | ශ්‍රී ලංකාවේ වේගවත් බෙදාහැරීමේ සේවාව',
     seoDescription: 'ශ්‍රී ලංකාව පුරා භාණ්ඩ හඹායන්න, සේවා සසඳන්න සහ බෙදාහැරීමේ ගාස්තු ගණනය කරන්න.',
     settingsTitle: 'වෙබ් අඩවි සැකසුම්', settingsSubtitle: 'ඔබේ අත්දැකීම සකසන්න', themeSetting: 'පෙනුම', languageSetting: 'භාෂාව', languageHint: 'ඔබ කැමති භාෂාව තෝරන්න', performanceSetting: 'කාර්ය සාධනය', performanceAuto: 'ස්වයංක්‍රීය', performanceFull: 'උසස් ගුණාත්මක', performanceLite: 'ප්‍රශස්ත', themeDark: 'අඳුරු තේමාව', themeLight: 'ආලෝක තේමාව', statusFull: 'උසස් ගුණාත්මකභාවය සක්‍රීයයි', statusLite: 'මෙම උපාංගයට ප්‍රශස්තයි', statusAutoFull: 'ස්වයංක්‍රීය · උසස් ගුණාත්මක', statusAutoLite: 'ස්වයංක්‍රීය · ප්‍රශස්ත'
   },
   ta: {
-    navTrack: 'கண்காணிப்பு', navServices: 'சேவைகள்', navHubs: 'மையங்கள்', navHelp: 'உதவி', navAbout: 'எங்களைப் பற்றி',
+    navTrack: 'கண்காணிப்பு', navBusiness: 'வணிகத்திற்கு', navServices: 'சேவைகள்', navHubs: 'மையங்கள்', navHelp: 'உதவி', navAbout: 'எங்களைப் பற்றி', logIn: 'உள்நுழைய',
     getStarted: 'தொடங்குங்கள்', heroBadge: 'இலங்கையின் முன்னணி விரைவு கூரியர் சேவை',
-    heroTitle: 'இலங்கை முழுவதும் மின்னல் வேக விநியோகம்',
-    heroSubtitle: 'CeylonSwift இலங்கையின் புத்திசாலித்தனமான, வேகமான மற்றும் நம்பகமான தளவாட வலையமைப்பு. நேரடி GPS கண்காணிப்பு மற்றும் இணைக்கப்பட்ட வரிசைப்படுத்தல் மையங்களுடன் உங்கள் பொதிகளை சரியான நேரத்தில் வழங்குகிறோம்.',
+    heroTitle: 'CeylonSwift உடன் இலங்கை வேகமாக நகர்கிறது', heroTitleLine1: 'இலங்கை நகர்கிறது', heroTitleLine2: 'இன்னும் வேகமாக',
+    heroSubtitle: 'அங்கீகரிக்கப்பட்ட விநியோகங்களைக் கண்காணித்து, இலங்கையின் வணிகங்கள் மற்றும் கல்வி வகுப்புகளுக்கான சிறந்த CeylonSwift பணிச்சூழலை அறியுங்கள்.',
+    sendParcel: 'பொதி அனுப்பவும்', joinBusiness: 'வணிகமாக இணையுங்கள்', comingSoon: 'விரைவில்',
     getStartedNow: 'இப்போது தொடங்குங்கள்', trackShipment: 'பொதியைக் கண்காணிக்கவும்',
-    trackerTitle: 'விரைவு பொதி கண்காணிப்பு', trackerSubtitle: 'உங்கள் பொதியின் நேரடி பயணத்தைப் பார்க்க CeylonSwift குறிப்பு எண்ணை உள்ளிடவும்.',
-    trackingPlaceholder: 'கண்காணிப்பு எண்ணை உள்ளிடவும் (உதா: CS-4821)...',
-    servicesTitle: 'உங்கள் நேர அட்டவணைக்கு ஏற்ற விநியோக சேவைகள்', servicesSubtitle: 'சரியான விநியோக வேகத்தைத் தேர்ந்தெடுத்து நேரடி கட்டணத்தைக் கணக்கிடுங்கள்.',
-    hubsTitle: 'எங்கள் செயலில் உள்ள வரிசைப்படுத்தல் மையங்கள்', hubsSubtitle: 'இலங்கை பிராந்திய மையங்களின் நேரடி நிலை, செயலாக்க வேகம் மற்றும் ஓட்டுநர் அடர்த்தி.',
+    trackerTitle: 'விரைவு பொதி கண்காணிப்பு', trackerSubtitle: 'சமீபத்திய பொது விநியோக நிலையைப் பார்க்க உங்கள் CeylonSwift குறிப்பு எண்ணை உள்ளிடவும்.',
+    trackingPlaceholder: 'உங்கள் கண்காணிப்பு குறிப்பு எண்ணை உள்ளிடவும்',
+    servicesTitle: 'முழுமையான CeylonSwift வெளியீட்டிற்காக தயாரிக்கப்பட்ட விநியோக சேவைகள்', servicesSubtitle: 'சேவை கிடைப்பது, விநியோக நேரம் மற்றும் விலை ஆகியவை பகுதி, ஒப்பந்தம் மற்றும் செயல்பாட்டு திறன் அடிப்படையில் கட்டுப்படுத்தப்படும்.',
+    serviceStandardTitle: 'நிலையான விநியோகம்', serviceStandardCopy: 'அன்றாட பொதிகளுக்கு இரண்டு முதல் மூன்று வேலை நாட்களில் நம்பகமான தீவு முழுவதும் விநியோகம்.',
+    serviceExpressTitle: 'அடுத்த நாள் விரைவு', serviceExpressCopy: 'நேர அவசர பொதிகளுக்கு முன்னுரிமை மைய செயலாக்கம் மற்றும் அடுத்த நாள் விநியோகம்.',
+    serviceLightningTitle: 'அன்றே Lightning விநியோகம்', serviceLightningCopy: 'ஆதரிக்கப்படும் வழித்தடங்களில் நேரடி ஓட்டுநர் கண்காணிப்புடன் விரைவான அன்றைய விநியோகம்.',
+    heroCardTrackingEyebrow: 'கண்காணிப்பு', heroCardTrackingTitle: 'கண்காணிப்பு முன்னோட்டம்', heroCardPreview: 'முன்னோட்டம்', heroCardTrackingRow1: 'சரியான குறிப்பு எண்ணை கீழே உள்ளிடவும்', heroCardTrackingRow2: 'முக்கிய தகவல்கள் பாதுகாக்கப்படும்',
+    heroCardJourneyEyebrow: 'பொதி நிலை', heroCardJourneyTitle: 'பொதியின் பயணம்', heroCardJourneyRow1: 'பதிவானது', heroCardJourneyRow2: 'பயணத்தில்', heroCardJourneyRow3: 'வழங்கப்பட்டது',
+    heroCardPerformanceEyebrow: 'சேவை தரவு', heroCardPerformanceTitle: 'செயல்திறன் தகவல்கள்', heroCardPerformanceRow1: 'சரிபார்க்கப்பட்ட அளவீடுகள் விரைவில்', heroCardPerformanceRow2: 'போலியான புள்ளிவிவரங்கள் இல்லை',
+    heroCardSecurityEyebrow: 'உள்ளமைந்த பாதுகாப்பு', heroCardSecurityTitle: 'பாதுகாப்பான விநியோகம்', heroCardSecurityRow1: 'சரிபார்க்கப்பட்ட கணக்கு அணுகல்', heroCardSecurityRow2: 'தனியுரிமை பாதுகாக்கும் பொது கண்காணிப்பு', heroCardSecurityRow3: 'தணிக்கை செய்யப்பட்ட செயல்பாடுகள்',
+    rateCalculator: 'கட்டண கணிப்பான்', rateComingSoonCopy: 'அனைத்து சேவை விதிகளும் பகுதிகளும் அங்கீகரிக்கப்படும் வரை பொது விலை கிடைக்காது.',
+    businessKicker: 'வளரும் செயல்பாடுகளுக்காக', businessTitle: 'உங்கள் செயல்பாட்டிற்கு பொருத்தமான வணிகப் பாதையைத் தேர்ந்தெடுக்கவும்.',
+    businessSubtitle: 'அங்கீகரிக்கப்பட்ட இலங்கை ஆசிரியர்கள், கல்வி நிறுவனங்கள் மற்றும் வணிகங்கள் தங்கள் வாடிக்கையாளர் செயல்முறையை மாற்றாமல் விநியோகத்தை இணைக்கலாம்.',
+    connectedBusinessLabel: 'இணைக்கப்பட்ட வணிகம்', connectedBusinessTitle: 'இணையதளம் அல்லது அமைப்பு ஒருங்கிணைப்பு', connectedBusinessCopy: 'அங்கீகரிக்கப்பட்ட ஆர்டர் தரவு, துல்லியமான இடங்கள், QR இணைப்பு மற்றும் திட்டமிட்ட pickup பணிச்சூழல்களை இணைக்கவும்.',
+    businessLiteLabel: 'Business Lite', businessLiteTitle: 'இணையதளம் அல்லது அமைப்பு தேவையில்லை', businessLiteCopy: 'பெறுநர்களை கைமுறையாகச் சேர்க்கவும் அல்லது பாதுகாப்பான இணைப்பைப் பயன்படுத்தி நிறைவு செய்யப்பட்ட பதிவுகளை QR லேபிள்களுடன் இணைக்கவும்.',
+    partnerSignIn: 'அங்கீகரிக்கப்பட்ட கூட்டாளர் உள்நுழைவு', contactBusiness: 'வணிகக் குழுவைத் தொடர்புகொள்ளவும்', businessNote: 'புதிய நிறுவனங்கள் தனியாக மதிப்பாய்வு செய்து உருவாக்கப்படும். சாதாரண வாடிக்கையாளர் கணக்கு வணிகக் கணக்காக மாற்றப்படாது.',
+    publicHubs: 'பொது மைய வலையமைப்பு', publicHubsCopy: 'உள்ளக திறன் மற்றும் பொதி அளவு பொது demo தரவாக வெளியிடப்படாது.',
+    hubsTitle: 'CeylonSwift வரிசைப்படுத்தல் மைய வலையமைப்பு', hubsSubtitle: 'அங்கீகரிக்கப்பட்ட பொது மைய தகவல் வலையமைப்பு தயாரானதும் இங்கே காணப்படும்.',
     supportKicker: 'உதவி மையம்', supportTitle: 'விநியோகத்திற்கு உதவி தேவையா?', supportCopy: 'முதலில் செயலில் உள்ள பொதியைக் கண்காணிக்கவும் அல்லது உதவிக்காக உங்கள் கணக்கு பணியிடத்தைத் திறக்கவும்.',
+    helpTrackingTitle: 'கண்காணிப்பு உதவி', helpTrackingCopy: 'தற்போதைய நிலை மற்றும் சமீபத்திய போக்குவரத்து நிகழ்வைப் பார்க்கவும்.',
+    helpChangesTitle: 'விநியோக மாற்றங்கள்', helpChangesCopy: 'தகுதியான விநியோக கோரிக்கையை நிர்வகிக்க உள்நுழையவும்.',
+    helpBusinessTitle: 'வணிக உதவி', helpBusinessCopy: 'உள்நுழைவின் மூலம் பணியாளர் மற்றும் வாடிக்கையாளர் கருவிகளை அணுகவும்.',
     trackParcel: 'பொதியைக் கண்காணிக்கவும்', supportPortal: 'உதவி தளத்தைத் திறக்கவும்', aboutKicker: 'CeylonSwift பற்றி',
     aboutTitle: 'இலங்கைக்காக உருவாக்கப்பட்ட ஒரே இணைந்த விநியோக வலையமைப்பு.', aboutCopy: 'CeylonSwift வாடிக்கையாளர் கோரிக்கைகள், அலுவலக செயல்பாடுகள், மையங்கள், ஓட்டுநர்கள், கண்காணிப்பு மற்றும் விலையிடலை ஒரே தளவாட பணியிடத்தில் இணைக்கிறது.',
+    releaseLabel: 'Mark 0.2 · திறந்த பீட்டா',
     seoTitle: 'CeylonSwift | இலங்கையின் விரைவு விநியோக சேவை',
     seoDescription: 'இலங்கை முழுவதும் பொதிகளைக் கண்காணித்து, சேவைகளை ஒப்பிட்டு, விநியோக கட்டணங்களைக் கணக்கிடுங்கள்.',
     settingsTitle: 'இணையதள அமைப்புகள்', settingsSubtitle: 'உங்கள் அனுபவத்தை தனிப்பயனாக்குங்கள்', themeSetting: 'தோற்றம்', languageSetting: 'மொழி', languageHint: 'விருப்பமான மொழியைத் தேர்ந்தெடுக்கவும்', performanceSetting: 'செயல்திறன்', performanceAuto: 'தானியங்கி', performanceFull: 'முழுத் தரம்', performanceLite: 'உகந்தது', themeDark: 'இருண்ட தீம்', themeLight: 'ஒளி தீம்', statusFull: 'முழுத் தரம் செயலில்', statusLite: 'இந்த சாதனத்திற்கு உகந்தது', statusAutoFull: 'தானியங்கி · முழுத் தரம்', statusAutoLite: 'தானியங்கி · உகந்தது'
@@ -429,6 +494,11 @@ function changeLanguage(language) {
   if (!SUPPORTED_LANGUAGES.includes(language)) return;
   applyLanguage(language, { persist: true });
 }
+
+window.refreshCeylonSwiftLanguage = function() {
+  const language = SUPPORTED_LANGUAGES.includes(document.documentElement.lang) ? document.documentElement.lang : 'en';
+  applyLanguage(language, { persist: false });
+};
 
 function applyLanguage(language, { persist = false } = {}) {
   const translations = TRANSLATIONS[language] || TRANSLATIONS.en;
@@ -784,6 +854,7 @@ function displayTabSection(tabId, { persist = true } = {}) {
 
   // Trigger dynamic renderings
   if (tabId === 'public-home') {
+    globalThis.ceylonSwiftToast?.initializePublicView();
     renderHomeHubs();
     calculateHomeRate();
   } else if (tabId === 'dashboard') {
@@ -818,7 +889,7 @@ function renderDashboard() {
   });
 
   const deliveredCount = state.packages.filter(p => p.status === 'Delivered').length;
-  const successRate = totalPkgs > 0 ? ((deliveredCount / totalPkgs) * 100).toFixed(1) + '%' : '100%';
+  const successRate = totalPkgs > 0 ? ((deliveredCount / totalPkgs) * 100).toFixed(1) + '%' : '0.0%';
 
   document.getElementById('stat-total-pkgs').textContent = totalPkgs;
   document.getElementById('stat-active-riders').textContent = activeRiders;
@@ -859,10 +930,11 @@ function drawRegionalChart() {
   const w = rect.width;
   const h = rect.height;
   
-  ctx.fillStyle = '#060913';
+  const isLight = document.body.classList.contains('light-theme');
+  ctx.fillStyle = isLight ? '#f5f9fd' : '#08101f';
   ctx.fillRect(0, 0, w, h);
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+  ctx.strokeStyle = isLight ? 'rgba(35, 57, 86, 0.10)' : 'rgba(255, 255, 255, 0.06)';
   ctx.lineWidth = 1;
   const gridLines = 5;
   for (let i = 0; i <= gridLines; i++) {
@@ -884,7 +956,27 @@ function drawRegionalChart() {
   });
 
   const hubKeys = Object.keys(hubData);
-  const maxVal = Math.max(...Object.values(hubData), 5);
+  const values = Object.values(hubData);
+  const hasData = values.some((value) => value > 0);
+  const chartState = document.getElementById('regional-chart-state');
+  if (chartState) {
+    chartState.textContent = hasData ? 'Current volume' : 'Awaiting data';
+    chartState.classList.toggle('badge-glow-green', hasData);
+    chartState.classList.toggle('badge-chart-empty', !hasData);
+  }
+
+  if (!hasData) {
+    ctx.fillStyle = isLight ? '#24364d' : '#e4edf8';
+    ctx.font = '600 14px Outfit';
+    ctx.textAlign = 'center';
+    ctx.fillText('No regional transit data yet', w / 2, h / 2 - 4);
+    ctx.fillStyle = isLight ? '#65758a' : '#9fb0c6';
+    ctx.font = '400 11px Outfit';
+    ctx.fillText('Volume will appear when shipments are assigned to hubs.', w / 2, h / 2 + 18);
+    return;
+  }
+
+  const maxVal = Math.max(...values, 1);
 
   const chartX = 50;
   const chartY = h - 40;
@@ -923,12 +1015,12 @@ function drawRegionalChart() {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = isLight ? '#53657b' : '#aebbd0';
     ctx.font = 'bold 10px Outfit';
     ctx.textAlign = 'center';
     ctx.fillText(hub, x + barW / 2, chartY + 16);
 
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = isLight ? '#14243a' : '#ffffff';
     ctx.font = 'bold 11px Outfit';
     ctx.fillText(val, x + barW / 2, y - 6);
   });
@@ -1543,7 +1635,7 @@ function renderHubs() {
       <div class="hub-card">
         <div class="hub-header">
           <h5>${hub.name}</h5>
-          <span class="badge badge-glow-green" style="font-size: 9px; padding: 4px 8px;">${hub.speed} Speed</span>
+          <span class="badge badge-glow-green" style="font-size: 9px; padding: 4px 8px;">${hub.status === 'ACTIVE' ? 'Active' : 'Service limited'}</span>
         </div>
         <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
           Operational sorting center servicing the ${hub.district} shipping district.
@@ -2067,6 +2159,35 @@ function openAuthModal() {
   openModal('authPortalModal');
 }
 
+function openLoginEntry() {
+  sessionStorage.removeItem('ceylonswift_pending_action');
+  openAuthModal();
+}
+
+function publicFeatureEnabled(featureKey) {
+  return window.CEYLONSWIFT_FEATURE_STATE?.[featureKey]?.state === 'ENABLED';
+}
+
+function startSendParcel() {
+  if (!publicFeatureEnabled('public.send_parcel')) {
+    window.ceylonSwiftToast?.showToast?.(
+      'Normal-customer parcel sending is not available during the Business and Tuition Open Beta.',
+      'info',
+      { title: 'Coming Soon' },
+    );
+    return;
+  }
+  if (state.authStatus === 'authenticated' && state.allowedNavigationSections.includes('customerrequest')) {
+    openResolvedDashboard({ preferredSection: 'customerrequest' });
+    return;
+  }
+  sessionStorage.setItem('ceylonswift_pending_action', 'SEND_PARCEL');
+  openAuthModal();
+}
+
+window.openLoginEntry = openLoginEntry;
+window.startSendParcel = startSendParcel;
+
 window.openAppSection = function(sectionId) {
   if (!state.allowedNavigationSections.includes(sectionId)) return false;
   window.ceylonSwiftNavigation?.activate(document.getElementById('sidebar-nav-menu'), sectionId);
@@ -2130,25 +2251,48 @@ function toggleOfficeSubView(mode) {
   }
 }
 
-function scrollToSection(id) {
+function scrollToSection(id, { focus = false } = {}) {
   const target = document.getElementById(id);
-  if (!target) return;
-  const behavior = document.body.classList.contains('performance-lite') ? 'auto' : 'smooth';
+  if (!target) return false;
+  const reduceMotion = document.body.classList.contains('performance-lite')
+    || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const behavior = reduceMotion ? 'auto' : 'smooth';
 
   if (id === 'home-hero') {
     window.scrollTo({ top: 0, behavior });
-    return;
+    return false;
   }
 
   const navbar = document.querySelector('.public-navbar');
   const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 0;
   const targetTop = target.getBoundingClientRect().top + window.scrollY - navbarHeight - 24;
   window.scrollTo({ top: Math.max(0, targetTop), behavior });
+  if (focus) {
+    const focusTarget = id === 'home-tracking'
+      ? (document.getElementById('home-tracker-heading') || document.getElementById('home-track-input'))
+      : id === 'home-reviews' ? document.getElementById('home-reviews-title') : target;
+    window.setTimeout(() => focusTarget?.focus({ preventScroll: true }), behavior === 'smooth' ? 420 : 0);
+  }
+  return false;
 }
 
 /* ==================== 🌐 GUEST HOMEPAGE OPERATIONS ==================== */
 
 function calculateHomeRate() {
+  if (!publicFeatureEnabled('public.rate_calculator')) {
+    const values = {
+      'home-calc-result-total': 'Unavailable in Open Beta',
+      'home-calc-base': '—',
+      'home-calc-weight-fee': '—',
+      'home-calc-markup': '—',
+      'home-calc-time': 'Available after launch',
+    };
+    Object.entries(values).forEach(([id, value]) => {
+      const element = document.getElementById(id);
+      if (element) element.textContent = value;
+    });
+    return;
+  }
   if (isApiAuthMode() && window.ceylonSwiftOperations) { void window.ceylonSwiftOperations.calculate('home'); return; }
   const weightInput = document.getElementById('home-calc-weight');
   const originSelect = document.getElementById('home-calc-origin');
@@ -2186,6 +2330,7 @@ function calculateHomeRate() {
 }
 
 function queryHomeTracking() {
+  if (!publicFeatureEnabled('public.track_parcel')) return;
   if (isApiAuthMode() && window.ceylonSwiftOperations) { const code = document.getElementById('home-track-input')?.value; void window.ceylonSwiftOperations.track(code, 'home'); return; }
   const inputEl = document.getElementById('home-track-input');
   if (!inputEl) return;
@@ -2299,6 +2444,7 @@ function renderHomeHubs() {
   const container = document.getElementById('home-hubs-container');
   if (!container) return;
   container.innerHTML = '';
+  if (!publicFeatureEnabled('public.hubs')) return;
   
   state.hubs.forEach(hub => {
     const dynamicCount = state.packages.filter(p => p.hub === hub.id && p.status !== 'Delivered').length;
@@ -2721,6 +2867,9 @@ function toggleTheme(event) {
     localStorage.setItem('ceylonswift_theme', theme);
     saveUserPreference('theme', theme);
     updateThemeUI();
+    if (document.getElementById('dashboard')?.classList.contains('active')) {
+      requestAnimationFrame(drawRegionalChart);
+    }
   };
 
   const reduceMotion = document.body.classList.contains('performance-lite')
@@ -2741,22 +2890,20 @@ function toggleTheme(event) {
     Math.max(originY, window.innerHeight - originY)
   );
 
+  const root = document.documentElement;
+  root.dataset.themeTransition = switchingToLight ? 'to-light' : 'to-dark';
   const transition = document.startViewTransition(applyTheme);
   transition.ready.then(() => {
-    const root = document.documentElement;
-    root.dataset.themeTransition = switchingToLight ? 'to-light' : 'to-dark';
     const animation = root.animate(
-      switchingToLight
-        ? { clipPath: [`circle(0px at ${originX}px ${originY}px)`, `circle(${radius}px at ${originX}px ${originY}px)`] }
-        : { clipPath: [`circle(${radius}px at ${originX}px ${originY}px)`, `circle(0px at ${originX}px ${originY}px)`] },
+      { clipPath: [`circle(0px at ${originX}px ${originY}px)`, `circle(${radius}px at ${originX}px ${originY}px)`] },
       {
-        duration: switchingToLight ? 620 : 680,
-        easing: switchingToLight ? 'cubic-bezier(.22,.8,.24,1)' : 'cubic-bezier(.76,0,.28,1)',
-        pseudoElement: switchingToLight ? '::view-transition-new(root)' : '::view-transition-old(root)'
+        duration: 620,
+        easing: 'cubic-bezier(.22,.8,.24,1)',
+        pseudoElement: '::view-transition-new(root)'
       }
     );
     animation.finished.finally(() => delete root.dataset.themeTransition);
-  }).catch(() => {});
+  }).catch(() => { delete root.dataset.themeTransition; });
 }
 
 function updateThemeUI() {

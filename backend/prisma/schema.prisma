@@ -220,6 +220,62 @@ enum BackgroundJobStatus {
   SKIPPED
 }
 
+enum SiteRevisionStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+enum SiteCardType {
+  DATA_BOUND
+  PROMOTION
+  STATIC_FEATURE
+  REVIEW_SUMMARY
+  PERFORMANCE_METRIC
+  TRACKING_PREVIEW
+}
+
+enum MediaApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum ReviewStatus {
+  DRAFT
+  PENDING_MODERATION
+  APPROVED
+  REJECTED
+  HIDDEN
+  ARCHIVED
+}
+
+enum ReviewModerationAction {
+  SUBMITTED
+  APPROVED
+  REJECTED
+  HIDDEN
+  ESCALATED
+}
+
+enum FeaturePolicyState {
+  ENABLED
+  COMING_SOON
+  DISABLED
+  MAINTENANCE
+}
+
+enum FeaturePolicyScope {
+  GLOBAL
+  ORGANIZATION
+  BRANCH
+  USER
+}
+
 model User {
   id                       String                   @id @default(uuid()) @db.Uuid
   normalizedEmail          String?                  @unique @db.VarChar(320)
@@ -262,6 +318,15 @@ model User {
   approvalsReviewed        ApprovalRequest[]        @relation("ApprovalReviewer")
   trackingEvents           TrackingEvent[]          @relation("TrackingActor")
   assignmentsMade          PackageAssignment[]      @relation("AssignmentCreator")
+  siteRevisionsCreated     SiteContentRevision[]    @relation("SiteRevisionCreator")
+  siteRevisionsReviewed    SiteContentRevision[]    @relation("SiteRevisionReviewer")
+  siteCampaignsCreated     SiteCampaign[]           @relation("SiteCampaignCreator")
+  siteCampaignsApproved    SiteCampaign[]           @relation("SiteCampaignApprover")
+  mediaAssetsUploaded      MediaAsset[]             @relation("MediaUploader")
+  mediaAssetsApproved      MediaAsset[]             @relation("MediaApprover")
+  customerReviews          CustomerReview[]         @relation("ReviewCustomer")
+  reviewModerationEvents   ReviewModerationEvent[]  @relation("ReviewModerator")
+  featurePoliciesUpdated   FeaturePolicy[]          @relation("FeaturePolicyUpdater")
 
   @@index([accountStatus])
   @@index([lastLoginAt])
@@ -820,6 +885,7 @@ model Package {
   version              Int                 @default(1)
   confirmedAt          DateTime?           @db.Timestamptz(3)
   deliveredAt          DateTime?           @db.Timestamptz(3)
+  promisedDeliveryAt   DateTime?           @db.Timestamptz(3)
   cancelledAt          DateTime?           @db.Timestamptz(3)
   createdAt            DateTime            @default(now()) @db.Timestamptz(3)
   updatedAt            DateTime            @updatedAt @db.Timestamptz(3)
@@ -835,12 +901,153 @@ model Package {
   assignments          PackageAssignment[]
   trackingEvents       TrackingEvent[]
   sourceRequest        CustomerRequest?
+  review               CustomerReview?
 
   @@index([organizationId, status, createdAt])
   @@index([customerId, createdAt])
   @@index([originBranchId, status])
   @@index([destinationBranchId, status])
   @@index([deletedAt])
+}
+
+model SiteContentRevision {
+  id              String             @id @default(uuid()) @db.Uuid
+  version         Int                @unique
+  status          SiteRevisionStatus @default(DRAFT)
+  payload         Json
+  changeSummary   String?            @db.VarChar(500)
+  createdById     String             @db.Uuid
+  reviewedById    String?            @db.Uuid
+  submittedAt     DateTime?          @db.Timestamptz(3)
+  reviewedAt      DateTime?          @db.Timestamptz(3)
+  publishedAt     DateTime?          @db.Timestamptz(3)
+  scheduledFor    DateTime?          @db.Timestamptz(3)
+  rejectionReason String?            @db.VarChar(500)
+  createdAt       DateTime           @default(now()) @db.Timestamptz(3)
+  createdBy       User               @relation("SiteRevisionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  reviewedBy      User?              @relation("SiteRevisionReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt])
+  @@index([scheduledFor, status])
+}
+
+model SiteCampaign {
+  id           String       @id @default(uuid()) @db.Uuid
+  stableKey    String       @unique @db.VarChar(100)
+  cardType     SiteCardType @default(PROMOTION)
+  title        String       @db.VarChar(120)
+  label        String?      @db.VarChar(48)
+  body         String       @db.VarChar(240)
+  ctaLabel     String?      @db.VarChar(48)
+  actionKey    String?      @db.VarChar(64)
+  priority     Int          @default(0)
+  startsAt     DateTime     @db.Timestamptz(3)
+  endsAt       DateTime?    @db.Timestamptz(3)
+  approved     Boolean      @default(false)
+  published    Boolean      @default(false)
+  createdById  String       @db.Uuid
+  approvedById String?      @db.Uuid
+  createdAt    DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime     @updatedAt @db.Timestamptz(3)
+  createdBy    User         @relation("SiteCampaignCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  approvedBy   User?        @relation("SiteCampaignApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@index([published, approved, startsAt, endsAt, priority])
+}
+
+model FeaturePolicy {
+  id             String             @id @default(uuid()) @db.Uuid
+  featureKey     String             @db.VarChar(100)
+  scopeType      FeaturePolicyScope @default(GLOBAL)
+  scopeId        String             @default("GLOBAL") @db.VarChar(100)
+  state          FeaturePolicyState
+  configuration  Json?
+  effectiveFrom  DateTime           @default(now()) @db.Timestamptz(3)
+  effectiveUntil DateTime?          @db.Timestamptz(3)
+  version        Int                @default(1)
+  reason         String             @db.VarChar(500)
+  updatedById    String             @db.Uuid
+  createdAt      DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime           @updatedAt @db.Timestamptz(3)
+  updatedBy      User               @relation("FeaturePolicyUpdater", fields: [updatedById], references: [id], onDelete: Restrict)
+
+  @@unique([featureKey, scopeType, scopeId])
+  @@index([scopeType, scopeId, effectiveFrom, effectiveUntil])
+  @@index([featureKey, state])
+}
+
+model MediaAsset {
+  id               String              @id @default(uuid()) @db.Uuid
+  originalFilename String              @db.VarChar(255)
+  safeFilename     String              @unique @db.VarChar(255)
+  mimeType         String              @db.VarChar(64)
+  width            Int
+  height           Int
+  sizeBytes        Int
+  checksum         String              @db.Char(64)
+  altText          String?             @db.VarChar(240)
+  decorative       Boolean             @default(false)
+  approvalStatus   MediaApprovalStatus @default(PENDING)
+  data             Bytes
+  uploadedById     String              @db.Uuid
+  approvedById     String?             @db.Uuid
+  approvedAt       DateTime?           @db.Timestamptz(3)
+  createdAt        DateTime            @default(now()) @db.Timestamptz(3)
+  uploader         User                @relation("MediaUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+  approver         User?               @relation("MediaApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@index([approvalStatus, createdAt])
+}
+
+model CustomerReview {
+  id               String                  @id @default(uuid()) @db.Uuid
+  packageId        String                  @unique @db.Uuid
+  customerId       String                  @db.Uuid
+  rating           Int
+  title            String?                 @db.VarChar(120)
+  body             String                  @db.VarChar(1500)
+  tags             String[]
+  publicConsent    Boolean                 @default(false)
+  status           ReviewStatus            @default(PENDING_MODERATION)
+  moderationReason String?                 @db.VarChar(500)
+  createdAt        DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime                @updatedAt @db.Timestamptz(3)
+  moderatedAt      DateTime?               @db.Timestamptz(3)
+  package          Package                 @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  customer         User                    @relation("ReviewCustomer", fields: [customerId], references: [id], onDelete: Restrict)
+  moderationEvents ReviewModerationEvent[]
+
+  @@index([status, publicConsent, createdAt])
+  @@index([customerId, createdAt])
+}
+
+model ReviewModerationEvent {
+  id          String                 @id @default(uuid()) @db.Uuid
+  reviewId    String                 @db.Uuid
+  moderatorId String?                @db.Uuid
+  action      ReviewModerationAction
+  reason      String?                @db.VarChar(500)
+  snapshot    Json
+  requestId   String                 @db.VarChar(128)
+  createdAt   DateTime               @default(now()) @db.Timestamptz(3)
+  review      CustomerReview         @relation(fields: [reviewId], references: [id], onDelete: Restrict)
+  moderator   User?                  @relation("ReviewModerator", fields: [moderatorId], references: [id], onDelete: SetNull)
+
+  @@index([reviewId, createdAt])
+  @@index([moderatorId, createdAt])
+}
+
+model PublicMetricSnapshot {
+  id           String   @id @default(uuid()) @db.Uuid
+  key          String   @db.VarChar(100)
+  value        Decimal? @db.Decimal(12, 4)
+  sampleSize   Int
+  periodStart  DateTime @db.Timestamptz(3)
+  periodEnd    DateTime @db.Timestamptz(3)
+  methodology  String   @db.VarChar(500)
+  calculatedAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([key, calculatedAt])
 }
 
 model PackageAssignment {
