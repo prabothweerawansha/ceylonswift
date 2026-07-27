@@ -1,6 +1,6 @@
 # CeylonSwift Project Handoff
 
-Last updated: 2026-07-18 (Asia/Colombo)
+Last updated: 2026-07-27 (Asia/Colombo)
 
 ## 1. Purpose of this document
 
@@ -1568,3 +1568,21 @@ Pause/resume rules:
 5. The next planned bounded phase remains Business/Tuition onboarding. Normal
    customer parcel sending and public customer signup stay disabled until their
    complete backend-authoritative workflows are ready.
+
+## Mark 0.2.0.1 resume verification — 2026-07-27
+
+The checkpoint was reopened briefly and verified before further feature work:
+
+- checkpoint branch: `pre-exam-checkpoint-2026`;
+- checkpoint commit: `7aba732` (`chore: create pre-exam project checkpoint`);
+- checkpoint tag: `pre-exam-pause-2026`;
+- frontend build passed;
+- frontend tests: 88/88 passed;
+- backend build passed;
+- backend tests: 80/80 passed across 26 suites;
+- Prisma schema validation passed;
+- `git diff --check` passed before the checkpoint commit.
+
+The safest next development slice remains the first backend-authoritative
+Business/Tuition onboarding workflow. Keep the public normal-customer sending
+flow disabled while that slice is built and tested.
